@@ -1,0 +1,15 @@
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "@/router";
+import pinia from "@/stores/index";
+import $ from "jquery";
+
+//引入css
+import "./assets/css/animation.css";
+import "./assets/css/index.css";
+import "./assets/css/tocbot.css";
+import "./assets/css/color.css";
+import "./assets/css/markdown-highlight.css";
+import "./assets/css/font-awesome.min.css";
+
+createApp(App).use(pinia).use(router).use($).mount("#app");
