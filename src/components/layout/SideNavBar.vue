@@ -7,12 +7,11 @@
     :with-header="false"
     direction="ltr"
   >
-    <div>
+    <div class="nav-info">
       <el-avatar
-        style="margin-top: 20px"
         class="user-avatar"
         :size="120"
-        src="https://file.poetize.cn/webAvatar/Sara116383637867956"
+        src="https://haiyong.site/img/favicon.png"
       ></el-avatar>
       <div class="web-name">hush</div>
       <div class="web-info">
@@ -125,4 +124,11 @@ const smallMenuLogout = () => {
 };
 </script>
 
-<style></style>
+<style>
+.nav-info {
+  text-align: center;
+}
+.nav-info::before {
+  background-color: var(--miniMask);
+}
+</style>
