@@ -1,5 +1,4 @@
 <template>
-  <!-- el过渡动画 -->
   <!-- 导航栏 -->
   <div
     v-show="toolbar.visible"
@@ -23,14 +22,13 @@
 
     <!-- 手机导航按钮 -->
     <div
-      v-if="state.mobile"
+      v-if="common.mobile() || state.mobile"
       class="toolbar-mobile-menu"
-      @click="state.toolbarDrawer = !state.toolbarDrawer"
+      @click="sideNavBarShow = !sideNavBarShow"
       :class="{ enter: toolbar.enter }"
     >
-      <i class="el-icon-s-operation"></i>
+      <el-icon><Operation /></el-icon>
     </div>
-
     <!-- 导航列表 -->
     <div v-else>
       <ul class="scroll-menu">
@@ -120,16 +118,16 @@ import { reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
+import common from "@/utils/common";
 
 const router = useRouter();
 const route = useRoute();
 const storesConfig = useConfig();
-const { toolbar, webInfo, changeAaa } = storeToRefs(storesConfig);
+const { toolbar, webInfo, sideNavBarShow } = storeToRefs(storesConfig);
 
 const state = reactive({
   hoverEnter: false,
   mobile: false,
-  toolbarDrawer: false,
 });
 </script>
 
@@ -215,10 +213,6 @@ const state = reactive({
   color: unset;
 }
 
-.el-popper[x-placement^="bottom"] {
-  margin-top: -8px;
-}
-
 .el-dropdown-menu {
   padding: 5px 0;
 }
@@ -230,61 +224,5 @@ const state = reactive({
 .el-dropdown-menu__item:hover {
   background-color: var(--white);
   color: var(--themeBackground);
-}
-
-.toolButton {
-  position: fixed;
-  right: 3vh;
-  bottom: 3vh;
-  animation: slide-bottom 0.5s ease-in-out both;
-  z-index: 100;
-  cursor: pointer;
-  font-size: 25px;
-}
-
-.my-setting {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  cursor: pointer;
-  font-size: 20px;
-}
-
-.my-setting i {
-  padding: 5px;
-}
-
-.my-setting i:hover {
-  color: var(--themeBackground);
-}
-
-.cd-top {
-  background: var(--toTop) no-repeat center;
-  position: fixed;
-  right: 5vh;
-  top: -900px;
-  z-index: 99;
-  width: 70px;
-  height: 900px;
-  background-size: contain;
-  transition: all 0.5s ease-in-out;
-  cursor: pointer;
-}
-
-.backTop {
-  transition: all 0.3s ease-in;
-  position: relative;
-  top: 0;
-  left: -13px;
-}
-
-.backTop:hover {
-  top: -10px;
-}
-
-@media screen and (max-width: 400px) {
-  .toolButton {
-    right: 0.5vh;
-  }
 }
 </style>

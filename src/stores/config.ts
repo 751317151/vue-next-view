@@ -19,6 +19,7 @@ export const useConfig = defineStore("config", {
       avatar: "",
     },
     scrollTop: 0,
+    sideNavBarShow: false,
   }),
   actions: {
     changeToolbarStatus(toolbar) {
