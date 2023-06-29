@@ -12,7 +12,7 @@ declare module 'vue' {
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
-    NavBar: typeof import('./src/components/layout/NavBar.vue')['default']
+    IndexBack: typeof import('./src/components/layout/IndexBack.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SideNavBar: typeof import('./src/components/layout/SideNavBar.vue')['default']

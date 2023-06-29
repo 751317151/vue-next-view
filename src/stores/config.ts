@@ -20,6 +20,11 @@ export const useConfig = defineStore("config", {
     },
     scrollTop: 0,
     sideNavBarShow: false,
+    //可视窗口大小
+    clientSize: {
+      clientHeight: 0,
+      clientWidth: 1080,
+    },
   }),
   actions: {
     changeToolbarStatus(toolbar) {

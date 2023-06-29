@@ -13,4 +13,7 @@ import "./assets/css/color.css";
 import "./assets/css/markdown-highlight.css";
 import "./assets/css/font-awesome.min.css";
 
+//阿里icon
+import "@/assets/css/icon/iconfont.css";
+
 createApp(App).use(pinia).use(router).use($).use(registerIcons).mount("#app");

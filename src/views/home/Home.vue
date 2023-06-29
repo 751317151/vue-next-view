@@ -1,6 +1,6 @@
 <template>
-  <div>home</div>
-  <div>home</div>
+  <IndexBack></IndexBack>
+  <div>home123</div>
   <div>home</div>
   <div>home</div>
   <div>home</div>
