@@ -1,43 +1,64 @@
 <template>
-  <header ref="header">
-    <div class="view">
-      <img
-        ref="imgbg1"
-        src="https://cdn.naccl.top/blog/img/bg1.jpg"
-        style="display: none"
-      />
-      <div
-        class="bg1"
-        style="background-image: url('https://cdn.naccl.top/blog/img/bg1.jpg')"
-      ></div>
-      <div
-        class="bg2"
-        style="background-image: url('https://cdn.naccl.top/blog/img/bg2.jpg')"
-      ></div>
-      <div
-        class="bg3"
-        style="background-image: url('https://cdn.naccl.top/blog/img/bg3.jpg')"
-        v-show="state.loaded"
-      ></div>
+  <header ref="header" style="height: 100vh">
+    <el-image
+      v-if="isMobile"
+      style="animation: header-effect 2s"
+      class="background-image"
+      v-once
+      lazy
+      src="https://cdn.naccl.top/blog/img/bg1.jpg"
+      fit="cover"
+    >
+      <div slot="error" class="image-slot background-image-error"></div>
+    </el-image>
+    <div v-else class="view">
+      <div>
+        <img
+          ref="imgbg1"
+          src="https://cdn.naccl.top/blog/img/bg1.jpg"
+          style="display: none"
+        />
+        <div
+          class="bg1"
+          style="
+            background-image: url('https://cdn.naccl.top/blog/img/bg1.jpg');
+          "
+        ></div>
+        <div
+          class="bg2"
+          style="
+            background-image: url('https://cdn.naccl.top/blog/img/bg2.jpg');
+          "
+        ></div>
+        <div
+          class="bg3"
+          style="
+            background-image: url('https://cdn.naccl.top/blog/img/bg3.jpg');
+          "
+          v-show="state.loaded"
+        ></div>
+      </div>
     </div>
-    <div class="text-malfunction" data-word="Naccl's Blog">
-      <div class="line"></div>
+    <div class="text-malfunction" data-word="Elden Ring">
+      <!-- <div class="line"></div> -->
     </div>
     <div class="wrapper">
       <i class="ali-iconfont icon-down" @click="scrollToMain"></i>
     </div>
-    <div
-      class="wave1"
-      style="
-        background: url('https://cdn.naccl.top/blog/img/wave1.png') repeat-x;
-      "
-    ></div>
-    <div
-      class="wave2"
-      style="
-        background: url('https://cdn.naccl.top/blog/img/wave2.png') repeat-x;
-      "
-    ></div>
+    <div class="wave">
+      <div
+        class="wave1"
+        style="
+          background: url('https://cdn.naccl.top/blog/img/wave1.png') repeat-x;
+        "
+      ></div>
+      <div
+        class="wave2"
+        style="
+          background: url('https://cdn.naccl.top/blog/img/wave2.png') repeat-x;
+        "
+      ></div>
+    </div>
   </header>
 </template>
 
@@ -47,7 +68,7 @@ import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
 
 const storesConfig = useConfig();
-const { clientSize } = storeToRefs(storesConfig);
+const { clientSize, isMobile } = storeToRefs(storesConfig);
 
 const state = reactive({
   loaded: false,
@@ -55,13 +76,10 @@ const state = reactive({
 const header = ref(null);
 const imgbg1 = ref(null);
 
-const setHeaderHeight = () => {
-  header.value.style.height = clientSize.clientHeight + "px";
-};
 //平滑滚动至正文部分
 const scrollToMain = () => {
   window.scrollTo({
-    top: clientSize.clientHeight,
+    top: document.documentElement.clientHeight,
     behavior: "smooth",
   });
 };
@@ -71,30 +89,26 @@ onMounted(() => {
    * HTML中使用img标签的原因：我个人想用div作为图片的载体，而只有img标签有图片加载完毕的onload回调，所以用一个display: none的img人柱力来加载图片
    * 当img中的src加载完毕后，会把图片缓存到浏览器，后续在div中用background url的形式将直接从浏览器中取出图片，不会下载两次图片
    */
-  imgbg1.value.onload = () => {
-    state.loaded = true;
-  };
-  setHeaderHeight();
-  let startingPoint = 0;
-  header.value.addEventListener("mouseenter", (e) => {
-    startingPoint = e.clientX;
-  });
-  header.value.addEventListener("mouseout", () => {
-    header.value.classList.remove("moving");
-    header.value.style.setProperty("--percentage", 0.5);
-  });
-  header.value.addEventListener("mousemove", (e) => {
-    let percentage = (e.clientX - startingPoint) / window.outerWidth + 0.5;
-    header.value.style.setProperty("--percentage", percentage);
-    header.value.classList.add("moving");
-  });
-});
-watch(
-  () => clientSize.clientHeight,
-  (scrollTop, oldScrollTop) => {
-    setHeaderHeight();
+  if (!isMobile.value) {
+    imgbg1.value.onload = () => {
+      state.loaded = true;
+    };
+
+    let startingPoint = 0;
+    header.value.addEventListener("mouseenter", (e) => {
+      startingPoint = e.clientX;
+    });
+    header.value.addEventListener("mouseout", () => {
+      header.value.classList.remove("moving");
+      header.value.style.setProperty("--percentage", 0.5);
+    });
+    header.value.addEventListener("mousemove", (e) => {
+      let percentage = (e.clientX - startingPoint) / window.outerWidth + 0.5;
+      header.value.style.setProperty("--percentage", percentage);
+      header.value.classList.add("moving");
+    });
   }
-);
+});
 </script>
 
 <style scoped>
@@ -174,7 +188,7 @@ header.moving .bg2 {
   content: attr(data-word);
   position: absolute;
   top: 0;
-  height: 36px;
+  line-height: 50px;
   overflow: hidden;
   filter: contrast(200%);
 }
@@ -273,7 +287,7 @@ header.moving .bg2 {
   right: 0;
   margin: auto;
   font-size: 26px;
-  z-index: 100;
+  z-index: 90;
 }
 
 .wrapper i {
@@ -308,12 +322,12 @@ header.moving .bg2 {
 
 .wave1 {
   height: 75px;
-  width: 200%;
+  width: 100%;
 }
 
 .wave2 {
   height: 90px;
-  width: 400%;
-  left: -100px;
+  width: 110%;
+  left: -10%;
 }
 </style>

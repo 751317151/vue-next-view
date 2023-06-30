@@ -11,14 +11,10 @@
     </div>
 
     <!-- 回到顶部按钮 -->
-    <div href="#" class="cd-top" v-if="!common.mobile()" @click="toTop()"></div>
+    <div href="#" class="cd-top" v-if="!isMobile" @click="toTop()"></div>
 
     <div class="toolButton">
-      <div
-        class="backTop"
-        v-if="common.mobile() && state.toolButton"
-        @click="toTop()"
-      >
+      <div class="backTop" v-if="isMobile && state.toolButton" @click="toTop()">
         <!-- 回到顶部按钮 -->
         <svg viewBox="0 0 1024 1024" width="50" height="50">
           <path
@@ -85,15 +81,14 @@ import { useConfig } from "@/stores/config";
 import { storeToRefs } from "pinia";
 import { onMounted, onBeforeUnmount, watch, reactive } from "vue";
 import mousedown from "@/utils/mousedown";
-import common from "@/utils/common";
 
 const storesConfig = useConfig();
+const { isMobile } = storeToRefs(storesConfig);
 
 const state = reactive({
   mouseAnimation: false,
   isDark: false,
   toolButton: false,
-  mobile: false,
 });
 
 // methods
@@ -145,6 +140,22 @@ const changeMouseAnimation = () => {
   }
 };
 
+const createdMethod = () => {
+  let toolbarStatus = {
+    enter: false,
+    visible: true,
+  };
+  storesConfig.changeToolbarStatus(toolbarStatus);
+
+  isMobile.value = document.body.clientWidth < 1100;
+
+  window.addEventListener("resize", () => {
+    let docWidth = document.body.clientWidth;
+    console.log(docWidth);
+    isMobile.value = docWidth < 1100;
+  });
+};
+createdMethod();
 onMounted(() => {
   if (state.mouseAnimation) {
     mousedown();
@@ -174,13 +185,13 @@ watch(
     const top = scrollTop - oldScrollTop < 0;
     let isShow = scrollTop - window.innerHeight > 30;
     state.toolButton = isShow;
-    if (isShow && !state.mobile) {
+    if (isShow && !isMobile.value) {
       if (window.innerHeight > 950) {
         $(".cd-top").css("top", "0");
       } else {
         $(".cd-top").css("top", window.innerHeight - 950 + "px");
       }
-    } else if (!isShow && !state.mobile) {
+    } else if (!isShow && !isMobile.value) {
       $(".cd-top").css("top", "-900px");
     }
 

@@ -20,11 +20,7 @@ export const useConfig = defineStore("config", {
     },
     scrollTop: 0,
     sideNavBarShow: false,
-    //可视窗口大小
-    clientSize: {
-      clientHeight: 0,
-      clientWidth: 1080,
-    },
+    isMobile: false,
   }),
   actions: {
     changeToolbarStatus(toolbar) {
@@ -35,7 +31,6 @@ export const useConfig = defineStore("config", {
       console.log(this.toolbar.visible);
     },
     onScrollPage() {
-      console.log("aa");
       this.scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop;
     },

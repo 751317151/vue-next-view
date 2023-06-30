@@ -22,7 +22,7 @@
 
     <!-- 手机导航按钮 -->
     <div
-      v-if="common.mobile() || state.mobile"
+      v-if="isMobile"
       class="toolbar-mobile-menu"
       @click="sideNavBarShow = !sideNavBarShow"
       :class="{ enter: toolbar.enter }"
@@ -123,11 +123,11 @@ import common from "@/utils/common";
 const router = useRouter();
 const route = useRoute();
 const storesConfig = useConfig();
-const { toolbar, webInfo, sideNavBarShow } = storeToRefs(storesConfig);
+const { toolbar, webInfo, sideNavBarShow, isMobile } =
+  storeToRefs(storesConfig);
 
 const state = reactive({
   hoverEnter: false,
-  mobile: false,
 });
 </script>
 

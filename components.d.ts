@@ -10,6 +10,7 @@ declare module 'vue' {
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElDrawer: typeof import('element-plus/es')['ElDrawer']
     ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElImage: typeof import('element-plus/es')['ElImage']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IndexBack: typeof import('./src/components/layout/IndexBack.vue')['default']
