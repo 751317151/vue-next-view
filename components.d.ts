@@ -7,16 +7,30 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    Card: typeof import('./src/components/common/card.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElDrawer: typeof import('element-plus/es')['ElDrawer']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElImage: typeof import('element-plus/es')['ElImage']
     ElPopover: typeof import('element-plus/es')['ElPopover']
+    Emoji: typeof import('./src/components/common/emoji.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IndexBack: typeof import('./src/components/layout/IndexBack.vue')['default']
+    Loader: typeof import('./src/components/common/loader.vue')['default']
+    MyFooter: typeof import('./src/components/common/myFooter.vue')['default']
+    Photo: typeof import('./src/components/common/photo.vue')['default']
+    Printer: typeof import('./src/components/common/printer.vue')['default']
+    ProButton: typeof import('./src/components/common/proButton.vue')['default']
+    Process: typeof import('./src/components/common/process.vue')['default']
+    ProPage: typeof import('./src/components/common/proPage.vue')['default']
+    ProTag: typeof import('./src/components/common/proTag.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SideNavBar: typeof import('./src/components/layout/SideNavBar.vue')['default']
     TopNavBar: typeof import('./src/components/layout/TopNavBar.vue')['default']
+    TreeHole: typeof import('./src/components/common/treeHole.vue')['default']
+    TwoPoem: typeof import('./src/components/common/twoPoem.vue')['default']
+    UploadPicture: typeof import('./src/components/common/uploadPicture.vue')['default']
+    Zombie: typeof import('./src/components/common/zombie.vue')['default']
   }
 }

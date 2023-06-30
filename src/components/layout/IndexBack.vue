@@ -1,17 +1,15 @@
 <template>
   <header ref="header" style="height: 100vh">
     <el-image
-      v-if="isMobile"
+      v-show="isMobile"
       style="animation: header-effect 2s"
       class="background-image"
-      v-once
-      lazy
       src="https://cdn.naccl.top/blog/img/bg1.jpg"
       fit="cover"
     >
       <div slot="error" class="image-slot background-image-error"></div>
     </el-image>
-    <div v-else class="view">
+    <div v-show="!isMobile" class="view">
       <div>
         <img
           ref="imgbg1"
@@ -39,8 +37,21 @@
         ></div>
       </div>
     </div>
-    <div class="text-malfunction" data-word="Elden Ring">
-      <!-- <div class="line"></div> -->
+    <!-- <div class="text-malfunction" data-word="Elden Ring">
+      <div class="line"></div>
+    </div> -->
+    <!-- 首页文字 -->
+    <div class="signature-wall myCenter my-animation-hideToShow">
+      <h1 class="playful">
+        <span>你看对面的青山多漂亮</span>
+      </h1>
+      <div class="printer" @click="getGuShi()">
+        <printer :printerInfo="state.printerInfo">
+          <template #paper="scope">
+            <h3>{{ scope.content }}<span class="cursor">|</span></h3>
+          </template>
+        </printer>
+      </div>
     </div>
     <div class="wrapper">
       <i class="ali-iconfont icon-down" @click="scrollToMain"></i>
@@ -66,12 +77,21 @@
 import { onMounted, watch, reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
+import printer from "@/components/common/printer.vue";
+import constant from "@/utils/constant";
 
 const storesConfig = useConfig();
 const { clientSize, isMobile } = storeToRefs(storesConfig);
 
 const state = reactive({
   loaded: false,
+  printerInfo: "你看对面的青山多漂亮",
+  guShi: {
+    content: "",
+    origin: "",
+    author: "",
+    category: "",
+  },
 });
 const header = ref(null);
 const imgbg1 = ref(null);
@@ -83,31 +103,44 @@ const scrollToMain = () => {
     behavior: "smooth",
   });
 };
+
+const getGuShi = () => {
+  let xhr = new XMLHttpRequest();
+  xhr.open("get", constant.jinrishici);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      state.guShi = JSON.parse(xhr.responseText);
+      state.printerInfo = state.guShi.content;
+    }
+  };
+  xhr.send();
+};
+
 onMounted(() => {
   /**
    * 因为bg3.jpg比较小，通常会比bg1.jpg先加载，显示出来会有一瞬间bg1显示一半，bg3显示一半，为了解决这个问题，增加这个判断，让bg1加载完毕后再显示bg3
    * HTML中使用img标签的原因：我个人想用div作为图片的载体，而只有img标签有图片加载完毕的onload回调，所以用一个display: none的img人柱力来加载图片
    * 当img中的src加载完毕后，会把图片缓存到浏览器，后续在div中用background url的形式将直接从浏览器中取出图片，不会下载两次图片
    */
-  if (!isMobile.value) {
-    imgbg1.value.onload = () => {
-      state.loaded = true;
-    };
 
-    let startingPoint = 0;
-    header.value.addEventListener("mouseenter", (e) => {
-      startingPoint = e.clientX;
-    });
-    header.value.addEventListener("mouseout", () => {
-      header.value.classList.remove("moving");
-      header.value.style.setProperty("--percentage", 0.5);
-    });
-    header.value.addEventListener("mousemove", (e) => {
-      let percentage = (e.clientX - startingPoint) / window.outerWidth + 0.5;
-      header.value.style.setProperty("--percentage", percentage);
-      header.value.classList.add("moving");
-    });
-  }
+  imgbg1.value.onload = () => {
+    state.loaded = true;
+  };
+
+  let startingPoint = 0;
+  header.value.addEventListener("mouseenter", (e) => {
+    startingPoint = e.clientX;
+  });
+  header.value.addEventListener("mouseout", () => {
+    header.value.classList.remove("moving");
+    header.value.style.setProperty("--percentage", 0.5);
+  });
+  header.value.addEventListener("mousemove", (e) => {
+    let percentage = (e.clientX - startingPoint) / window.outerWidth + 0.5;
+    header.value.style.setProperty("--percentage", percentage);
+    header.value.classList.add("moving");
+  });
+  getGuShi();
 });
 </script>
 
@@ -208,6 +241,30 @@ header.moving .bg2 {
   z-index: 40;
   mix-blend-mode: lighten;
   animation: malfunctionAni 1.1s infinite 0.2s;
+}
+
+.signature-wall {
+  position: absolute;
+  flex-direction: column;
+  left: 0;
+  right: 0;
+  margin: auto;
+  font-size: 26px;
+  top: 30%;
+}
+
+.playful {
+  color: var(--blue);
+  font-size: 40px;
+}
+
+.printer {
+  cursor: pointer;
+  color: var(--blue);
+  background: var(--translucent);
+  border-radius: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 @keyframes lineMove {

@@ -151,7 +151,6 @@ const createdMethod = () => {
 
   window.addEventListener("resize", () => {
     let docWidth = document.body.clientWidth;
-    console.log(docWidth);
     isMobile.value = docWidth < 1100;
   });
 };
