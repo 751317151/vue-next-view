@@ -13,21 +13,23 @@
         :size="120"
         src="https://haiyong.site/img/favicon.png"
       ></el-avatar>
-      <div class="web-name">hush</div>
+      <!-- <div class="web-name">hush</div> -->
       <div class="web-info">
         <div class="blog-info-box">
-          <span>文章</span>
-          <span class="blog-info-num">22</span>
+          <div>文章</div>
+          <div class="blog-info-num">22</div>
         </div>
         <div class="blog-info-box">
-          <span>分类</span>
-          <span class="blog-info-num">22</span>
+          <div>分类</div>
+          <div class="blog-info-num">22</div>
+        </div>
+        <div class="blog-info-box">
+          <div>标签</div>
+          <div class="blog-info-num">22</div>
         </div>
       </div>
-      <a class="collection-btn" @click="showTip()">
-        <i class="el-icon-star-off" style="margin-right: 2px"></i>朋友圈
-      </a>
     </div>
+    <hr />
     <div>
       <ul class="small-menu">
         <li @click="smallMenu({ path: '/' })">
@@ -124,11 +126,39 @@ const smallMenuLogout = () => {
 };
 </script>
 
-<style>
+<style scoped>
 .nav-info {
   text-align: center;
+  color: var(--lightYellow);
 }
-.nav-info::before {
-  background-color: var(--miniMask);
+.web-info {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.web-info > div {
+  display: table-cell;
+}
+hr {
+  border: 2px dashed var(--high-trans-color) !important;
+}
+hr:before {
+  color: var(--theme-color) !important;
+}
+hr::before {
+  position: absolute;
+  top: -10px;
+  left: 5%;
+  z-index: 1;
+  color: var(--hr-before-color);
+  content: "\f2dc";
+  font-size: 20px;
+  line-height: 1;
+  -webkit-transition: all 1s ease-in-out;
+  -moz-transition: all 1s ease-in-out;
+  -o-transition: all 1s ease-in-out;
+  -ms-transition: all 1s ease-in-out;
+  transition: all 1s ease-in-out;
+  font-family: "Font Awesome 6 Free";
 }
 </style>

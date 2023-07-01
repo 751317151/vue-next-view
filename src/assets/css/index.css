@@ -6,7 +6,7 @@
 body {
   margin: 0;
   overflow-x: hidden;
-  color: var(--fontColor);
+  color: var(--fontColor); /*主题配色切换，使用elemtnt-plus需要注释掉 */
   font-family: var(--globalFont), serif;
   word-break: break-word;
 }
@@ -69,6 +69,7 @@ body {
 }
 
 .user-avatar {
+  margin-bottom: 20px;
   cursor: pointer;
   transition: all 0.3s;
   user-select: none;
@@ -241,6 +242,9 @@ body {
   height: 100%;
   background-color: var(--maxMask);
   content: "";
+}
+.toolbarDrawer .el-drawer__body {
+  z-index: 1;
 }
 
 .small-menu {

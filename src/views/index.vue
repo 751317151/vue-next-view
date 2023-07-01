@@ -71,12 +71,15 @@
     </div>
 
     <SideNavBar></SideNavBar>
+
+    <Footer></Footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import TopNavBar from "@/components/layout/TopNavBar.vue";
 import SideNavBar from "@/components/layout/SideNavBar.vue";
+import Footer from "@/components/layout/Footer.vue";
 import { useConfig } from "@/stores/config";
 import { storeToRefs } from "pinia";
 import { onMounted, onBeforeUnmount, watch, reactive } from "vue";
@@ -115,6 +118,16 @@ const changeColor = () => {
     root.style.setProperty("--commentContent", "#F7F9FE");
     root.style.setProperty("--favoriteBg", "#f7f9fe");
   }
+  // element-plus 控制主题切换
+  // if (!state.isDark) {
+  //   document.documentElement.setAttribute("theme", "light");
+  //   document.querySelector("html")?.classList.remove("dark");
+  //   document.querySelector("html")?.classList.add("light");
+  // } else {
+  //   document.documentElement.setAttribute("theme", "dark");
+  //   document.querySelector("html")?.classList.remove("light");
+  //   document.querySelector("html")?.classList.add("dark");
+  // }
 };
 
 const toTop = () => {

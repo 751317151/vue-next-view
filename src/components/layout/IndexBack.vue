@@ -1,13 +1,12 @@
 <template>
-  <header ref="header" style="height: 100vh">
+  <header ref="header" style="height: 100vh; position: relative">
     <el-image
       v-show="isMobile"
       style="animation: header-effect 2s"
       class="background-image"
-      src="https://cdn.naccl.top/blog/img/bg1.jpg"
+      src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
       fit="cover"
     >
-      <div slot="error" class="image-slot background-image-error"></div>
     </el-image>
     <div v-show="!isMobile" class="view">
       <div>
@@ -43,7 +42,7 @@
     <!-- 首页文字 -->
     <div class="signature-wall myCenter my-animation-hideToShow">
       <h1 class="playful">
-        <span>你看对面的青山多漂亮</span>
+        <span>Elden Ring</span>
       </h1>
       <div class="printer" @click="getGuShi()">
         <printer :printerInfo="state.printerInfo">
@@ -54,21 +53,14 @@
       </div>
     </div>
     <div class="wrapper">
-      <i class="ali-iconfont icon-down" @click="scrollToMain"></i>
+      <i
+        class="ali-iconfont icon-down"
+        @click="scrollToNavigation('.page-container-wrap')"
+      ></i>
     </div>
     <div class="wave">
-      <div
-        class="wave1"
-        style="
-          background: url('https://cdn.naccl.top/blog/img/wave1.png') repeat-x;
-        "
-      ></div>
-      <div
-        class="wave2"
-        style="
-          background: url('https://cdn.naccl.top/blog/img/wave2.png') repeat-x;
-        "
-      ></div>
+      <div class="wave1"></div>
+      <div class="wave2"></div>
     </div>
   </header>
 </template>
@@ -103,6 +95,13 @@ const scrollToMain = () => {
     behavior: "smooth",
   });
 };
+const scrollToNavigation = (selector) => {
+  let pageId = document.querySelector(selector);
+  window.scrollTo({
+    top: pageId.offsetTop,
+    behavior: "smooth",
+  });
+};
 
 const getGuShi = () => {
   let xhr = new XMLHttpRequest();
@@ -122,7 +121,6 @@ onMounted(() => {
    * HTML中使用img标签的原因：我个人想用div作为图片的载体，而只有img标签有图片加载完毕的onload回调，所以用一个display: none的img人柱力来加载图片
    * 当img中的src加载完毕后，会把图片缓存到浏览器，后续在div中用background url的形式将直接从浏览器中取出图片，不会下载两次图片
    */
-
   imgbg1.value.onload = () => {
     state.loaded = true;
   };
@@ -171,27 +169,33 @@ header {
 
 .view .bg1 {
   z-index: 10;
-  opacity: calc(1 - (var(--percentage) - 0.5) / 0.5);
+  width: 100%;
+  opacity: calc(1 - (var(--percentage) - 0.5) / 0.3);
 }
 
 .view .bg2 {
   z-index: 20;
+  width: 110%;
   opacity: calc(1 - (var(--percentage) - 0.25) / 0.25);
 }
 
 .view .bg3 {
+  width: 110%;
   left: -10%;
+  opacity: calc(0.2+ (var(--percentage) - 0.3) / 0.3);
 }
 
 header .view,
 header .bg1,
-header .bg2 {
+header .bg2,
+header .bg3 {
   transition: 0.2s all ease-in;
 }
 
 header.moving .view,
 header.moving .bg1,
-header.moving .bg2 {
+header.moving .bg2,
+header.moving .bg3 {
   transition: none;
 }
 
@@ -251,6 +255,7 @@ header.moving .bg2 {
   margin: auto;
   font-size: 26px;
   top: 30%;
+  z-index: 150;
 }
 
 .playful {
@@ -339,7 +344,7 @@ header.moving .bg2 {
 .wrapper {
   position: absolute;
   width: 100px;
-  bottom: 150px;
+  bottom: 200px;
   left: 0;
   right: 0;
   margin: auto;
@@ -367,7 +372,12 @@ header.moving .bg2 {
     top: 65px;
   }
 }
-
+.wave {
+  position: absolute;
+  bottom: 0;
+  height: 90px;
+  width: 100%;
+}
 .wave1,
 .wave2 {
   position: absolute;
@@ -378,13 +388,15 @@ header.moving .bg2 {
 }
 
 .wave1 {
-  height: 75px;
+  height: 90px;
   width: 100%;
+  background: url("https://cdn.naccl.top/blog/img/wave1.png") repeat-x;
 }
 
 .wave2 {
   height: 90px;
   width: 110%;
   left: -10%;
+  background: url("https://cdn.naccl.top/blog/img/wave2.png") repeat-x;
 }
 </style>
