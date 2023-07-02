@@ -1,4 +1,5 @@
 <template>
+  <div class="web-bg"></div>
   <div>
     <!-- el过渡动画 -->
     <transition name="el-fade-in-linear">
@@ -218,6 +219,17 @@ watch(
 </script>
 
 <style lang="scss" scoped>
+.web-bg {
+  background: url("https://tuchuang.xkyfzs.top/background/beijingtu2.jpg");
+  position: fixed;
+  z-index: -999;
+  width: 100%;
+  height: 100%;
+  background-attachment: local;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
 .my-setting {
   display: flex;
   flex-wrap: wrap;

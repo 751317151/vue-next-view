@@ -1,5 +1,5 @@
 <template>
-  <header ref="header" style="height: 100vh; position: relative">
+  <header ref="header">
     <el-image
       v-show="isMobile"
       style="animation: header-effect 2s"
@@ -142,10 +142,13 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 header {
   --percentage: 0.5;
   user-select: none;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
 .view {
@@ -182,7 +185,7 @@ header {
 .view .bg3 {
   width: 110%;
   left: -10%;
-  opacity: calc(0.2+ (var(--percentage) - 0.3) / 0.3);
+  opacity: calc(0.2 + (var(--percentage) - 0.3) / 0.3);
 }
 
 header .view,
@@ -388,15 +391,14 @@ header.moving .bg3 {
 }
 
 .wave1 {
-  height: 90px;
-  width: 100%;
+  height: 80px;
+  width: 200%;
   background: url("https://cdn.naccl.top/blog/img/wave1.png") repeat-x;
 }
 
 .wave2 {
   height: 90px;
-  width: 110%;
-  left: -10%;
+  width: 400%;
   background: url("https://cdn.naccl.top/blog/img/wave2.png") repeat-x;
 }
 </style>

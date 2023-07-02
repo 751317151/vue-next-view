@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import path from "path";
+import path, { resolve } from "path";
 import inject from "@rollup/plugin-inject";
 
 // 自动导入vue中hook reactive ref等
@@ -11,6 +11,9 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
+
+// 自定义svg
+import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 
 export default defineConfig({
   resolve: {
@@ -53,6 +56,10 @@ export default defineConfig({
       $: "jquery", // 这里会自动载入 node_modules 中的 jquery   jquery全局变量
       jQuery: "jquery",
       "windows.jQuery": "jquery",
+    }),
+    createSvgIconsPlugin({
+      iconDirs: [resolve(process.cwd(), "src/assets/svg")],
+      symbolId: "icon-[dir]-[name]",
     }),
   ],
   server: {
