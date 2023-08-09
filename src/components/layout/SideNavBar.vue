@@ -45,8 +45,8 @@
         <!--          </li>-->
 
         <!-- 爱情买卖 -->
-        <li @click="smallMenu({ path: '/love' })">
-          <div>💋 <span>爱情买卖</span></div>
+        <li @click="smallMenu({ path: '/category' })">
+          <div>💋 <span>分类</span></div>
         </li>
 
         <!-- 百宝箱 -->

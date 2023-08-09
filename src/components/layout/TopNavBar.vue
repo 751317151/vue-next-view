@@ -45,8 +45,8 @@
         <!--            </li>-->
 
         <!-- 爱情买卖 -->
-        <li @click="router.push({ path: '/love' })">
-          <div class="my-menu">💋 <span>爱情买卖</span></div>
+        <li @click="router.push({ path: '/category' })">
+          <div class="my-menu">💋 <span>分类</span></div>
         </li>
 
         <!-- 百宝箱 -->

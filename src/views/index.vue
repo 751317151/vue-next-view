@@ -1,5 +1,4 @@
 <template>
-  <div class="web-bg"></div>
   <div>
     <!-- el过渡动画 -->
     <transition name="el-fade-in-linear">
@@ -153,6 +152,107 @@ const changeMouseAnimation = () => {
     });
   }
 };
+const getSortInfo = () => {
+  let sortInfo = [
+    {
+      id: 2,
+      sortName: "生活倒影",
+      sortDescription: "记录美好生活",
+      sortType: 0,
+      priority: 1,
+      countOfSort: 3,
+      labels: [
+        {
+          id: 6,
+          sortId: 2,
+          labelName: "被偷走的那几年",
+          labelDescription: "被偷走的那几年",
+          countOfLabel: 3,
+        },
+      ],
+    },
+    {
+      id: 3,
+      sortName: "学习人生",
+      sortDescription: "学到老，活到老",
+      sortType: 1,
+      priority: 4,
+      countOfSort: 5,
+      labels: [
+        {
+          id: 5,
+          sortId: 3,
+          labelName: "工作经验",
+          labelDescription: "工作经验",
+          countOfLabel: 0,
+        },
+        {
+          id: 8,
+          sortId: 3,
+          labelName: "Java基础",
+          labelDescription: "Java基础",
+          countOfLabel: 3,
+        },
+        {
+          id: 15,
+          sortId: 3,
+          labelName: "大数据",
+          labelDescription: "大数据",
+          countOfLabel: 2,
+        },
+      ],
+    },
+    {
+      id: 4,
+      sortName: "寻国记",
+      sortDescription: "你看这世界多奇妙",
+      sortType: 1,
+      priority: 3,
+      countOfSort: 3,
+      labels: [
+        {
+          id: 11,
+          sortId: 4,
+          labelName: "俄罗斯与乌克兰",
+          labelDescription: "俄罗斯与乌克兰",
+          countOfLabel: 3,
+        },
+      ],
+    },
+    {
+      id: 5,
+      sortName: "视听盛宴",
+      sortDescription: "听音乐，看书，看电影",
+      sortType: 1,
+      priority: 2,
+      countOfSort: 3,
+      labels: [
+        {
+          id: 12,
+          sortId: 5,
+          labelName: "电影最TOP",
+          labelDescription: "电影最TOP",
+          countOfLabel: 0,
+        },
+        {
+          id: 13,
+          sortId: 5,
+          labelName: "动漫最TOP",
+          labelDescription: "动漫最TOP",
+          countOfLabel: 2,
+        },
+        {
+          id: 14,
+          sortId: 5,
+          labelName: "万卷书",
+          labelDescription: "万卷书",
+          countOfLabel: 1,
+        },
+      ],
+    },
+  ];
+  storesConfig.loadSortInfo(sortInfo);
+};
 
 const createdMethod = () => {
   let toolbarStatus = {
@@ -167,6 +267,7 @@ const createdMethod = () => {
     let docWidth = document.body.clientWidth;
     isMobile.value = docWidth < 1100;
   });
+  getSortInfo();
 };
 createdMethod();
 onMounted(() => {
@@ -219,17 +320,6 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.web-bg {
-  background: url("https://tuchuang.xkyfzs.top/background/beijingtu2.jpg");
-  position: fixed;
-  z-index: -999;
-  width: 100%;
-  height: 100%;
-  background-attachment: local;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
 .my-setting {
   display: flex;
   flex-wrap: wrap;

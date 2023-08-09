@@ -12,6 +12,12 @@ const routes = [
         component: () => import("@/views/home/Home.vue"),
         meta: { title: "首页" },
       },
+      {
+        path: "/category",
+        name: "category",
+        component: () => import("@/views/category/Category.vue"),
+        meta: { title: "分类" },
+      },
     ],
   },
 ];

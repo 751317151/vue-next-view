@@ -34,5 +34,10 @@ export const useConfig = defineStore("config", {
       this.scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop;
     },
+    loadSortInfo(sortInfo) {
+      if (sortInfo !== null && sortInfo.length !== 0) {
+        this.sortInfo = sortInfo.sort((s1, s2) => s1.priority - s2.priority);
+      }
+    },
   },
 });

@@ -1,4 +1,5 @@
 <template>
+  <div class="web-bg"></div>
   <IndexBack></IndexBack>
   <!-- 首页内容 -->
   <div class="page-container-wrap">
@@ -70,6 +71,17 @@ const state = reactive({
 </script>
 
 <style lang="scss" scoped>
+.web-bg {
+  background: url("https://tuchuang.xkyfzs.top/background/beijingtu2.jpg");
+  position: fixed;
+  z-index: -999;
+  width: 100%;
+  height: 100%;
+  background-attachment: local;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
 .page-container-wrap {
   // background: var(--background); /*主题配色切换，使用elemtnt-plus需要注释掉*/
   position: relative;
