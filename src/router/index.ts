@@ -18,6 +18,12 @@ const routes = [
         component: () => import("@/views/category/Category.vue"),
         meta: { title: "分类" },
       },
+      {
+        path: "/favorite",
+        name: "favorite",
+        component: () => import("@/views/favorite/Favorite.vue"),
+        meta: { title: "分类" },
+      },
     ],
   },
 ];

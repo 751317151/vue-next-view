@@ -23,12 +23,12 @@
           }"
           @click="listArticle(label)"
         >
-          <ProTags
+          <ProTag
             :info="label.labelName + ' ' + label.countOfLabel"
             :color="constant.before_color_list[Math.floor(Math.random() * 6)]"
             style="margin: 12px"
           >
-          </ProTags>
+          </ProTag>
         </div>
       </div>
 
@@ -99,8 +99,8 @@ const state = reactive({
       likeCount: 99,
     },
   ],
-  sortId: route.query.sortId,
-  labelId: route.query.labelId,
+  sortId: route.query.sortId || 3,
+  labelId: route.query.labelId || 8,
   sort: null,
   pagination: {
     current: 1,

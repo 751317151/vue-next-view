@@ -9,7 +9,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     ArticleList: typeof import('./src/components/ArticleList.vue')['default']
     Card: typeof import('./src/components/common/card.vue')['default']
-    copy: typeof import('./src/components/layout/IndexBack copy.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDrawer: typeof import('element-plus/es')['ElDrawer']
@@ -34,7 +33,6 @@ declare module 'vue' {
     SideNavBar: typeof import('./src/components/layout/SideNavBar.vue')['default']
     SvgIcon: typeof import('./src/components/common/SvgIcon.vue')['default']
     TopNavBar: typeof import('./src/components/layout/TopNavBar.vue')['default']
-    TopPictureBack: typeof import('./src/components/layout/TopPictureBack.vue')['default']
     TreeHole: typeof import('./src/components/common/treeHole.vue')['default']
     TwoPoem: typeof import('./src/components/common/TwoPoem.vue')['default']
     UploadPicture: typeof import('./src/components/common/uploadPicture.vue')['default']
