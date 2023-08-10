@@ -16,7 +16,7 @@
 .myFooter-wrap {
   user-select: none;
   animation: hideToShow 2s;
-  background: var(--background);
+  position: relative;
 }
 
 .myFooter {

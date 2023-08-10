@@ -66,6 +66,9 @@
         <li @click="router.push({ path: '/favorite' })">
           <div class="my-menu">🧰 <span>百宝箱</span></div>
         </li>
+        <li @click="router.push({ path: '/travel' })">
+          <div class="my-menu">🧰 <span>旅途</span></div>
+        </li>
 
         <!-- 聊天室 -->
         <li @click="goIm()">

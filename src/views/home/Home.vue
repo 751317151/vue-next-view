@@ -74,7 +74,6 @@ const state = reactive({
 .web-bg {
   background: url("https://tuchuang.xkyfzs.top/background/beijingtu2.jpg");
   position: fixed;
-  z-index: -999;
   width: 100%;
   height: 100%;
   background-attachment: local;

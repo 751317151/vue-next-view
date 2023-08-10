@@ -24,6 +24,12 @@ const routes = [
         component: () => import("@/views/favorite/Favorite.vue"),
         meta: { title: "分类" },
       },
+      {
+        path: "/travel",
+        name: "travel",
+        component: () => import("@/views/favorite/Travel.vue"),
+        meta: { title: "分类" },
+      },
     ],
   },
 ];
