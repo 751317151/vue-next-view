@@ -15,7 +15,7 @@ import "./assets/css/markdown-highlight.css";
 import "./assets/css/font-awesome.min.css";
 
 import "element-plus/theme-chalk/index.css";
-import "element-plus/theme-chalk/dark/css-vars.css"; //这句是暗黑模式切换
+// import "element-plus/theme-chalk/dark/css-vars.css"; //这句是暗黑模式切换
 
 //阿里icon
 import "@/assets/css/icon/iconfont.css";

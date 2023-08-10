@@ -36,17 +36,30 @@
           <div class="my-menu">🏡 <span>首页</span></div>
         </li>
 
-        <!--            <li v-for="(menu, index) in $store.getters.navigationBar"-->
-        <!--                @click="router.push({path: '/sort', query: {sortId: menu.id, labelId: menu.labels[0].id}})"-->
-        <!--                :key="index">-->
-        <!--              <div class="my-menu">-->
-        <!--                📒 <span>{{ menu.sortName }}</span>-->
-        <!--              </div>-->
-        <!--            </li>-->
-
-        <!-- 爱情买卖 -->
-        <li @click="router.push({ path: '/category' })">
-          <div class="my-menu">💋 <span>分类</span></div>
+        <!-- 文章 -->
+        <li>
+          <el-dropdown placement="bottom">
+            <div class="my-menu">
+              🏡 <span>文章</span>
+              <i class="fa fa-chevron-down"></i>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu style="font-size: 20px">
+                <el-dropdown-item @click="router.push({ path: '/archive' })">
+                  <i class="fa fa-user-circle" aria-hidden="true"></i>
+                  <span>归档</span>
+                </el-dropdown-item>
+                <el-dropdown-item @click="router.push({ path: '/category' })">
+                  <i class="fa fa-sign-out" aria-hidden="true"></i>
+                  <span>分类</span>
+                </el-dropdown-item>
+                <el-dropdown-item @click="router.push({ path: '/tag' })">
+                  <i class="fa fa-sign-in" aria-hidden="true"></i>
+                  <span>标签</span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </li>
 
         <!-- 百宝箱 -->
@@ -76,7 +89,7 @@
           <div class="my-menu">🐟 <span>关于</span></div>
         </li>
         <!-- 个人中心 -->
-        <!-- <li>
+        <li>
           <el-dropdown placement="bottom">
             <el-avatar
               class="user-avatar"
@@ -86,28 +99,30 @@
             >
             </el-avatar>
 
-            <el-dropdown-menu>
-              <el-dropdown-item
-                @click="router.push({ path: '/user' })"
-                v-if="true"
-              >
-                <i class="fa fa-user-circle" aria-hidden="true"></i>
-                <span>个人中心</span>
-              </el-dropdown-item>
-              <el-dropdown-item @click="logout()" v-if="true">
-                <i class="fa fa-sign-out" aria-hidden="true"></i>
-                <span>退出</span>
-              </el-dropdown-item>
-              <el-dropdown-item
-                @click="router.push({ path: '/user' })"
-                v-if="true"
-              >
-                <i class="fa fa-sign-in" aria-hidden="true"></i>
-                <span>登陆</span>
-              </el-dropdown-item>
-            </el-dropdown-menu>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  @click="router.push({ path: '/user' })"
+                  v-if="true"
+                >
+                  <i class="fa fa-user-circle" aria-hidden="true"></i>
+                  <span>个人中心</span>
+                </el-dropdown-item>
+                <el-dropdown-item @click="logout()" v-if="true">
+                  <i class="fa fa-sign-out" aria-hidden="true"></i>
+                  <span>退出</span>
+                </el-dropdown-item>
+                <el-dropdown-item
+                  @click="router.push({ path: '/user' })"
+                  v-if="true"
+                >
+                  <i class="fa fa-sign-in" aria-hidden="true"></i>
+                  <span>登陆</span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
           </el-dropdown>
-        </li> -->
+        </li>
       </ul>
     </div>
   </div>
@@ -182,7 +197,24 @@ const state = reactive({
   position: relative;
   cursor: pointer;
 }
+.scroll-menu > li > div {
+  list-style: none;
+  font-size: 17px;
+  height: 60px;
+  line-height: 60px;
+  position: relative;
+  cursor: pointer;
+}
+.my-menu {
+  outline: 0;
+  i {
+    padding: 4px;
+  }
+}
 
+:global(.el-dropdown-menu__item) {
+  font-size: 20px;
+}
 .scroll-menu > li:hover .my-menu span {
   color: var(--themeBackground);
 }
@@ -207,7 +239,6 @@ const state = reactive({
 .scroll-menu > li:hover .my-menu:after {
   max-width: 100%;
 }
-
 .el-dropdown {
   font-size: unset;
   color: unset;
@@ -215,6 +246,15 @@ const state = reactive({
 
 .el-dropdown-menu {
   padding: 5px 0;
+}
+
+.el-dropdown_menu .el-dropdown-menu__item {
+  font-size: 20px;
+}
+.el-scrollbar {
+  .el-dropdown-menu__item {
+    font-size: 20px;
+  }
 }
 
 .el-dropdown-menu__item {

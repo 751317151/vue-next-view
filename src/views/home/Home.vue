@@ -144,4 +144,8 @@ const state = reactive({
     font-size: 35px;
   }
 }
+
+.myFooter-wrap {
+  background-color: transparent;
+}
 </style>

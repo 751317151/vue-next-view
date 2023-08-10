@@ -16,7 +16,7 @@ export const useConfig = defineStore("config", {
       notices: [],
       footer: "",
       backgroundImage: "",
-      avatar: "",
+      avatar: "https://haiyong.site/img/favicon.png",
     },
     scrollTop: 0,
     sideNavBarShow: false,

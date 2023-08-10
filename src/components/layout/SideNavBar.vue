@@ -31,74 +31,62 @@
     </div>
     <hr />
     <div>
-      <ul class="small-menu">
-        <li @click="smallMenu({ path: '/' })">
-          <div>🏡 <span>首页</span></div>
-        </li>
+      <el-row class="tac">
+        <el-col>
+          <el-menu
+            active-text-color="#ffd04b"
+            background-color="transparent"
+            class="el-menu-vertical-demo"
+            text-color="#fff"
+          >
+            <el-menu-item index="/" @click="smallMenu({ path: '/' })">
+              <div>🏡 <span>首页</span></div>
+            </el-menu-item>
+            <el-sub-menu index="/article">
+              <template #title>
+                <div>🏡 <span>文章</span></div>
+              </template>
+              <el-menu-item
+                index="/archive"
+                @click="smallMenu({ path: '/archive' })"
+              >
+                <div>🧰 <span>归档</span></div>
+              </el-menu-item>
+              <el-menu-item
+                index="/category"
+                @click="smallMenu({ path: '/category' })"
+              >
+                <div>🧰 <span>分类</span></div>
+              </el-menu-item>
+              <el-menu-item index="/tag">
+                <div>🧰 <span>标签</span></div>
+              </el-menu-item>
+            </el-sub-menu>
 
-        <!--          <li v-for="(menu, index) in $store.getters.navigationBar"-->
-        <!--              @click="smallMenu({path: '/sort', query: {sortId: menu.id, labelId: menu.labels[0].id}})"-->
-        <!--              :key="index">-->
-        <!--            <div>-->
-        <!--              📒 <span>{{ menu.sortName }}</span>-->
-        <!--            </div>-->
-        <!--          </li>-->
-
-        <!-- 爱情买卖 -->
-        <li @click="smallMenu({ path: '/category' })">
-          <div>💋 <span>分类</span></div>
-        </li>
-
-        <!-- 百宝箱 -->
-        <li @click="smallMenu({ path: '/favorite' })">
-          <div>🧰 <span>百宝箱</span></div>
-        </li>
-
-        <!-- 聊天室 -->
-        <li @click="goIm()">
-          <div>💬 <span>非礼勿言</span></div>
-        </li>
-        <!-- 音乐 -->
-        <li @click="smallMenu({ path: '/funny' })">
-          <div>🎺 <span>曲乐</span></div>
-        </li>
-        <!-- 留言 -->
-        <li @click="smallMenu({ path: '/message' })">
-          <div>📪 <span>留言</span></div>
-        </li>
-        <!-- 友人帐 -->
-        <li @click="smallMenu({ path: '/friend' })">
-          <div>💃 <span>友人帐</span></div>
-        </li>
-
-        <!-- 关于 -->
-        <li @click="smallMenu({ path: '/about' })">
-          <div>🐟 <span>关于</span></div>
-        </li>
-
-        <template v-if="common.isEmpty()">
-          <li @click="smallMenu({ path: '/user' })">
-            <div>
-              <i class="fa fa-sign-in" aria-hidden="true"></i>
-              <span>&nbsp;登录</span>
-            </div>
-          </li>
-        </template>
-        <template v-else>
-          <li @click="smallMenu({ path: '/user' })">
-            <div>
-              <i class="fa fa-user-circle" aria-hidden="true"></i>
-              <span>&nbsp;个人中心</span>
-            </div>
-          </li>
-          <li @click="smallMenuLogout()">
-            <div>
-              <i class="fa fa-sign-out" aria-hidden="true"></i>
-              <span>&nbsp;退出</span>
-            </div>
-          </li>
-        </template>
-      </ul>
+            <el-menu-item
+              index="/favorite"
+              @click="smallMenu({ path: '/favorite' })"
+            >
+              <div>🧰 <span>百宝箱</span></div>
+            </el-menu-item>
+            <el-menu-item index="3">
+              <div>💬 <span>非礼勿言</span></div>
+            </el-menu-item>
+            <el-menu-item index="/funny">
+              <div>🎺 <span>曲乐</span></div>
+            </el-menu-item>
+            <el-menu-item index="/message">
+              <div>📪 <span>留言</span></div>
+            </el-menu-item>
+            <el-menu-item index="/friend">
+              <div>💃 <span>友人帐</span></div>
+            </el-menu-item>
+            <el-menu-item index="/about">
+              <div>🐟 <span>关于</span></div>
+            </el-menu-item>
+          </el-menu>
+        </el-col>
+      </el-row>
     </div>
   </el-drawer>
 </template>
@@ -126,7 +114,19 @@ const smallMenuLogout = () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.el-menu-item,
+.el-sub-menu__title {
+  font-size: 20px;
+}
+:global(.el-sub-menu__title) {
+  font-size: 20px;
+}
+.el-menu {
+  border-right: 0;
+  background-color: transparent;
+}
+
 .nav-info {
   text-align: center;
   color: var(--lightYellow);

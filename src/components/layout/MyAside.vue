@@ -6,7 +6,7 @@
         style="margin-top: 20px"
         class="user-avatar"
         :size="120"
-        src="https://haiyong.site/img/favicon.png"
+        :src="webInfo.avatar"
       ></el-avatar>
       <div class="web-name">网站名称</div>
       <div class="web-info">

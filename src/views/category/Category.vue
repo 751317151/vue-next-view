@@ -5,7 +5,7 @@
       <TwoPoem :isHitokoto="true"></TwoPoem>
     </div>
     <div
-      style="background: var(--background); padding-top: 40px"
+      style="background-color: var(--background); padding-top: 40px"
       class="my-animation-slide-bottom"
     >
       <!-- 标签 -->
@@ -118,7 +118,6 @@ const pageArticles = () => {
 };
 
 const getSort = () => {
-  console.log(sortInfo.value);
   if (!common.isEmpty(sortInfo.value)) {
     let sortArray = sortInfo.value.filter((f) => {
       return f.id === parseInt(state.sortId);
@@ -149,8 +148,9 @@ onMounted(() => {
 
 .article-wrap {
   width: 70%;
-  margin: 40px auto;
+  margin: 40px auto 0 auto;
   min-height: 600px;
+  padding-bottom: 40px;
 }
 
 .isActive {
