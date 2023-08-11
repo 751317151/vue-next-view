@@ -31,7 +31,7 @@ declare module 'vue' {
     Loader: typeof import('./src/components/common/loader.vue')['default']
     MyAside: typeof import('./src/components/layout/MyAside.vue')['default']
     MyFooter: typeof import('./src/components/common/myFooter.vue')['default']
-    Photo: typeof import('./src/components/common/Photo.vue')['default']
+    Photo: typeof import('./src/components/common/photo.vue')['default']
     Printer: typeof import('./src/components/common/printer.vue')['default']
     ProButton: typeof import('./src/components/common/proButton.vue')['default']
     Process: typeof import('./src/components/common/process.vue')['default']

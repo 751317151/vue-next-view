@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs, defineProps } from "vue";
+import { toRefs } from "vue";
 import common from "@/utils/common";
 
 const props = defineProps({
