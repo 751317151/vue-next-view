@@ -13,6 +13,12 @@ const routes = [
         meta: { title: "首页" },
       },
       {
+        path: "/archive",
+        name: "archive",
+        component: () => import("@/views/archive/Archive.vue"),
+        meta: { title: "分类" },
+      },
+      {
         path: "/category",
         name: "category",
         component: () => import("@/views/category/Category.vue"),
