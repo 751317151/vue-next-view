@@ -93,6 +93,7 @@ const state = reactive({
   padding: 0 20px 40px 20px;
   margin: 0 auto;
   flex-direction: row;
+  max-width: 1200px;
 }
 
 .aside-content {

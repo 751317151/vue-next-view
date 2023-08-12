@@ -112,7 +112,7 @@ const { articleList } = toRefs(props);
 }
 
 .recent-post-container {
-  max-width: 780px;
+  max-width: 1200px;
   margin: auto;
   margin-top: 50px;
 }

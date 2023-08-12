@@ -8,42 +8,46 @@
       style="background-color: var(--background); padding-top: 40px"
       class="my-animation-slide-bottom"
     >
-      <!-- 标签 -->
-      <div
-        class="sort-warp shadow-box"
-        v-if="!common.isEmpty(state.sort) && !common.isEmpty(state.sort.labels)"
-      >
+      <div class="page-container">
+        <!-- 标签 -->
         <div
-          v-for="(label, index) in state.sort.labels"
-          :key="index"
-          :class="{
-            isActive:
-              !common.isEmpty(state.labelId) &&
-              parseInt(state.labelId) === label.id,
-          }"
-          @click="listArticle(label)"
+          class="sort-warp shadow-box"
+          v-if="
+            !common.isEmpty(state.sort) && !common.isEmpty(state.sort.labels)
+          "
         >
-          <ProTag
-            :info="label.labelName + ' ' + label.countOfLabel"
-            :color="constant.before_color_list[Math.floor(Math.random() * 6)]"
-            style="margin: 12px"
-          >
-          </ProTag>
-        </div>
-      </div>
-
-      <!-- 文章 -->
-      <div class="article-wrap">
-        <articleList :articleList="state.articleList"></articleList>
-        <div class="pagination-wrap">
           <div
-            @click="pageArticles()"
-            class="pagination"
-            v-if="state.pagination.total !== state.articleList.length"
+            v-for="(label, index) in state.sort.labels"
+            :key="index"
+            :class="{
+              isActive:
+                !common.isEmpty(state.labelId) &&
+                parseInt(state.labelId) === label.id,
+            }"
+            @click="listArticle(label)"
           >
-            下一页
+            <ProTag
+              :info="label.labelName + ' ' + label.countOfLabel"
+              :color="constant.before_color_list[Math.floor(Math.random() * 6)]"
+              style="margin: 12px"
+            >
+            </ProTag>
           </div>
-          <div v-else style="user-select: none">~~到底啦~~</div>
+        </div>
+
+        <!-- 文章 -->
+        <div class="article-wrap">
+          <articleList :articleList="state.articleList"></articleList>
+          <div class="pagination-wrap">
+            <div
+              @click="pageArticles()"
+              class="pagination"
+              v-if="state.pagination.total !== state.articleList.length"
+            >
+              下一页
+            </div>
+            <div v-else style="user-select: none">~~到底啦~~</div>
+          </div>
         </div>
       </div>
     </div>
@@ -136,9 +140,15 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.page-container {
+  justify-content: center;
+  width: 90%;
+  padding: 0 20px 40px 20px;
+  margin: 0 auto;
+  flex-direction: row;
+  max-width: 1200px;
+}
 .sort-warp {
-  width: 70%;
-  max-width: 780px;
   margin: 0 auto;
   padding: 20px;
   border-radius: 10px;
@@ -147,7 +157,6 @@ onMounted(() => {
 }
 
 .article-wrap {
-  width: 70%;
   margin: 40px auto 0 auto;
   min-height: 600px;
   padding-bottom: 40px;
