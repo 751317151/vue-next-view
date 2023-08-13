@@ -268,16 +268,9 @@ getAdmire();
 
 <style lang="scss" scoped>
 .card-content1 {
-  background: linear-gradient(
-    -45deg,
-    #e8d8b9,
-    #eccec5,
-    #a3e9eb,
-    #bdbdf0,
-    #eec1ea
-  );
+  background: linear-gradient(-45deg, #b7d3ee, #5d6fc9, #ebfffe, #485dab);
   background-size: 400% 400%;
-  animation: gradientBG 10s ease infinite;
+  animation: gradientBG 5s ease infinite;
   display: flex;
   flex-direction: column;
   align-items: center;

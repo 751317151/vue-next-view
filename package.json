@@ -19,8 +19,10 @@
     "pinia": "^2.1.4",
     "pinia-plugin-persistedstate": "^3.1.0",
     "vue": "^3.2.47",
+    "vue-baberrage": "^3.2.4",
     "vue-router": "^4.2.2",
-    "vue-seamless-scroll": "^1.1.23"
+    "vue-seamless-scroll": "^1.1.23",
+    "vue3-danmaku": "^1.5.1"
   },
   "devDependencies": {
     "@rollup/plugin-inject": "^5.0.3",
