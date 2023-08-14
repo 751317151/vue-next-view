@@ -39,40 +39,41 @@
       <!-- 弹幕 -->
       <div class="barrage-container">
         <vue-danmaku
+          ref="danmakuRef"
           :danmus="state.danmus"
-          loop="true"
+          loop
           useSlot
           randomChannel
           isSuspend
           speeds="100"
           style="height: 100%; width: 100%"
         >
-          <template v-slot:dm="{ index, danmu }">
-            <div style="display: flex; justify-content: space-between">
-              <div style="display: flex; margin-bottom: 10px">
-                <el-avatar :size="36" :src="danmu.avatar"></el-avatar>
-                <div style="height: 36px; line-height: 36px; overflow: hidden">
-                  ：{{ danmu.text }}
+          <template v-slot:dm="{ danmu }">
+            <div class="danmu-slot">
+              <div class="danmu-item">
+                <el-avatar :size="30" :src="danmu.avatar"></el-avatar>
+                <div class="danmu-text">
+                  {{ danmu.text }}
                 </div>
               </div>
             </div>
-          </template></vue-danmaku
-        >
+          </template>
+        </vue-danmaku>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
-
 import vueDanmaku from "vue3-danmaku";
 
+const danmakuRef = ref(null);
 const state = reactive({
   show: false,
   messageContent: "",
@@ -175,10 +176,34 @@ const submitMessage = () => {
   state.messageContent = "";
   state.show = false;
 };
+
 getTreeHole();
+
+window.addEventListener("resize", () => {
+  danmakuRef.value.resize();
+});
 </script>
 
 <style lang="scss" scoped>
+.danmu-slot {
+  display: flex;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 1rem;
+  height: 36px;
+  width: calc(100% + 5px);
+}
+.danmu-item {
+  display: flex;
+  align-items: center;
+  margin: 0 5px;
+}
+.danmu-text {
+  font-size: 16px;
+  overflow: hidden;
+  margin-left: 5px;
+}
+
 .background-image {
   z-index: 0;
 }
@@ -192,7 +217,6 @@ getTreeHole();
   width: 360px;
   z-index: 10;
 }
-
 .message-title {
   user-select: none;
   text-align: center;
