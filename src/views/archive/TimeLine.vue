@@ -270,6 +270,7 @@ export default defineComponent({
     top: 24px;
     bottom: 0;
     left: 6px;
+    background-color: var(--themeBackground);
   }
   .timeline-item:last-child &:after {
     content: none;

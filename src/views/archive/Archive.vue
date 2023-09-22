@@ -36,7 +36,7 @@
         </div>
 
         <div class="travel-content my-animation-slide-bottom">
-          <TimeLine></TimeLine>
+          <TimeLine2></TimeLine2>
         </div>
       </div>
     </div>
@@ -48,7 +48,7 @@ import { onMounted, reactive } from "vue";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 import ArticleList from "@/components/ArticleList.vue";
-import TimeLine from "./TimeLine.vue";
+import TimeLine2 from "./TimeLine2.vue";
 
 const state = reactive({
   archives: [
