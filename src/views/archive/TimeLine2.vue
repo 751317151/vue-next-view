@@ -1,36 +1,406 @@
 <template>
   <div class="container">
-    <div class="left-top">左侧</div>
-    <div class="main"></div>
-    <div class="right-top">右侧</div>
+    <div class="timeline">
+      <h2>2013</h2>
+
+      <ul>
+        <li>
+          <div class="timeline-item-card">
+            <div class="card-image">
+              <el-image
+                class="my-el-image"
+                v-once
+                lazy
+                src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
+                fit="cover"
+              >
+                <div
+                  slot="error"
+                  class="image-slot myCenter"
+                  style="background-color: var(--lightGreen)"
+                >
+                  <div class="error-text">
+                    <div>遇事不决，可问春风</div>
+                  </div>
+                </div>
+              </el-image>
+            </div>
+            <div class="card-body">
+              <div class="card-title">标题</div>
+              <div class="card-desc">
+                《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。
+              </div>
+              <div class="card-time">
+                <svg
+                  viewBox="0 0 1024 1024"
+                  width="14"
+                  height="14"
+                  style="vertical-align: -2px"
+                >
+                  <path
+                    d="M512 512m-512 0a512 512 0 1 0 1024 0 512 512 0 1 0-1024 0Z"
+                    fill="#409EFF"
+                  ></path>
+                  <path
+                    d="M654.222222 256c-17.066667 0-28.444444 11.377778-28.444444 28.444444v56.888889c0 17.066667 11.377778 28.444444 28.444444 28.444445s28.444444-11.377778 28.444445-28.444445v-56.888889c0-17.066667-11.377778-28.444444-28.444445-28.444444zM369.777778 256c-17.066667 0-28.444444 11.377778-28.444445 28.444444v56.888889c0 17.066667 11.377778 28.444444 28.444445 28.444445s28.444444-11.377778 28.444444-28.444445v-56.888889c0-17.066667-11.377778-28.444444-28.444444-28.444444z"
+                    fill="#FFFFFF"
+                  ></path>
+                  <path
+                    d="M725.333333 312.888889H711.111111v28.444444c0 31.288889-25.6 56.888889-56.888889 56.888889s-56.888889-25.6-56.888889-56.888889v-28.444444h-170.666666v28.444444c0 31.288889-25.6 56.888889-56.888889 56.888889s-56.888889-25.6-56.888889-56.888889v-28.444444h-14.222222c-22.755556 0-42.666667 19.911111-42.666667 42.666667v341.333333c0 22.755556 19.911111 42.666667 42.666667 42.666667h426.666666c22.755556 0 42.666667-19.911111 42.666667-42.666667v-341.333333c0-22.755556-19.911111-42.666667-42.666667-42.666667zM426.666667 654.222222h-56.888889c-17.066667 0-28.444444-11.377778-28.444445-28.444444s11.377778-28.444444 28.444445-28.444445h56.888889c17.066667 0 28.444444 11.377778 28.444444 28.444445s-11.377778 28.444444-28.444444 28.444444z m227.555555 0h-56.888889c-17.066667 0-28.444444-11.377778-28.444444-28.444444s11.377778-28.444444 28.444444-28.444445h56.888889c17.066667 0 28.444444 11.377778 28.444445 28.444445s-11.377778 28.444444-28.444445 28.444444z m0-113.777778h-56.888889c-17.066667 0-28.444444-11.377778-28.444444-28.444444s11.377778-28.444444 28.444444-28.444444h56.888889c17.066667 0 28.444444 11.377778 28.444445 28.444444s-11.377778 28.444444-28.444445 28.444444z"
+                    fill="#FFFFFF"
+                  ></path>
+                </svg>
+                发布于 2022-02-02
+              </div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="timeline-item-card">
+            <div class="card-image">
+              <el-image
+                class="my-el-image"
+                v-once
+                lazy
+                src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
+                fit="cover"
+              >
+                <div
+                  slot="error"
+                  class="image-slot myCenter"
+                  style="background-color: var(--lightGreen)"
+                >
+                  <div class="error-text">
+                    <div>遇事不决，可问春风</div>
+                  </div>
+                </div>
+              </el-image>
+            </div>
+            <div class="card-body">
+              <div class="card-title">标题</div>
+              <div class="card-desc">内容</div>
+              <div class="card-time">
+                <svg
+                  viewBox="0 0 1024 1024"
+                  width="20"
+                  height="20"
+                  style="vertical-align: -2px"
+                >
+                  <path
+                    d="M512 512m-512 0a512 512 0 1 0 1024 0 512 512 0 1 0-1024 0Z"
+                    fill="#409EFF"
+                  ></path>
+                  <path
+                    d="M654.222222 256c-17.066667 0-28.444444 11.377778-28.444444 28.444444v56.888889c0 17.066667 11.377778 28.444444 28.444444 28.444445s28.444444-11.377778 28.444445-28.444445v-56.888889c0-17.066667-11.377778-28.444444-28.444445-28.444444zM369.777778 256c-17.066667 0-28.444444 11.377778-28.444445 28.444444v56.888889c0 17.066667 11.377778 28.444444 28.444445 28.444445s28.444444-11.377778 28.444444-28.444445v-56.888889c0-17.066667-11.377778-28.444444-28.444444-28.444444z"
+                    fill="#FFFFFF"
+                  ></path>
+                  <path
+                    d="M725.333333 312.888889H711.111111v28.444444c0 31.288889-25.6 56.888889-56.888889 56.888889s-56.888889-25.6-56.888889-56.888889v-28.444444h-170.666666v28.444444c0 31.288889-25.6 56.888889-56.888889 56.888889s-56.888889-25.6-56.888889-56.888889v-28.444444h-14.222222c-22.755556 0-42.666667 19.911111-42.666667 42.666667v341.333333c0 22.755556 19.911111 42.666667 42.666667 42.666667h426.666666c22.755556 0 42.666667-19.911111 42.666667-42.666667v-341.333333c0-22.755556-19.911111-42.666667-42.666667-42.666667zM426.666667 654.222222h-56.888889c-17.066667 0-28.444444-11.377778-28.444445-28.444444s11.377778-28.444444 28.444445-28.444445h56.888889c17.066667 0 28.444444 11.377778 28.444444 28.444445s-11.377778 28.444444-28.444444 28.444444z m227.555555 0h-56.888889c-17.066667 0-28.444444-11.377778-28.444444-28.444444s11.377778-28.444444 28.444444-28.444445h56.888889c17.066667 0 28.444444 11.377778 28.444445 28.444445s-11.377778 28.444444-28.444445 28.444444z m0-113.777778h-56.888889c-17.066667 0-28.444444-11.377778-28.444444-28.444444s11.377778-28.444444 28.444444-28.444444h56.888889c17.066667 0 28.444444 11.377778 28.444445 28.444444s-11.377778 28.444444-28.444445 28.444444z"
+                    fill="#FFFFFF"
+                  ></path>
+                </svg>
+                发布于 2022-02-02
+              </div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="timeline-item-card">
+            <div class="card-image">
+              <el-image
+                class="my-el-image"
+                v-once
+                lazy
+                src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
+                fit="cover"
+              >
+                <div
+                  slot="error"
+                  class="image-slot myCenter"
+                  style="background-color: var(--lightGreen)"
+                >
+                  <div class="error-text">
+                    <div>遇事不决，可问春风</div>
+                  </div>
+                </div>
+              </el-image>
+            </div>
+            <div class="card-body">
+              <div class="card-title">标题</div>
+              <div class="card-desc">内容</div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="timeline-item-card">
+            <div class="card-image">
+              <el-image
+                class="my-el-image"
+                v-once
+                lazy
+                src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
+                fit="cover"
+              >
+                <div
+                  slot="error"
+                  class="image-slot myCenter"
+                  style="background-color: var(--lightGreen)"
+                >
+                  <div class="error-text">
+                    <div>遇事不决，可问春风</div>
+                  </div>
+                </div>
+              </el-image>
+            </div>
+            <div class="card-body">
+              <div class="card-title">标题</div>
+              <div class="card-desc">内容</div>
+            </div>
+          </div>
+        </li>
+      </ul>
+
+      <h2>2012</h2>
+      <ul>
+        <li>
+          <div class="timeline-item-card">
+            <div class="card-image">
+              <el-image
+                class="my-el-image"
+                v-once
+                lazy
+                src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
+                fit="cover"
+              >
+                <div
+                  slot="error"
+                  class="image-slot myCenter"
+                  style="background-color: var(--lightGreen)"
+                >
+                  <div class="error-text">
+                    <div>遇事不决，可问春风</div>
+                  </div>
+                </div>
+              </el-image>
+            </div>
+            <div class="card-body">
+              <div class="card-title">标题</div>
+              <div class="card-desc">内容</div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="timeline-item-card">
+            <div class="card-image">
+              <el-image
+                class="my-el-image"
+                v-once
+                lazy
+                src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
+                fit="cover"
+              >
+                <div
+                  slot="error"
+                  class="image-slot myCenter"
+                  style="background-color: var(--lightGreen)"
+                >
+                  <div class="error-text">
+                    <div>遇事不决，可问春风</div>
+                  </div>
+                </div>
+              </el-image>
+            </div>
+            <div class="card-body">
+              <div class="card-title">标题</div>
+              <div class="card-desc">内容</div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.left-top {
-  width: 80%;
-  height: 100px;
-  background-color: blue;
-}
-.right-top {
-  width: 80%;
-  height: 100px;
-  background-color: red;
-}
+.timeline {
+  position: relative;
+  overflow: auto;
 
-@media (max-width: 500px) {
-  .container {
-    flex-direction: column;
+  &:before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 5px;
+    background: gray;
+    left: 10px;
   }
 
-  .left-top,
-  .right-top {
+  h2 {
+    background: gray;
+    max-width: 6em;
+    margin: 0 auto 1em;
+    padding: 0.5em;
+    text-align: center;
+    position: relative;
+    clear: both;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0 0 0 1em;
+    z-index: 1;
+  }
+
+  li {
+    // background: gray;
+    border-radius: 10px;
+    margin-bottom: 1em;
+    position: relative;
+    padding: 10px;
+
+    &:before {
+      top: 10px;
+      content: "";
+      width: 12px;
+      height: 12px;
+      border: 4px solid var(--blue);
+      border-radius: 50%;
+      position: absolute;
+      background-color: var(--white);
+      transform: translateX(-14px);
+    }
+  }
+
+  li:nth-child(even) {
+    &:before {
+      left: 0;
+      transform: translateX(-14px);
+    }
+  }
+
+  li:nth-child(odd) {
+    &:before {
+      // left: 0;
+      transform: translateX(-24px);
+    }
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+
+  time {
+    font-style: italic;
+  }
+}
+
+.timeline-item-card {
+  position: relative;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.88);
+  overflow: hidden;
+  height: 350px;
+  flex-shrink: 0;
+  cursor: pointer;
+  animation: zoomIn 0.8s ease-in-out;
+  width: 84%;
+
+  .card-image {
     width: 100%;
+    height: 180px;
   }
 
-  .main::before {
-    top: unset;
-    bottom: 0;
+  .card-image ::deep(.el-image__inner) {
+    transition: all 1s;
+  }
+
+  .card-image ::deep(.el-image__inner:hover) {
+    transform: scale(1.2);
+  }
+
+  .card-body {
+    padding: 10px 20px;
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .card-title:hover {
+      color: var(--lightGreen);
+    }
+
+    .card-desc {
+      font-size: 18px;
+      line-height: 1.5;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      letter-spacing: 1px;
+    }
+    .card-time {
+      position: absolute;
+      bottom: 10px;
+      font-size: 18px;
+      color: var(--greyFont);
+    }
+  }
+}
+
+@media screen and (min-width: 700px) {
+  //大于700时生效
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .timeline {
+    &:before {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    ul {
+      padding-left: 0;
+      margin: 0 auto;
+    }
+
+    li {
+      width: 50%;
+    }
+
+    li:nth-child(even) {
+      float: right;
+      margin-top: 175px;
+      .timeline-item-card {
+        float: right;
+      }
+      &:before {
+        transform: translateX(-10px);
+      }
+    }
+
+    li:nth-child(odd) {
+      float: left;
+      .timeline-item-card {
+        float: left;
+      }
+      &:before {
+        right: 0;
+        transform: translateX(10px);
+      }
+    }
+
+    li:nth-of-type(2n + 1) {
+      clear: both;
+    }
   }
 }
 </style>
