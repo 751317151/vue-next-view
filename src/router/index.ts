@@ -25,6 +25,12 @@ const routes = [
         meta: { title: "分类" },
       },
       {
+        path: "/article",
+        name: "Article",
+        component: () => import("@/views/article/Article.vue"),
+        meta: { title: "文章详情" },
+      },
+      {
         path: "/favorite",
         name: "favorite",
         component: () => import("@/views/favorite/Favorite.vue"),

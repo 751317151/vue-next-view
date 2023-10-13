@@ -1,134 +1,133 @@
 <template>
-  <!-- 导航栏 -->
-  <div
-    v-show="toolbar.visible"
-    @mouseenter="state.hoverEnter = true"
-    @mouseleave="state.hoverEnter = false"
-    :class="[
-      { enter: toolbar.enter },
-      {
-        hoverEnter:
-          (state.hoverEnter || route.path === '/favorite') && !toolbar.enter,
-      },
-    ]"
-    class="toolbar-content myBetween"
-  >
-    <!-- 网站名称 -->
-    <div class="toolbar-title">
-      <h2 @click="router.push({ path: '/' })">
-        {{ webInfo.webName || "生活倒影" }}
-      </h2>
-    </div>
-
-    <!-- 手机导航按钮 -->
+  <transition name="el-fade-in-linear">
+    <!-- 导航栏 -->
     <div
-      v-if="isMobile"
-      class="toolbar-mobile-menu"
-      @click="sideNavBarShow = !sideNavBarShow"
-      :class="{ enter: toolbar.enter }"
+      @mouseenter="state.hoverEnter = true"
+      @mouseleave="state.hoverEnter = false"
+      :class="[
+        { enter: toolbar.enter },
+        { visible: toolbar.visible },
+        { hoverEnter: state.hoverEnter && !toolbar.enter },
+      ]"
+      class="toolbar-content myBetween"
     >
-      <el-icon><Operation /></el-icon>
+      <!-- 网站名称 -->
+      <div class="toolbar-title">
+        <h2 @click="router.push({ path: '/' })">
+          {{ webInfo.webName || "生活倒影" }}
+        </h2>
+      </div>
+
+      <!-- 手机导航按钮 -->
+      <div
+        v-if="isMobile"
+        class="toolbar-mobile-menu"
+        @click="sideNavBarShow = !sideNavBarShow"
+        :class="{ enter: toolbar.enter }"
+      >
+        <el-icon><Operation /></el-icon>
+      </div>
+      <!-- 导航列表 -->
+      <div v-else>
+        <ul class="scroll-menu">
+          <li @click="router.push({ path: '/' })">
+            <div class="my-menu">🏡 <span>首页</span></div>
+          </li>
+
+          <!-- 文章 -->
+          <li>
+            <el-dropdown placement="bottom">
+              <div class="my-menu">
+                🏡 <span>文章</span>
+                <i class="fa fa-chevron-down"></i>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu style="font-size: 20px">
+                  <el-dropdown-item @click="router.push({ path: '/archive' })">
+                    <i class="fa fa-user-circle" aria-hidden="true"></i>
+                    <span>归档</span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="router.push({ path: '/category' })">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+                    <span>分类</span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="router.push({ path: '/tag' })">
+                    <i class="fa fa-sign-in" aria-hidden="true"></i>
+                    <span>标签</span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </li>
+
+          <!-- 百宝箱 -->
+          <li @click="router.push({ path: '/favorite' })">
+            <div class="my-menu">🧰 <span>百宝箱</span></div>
+          </li>
+          <li @click="router.push({ path: '/travel' })">
+            <div class="my-menu">🧰 <span>旅途</span></div>
+          </li>
+
+          <!-- 聊天室 -->
+          <li @click="goIm()">
+            <div class="my-menu">💬 <span>非礼勿言</span></div>
+          </li>
+          <!-- 音乐 -->
+          <li @click="router.push({ path: '/funny' })">
+            <div class="my-menu">🎺 <span>曲乐</span></div>
+          </li>
+          <!-- 留言 -->
+          <li @click="router.push({ path: '/message' })">
+            <div class="my-menu">📪 <span>留言</span></div>
+          </li>
+          <!-- 友人帐 -->
+          <li @click="router.push({ path: '/friend' })">
+            <div class="my-menu">💃 <span>友人帐</span></div>
+          </li>
+
+          <!-- 关于 -->
+          <li @click="router.push({ path: '/about' })">
+            <div class="my-menu">🐟 <span>关于</span></div>
+          </li>
+          <!-- 个人中心 -->
+          <li>
+            <el-dropdown placement="bottom">
+              <el-avatar
+                class="user-avatar"
+                :size="36"
+                style="margin-top: 12px"
+                :src="webInfo.avatar"
+              >
+              </el-avatar>
+
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item
+                    @click="router.push({ path: '/user' })"
+                    v-if="true"
+                  >
+                    <i class="fa fa-user-circle" aria-hidden="true"></i>
+                    <span>个人中心</span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="logout()" v-if="true">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+                    <span>退出</span>
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    @click="router.push({ path: '/user' })"
+                    v-if="true"
+                  >
+                    <i class="fa fa-sign-in" aria-hidden="true"></i>
+                    <span>登陆</span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </li>
+        </ul>
+      </div>
     </div>
-    <!-- 导航列表 -->
-    <div v-else>
-      <ul class="scroll-menu">
-        <li @click="router.push({ path: '/' })">
-          <div class="my-menu">🏡 <span>首页</span></div>
-        </li>
-
-        <!-- 文章 -->
-        <li>
-          <el-dropdown placement="bottom">
-            <div class="my-menu">
-              🏡 <span>文章</span>
-              <i class="fa fa-chevron-down"></i>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu style="font-size: 20px">
-                <el-dropdown-item @click="router.push({ path: '/archive' })">
-                  <i class="fa fa-user-circle" aria-hidden="true"></i>
-                  <span>归档</span>
-                </el-dropdown-item>
-                <el-dropdown-item @click="router.push({ path: '/category' })">
-                  <i class="fa fa-sign-out" aria-hidden="true"></i>
-                  <span>分类</span>
-                </el-dropdown-item>
-                <el-dropdown-item @click="router.push({ path: '/tag' })">
-                  <i class="fa fa-sign-in" aria-hidden="true"></i>
-                  <span>标签</span>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </li>
-
-        <!-- 百宝箱 -->
-        <li @click="router.push({ path: '/favorite' })">
-          <div class="my-menu">🧰 <span>百宝箱</span></div>
-        </li>
-        <li @click="router.push({ path: '/travel' })">
-          <div class="my-menu">🧰 <span>旅途</span></div>
-        </li>
-
-        <!-- 聊天室 -->
-        <li @click="goIm()">
-          <div class="my-menu">💬 <span>非礼勿言</span></div>
-        </li>
-        <!-- 音乐 -->
-        <li @click="router.push({ path: '/funny' })">
-          <div class="my-menu">🎺 <span>曲乐</span></div>
-        </li>
-        <!-- 留言 -->
-        <li @click="router.push({ path: '/message' })">
-          <div class="my-menu">📪 <span>留言</span></div>
-        </li>
-        <!-- 友人帐 -->
-        <li @click="router.push({ path: '/friend' })">
-          <div class="my-menu">💃 <span>友人帐</span></div>
-        </li>
-
-        <!-- 关于 -->
-        <li @click="router.push({ path: '/about' })">
-          <div class="my-menu">🐟 <span>关于</span></div>
-        </li>
-        <!-- 个人中心 -->
-        <li>
-          <el-dropdown placement="bottom">
-            <el-avatar
-              class="user-avatar"
-              :size="36"
-              style="margin-top: 12px"
-              :src="webInfo.avatar"
-            >
-            </el-avatar>
-
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  @click="router.push({ path: '/user' })"
-                  v-if="true"
-                >
-                  <i class="fa fa-user-circle" aria-hidden="true"></i>
-                  <span>个人中心</span>
-                </el-dropdown-item>
-                <el-dropdown-item @click="logout()" v-if="true">
-                  <i class="fa fa-sign-out" aria-hidden="true"></i>
-                  <span>退出</span>
-                </el-dropdown-item>
-                <el-dropdown-item
-                  @click="router.push({ path: '/user' })"
-                  v-if="true"
-                >
-                  <i class="fa fa-sign-in" aria-hidden="true"></i>
-                  <span>登陆</span>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </li>
-      </ul>
-    </div>
-  </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
@@ -136,7 +135,6 @@ import { reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
-import common from "@/utils/common";
 
 const router = useRouter();
 const route = useRoute();
@@ -146,24 +144,31 @@ const { toolbar, webInfo, sideNavBarShow, isMobile } =
 
 const state = reactive({
   hoverEnter: false,
+  toolbar: { visible: true, enter: false },
 });
 </script>
 
 <style lang="scss" scoped>
 .toolbar-content {
+  // background: var(--translucent);
   width: 100%;
   height: 60px;
-  color: var(--white);
+  color: var(--toolbarFont);
   /* 固定位置，不随滚动条滚动 */
   position: fixed;
   z-index: 100;
   /* 禁止选中文字 */
   user-select: none;
-  transition: all 0.3s ease-in-out;
+
+  top: -60px;
+  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
 }
 
+.toolbar-content.visible {
+  transform: translate3d(0, 100%, 0);
+}
 .toolbar-content.enter {
-  background: var(--toolbarBackground);
+  background: var(--translucent);
   color: var(--toolbarFont);
   box-shadow: 0 1px 3px 0 rgba(0, 34, 77, 0.05);
 }

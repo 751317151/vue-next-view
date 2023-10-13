@@ -4,8 +4,9 @@ export const useConfig = defineStore("config", {
   state: () => ({
     toolbar: {
       visible: true,
-      enter: true,
+      enter: false,
     },
+    showToolButton: false,
     aaa: true,
     sortInfo: [],
     currentUser: {},
@@ -21,10 +22,14 @@ export const useConfig = defineStore("config", {
     scrollTop: 0,
     sideNavBarShow: false,
     isMobile: false,
+    showToc: true, // 展示文章目录
   }),
   actions: {
     changeToolbarStatus(toolbar) {
       this.toolbar = toolbar;
+    },
+    changeTocStatus() {
+      this.showToc = !this.showToc;
     },
     changeAaa() {
       this.toolbar.visible = !this.toolbar.visible;

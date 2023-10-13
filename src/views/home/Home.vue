@@ -99,7 +99,7 @@ const state = reactive({
 .aside-content {
   width: calc(30% - 40px);
   user-select: none;
-  margin-top: 40px;
+  margin-top: 50px;
   margin-left: 40px;
   max-width: 300px;
   float: right;
@@ -135,7 +135,7 @@ const state = reactive({
     width: 100%;
     max-width: unset;
     float: unset;
-    margin: 40px auto 0;
+    margin: 50px auto 0;
   }
 }
 
