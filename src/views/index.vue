@@ -293,9 +293,6 @@ onBeforeUnmount(() => {
 watch(
   () => storesConfig.scrollTop,
   (scrollTop, oldScrollTop) => {
-    let root = document.querySelector(":root");
-
-    console.log(scrollTop);
     if (scrollTop < 30) {
       // root.style.setProperty("--translucent", "rgba(0, 0, 0, 0)");
     }

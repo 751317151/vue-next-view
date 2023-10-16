@@ -23,7 +23,8 @@
     "vue": "^3.2.47",
     "vue-router": "^4.2.2",
     "vue-seamless-scroll": "^1.1.23",
-    "vue3-danmaku": "^1.5.1"
+    "vue3-danmaku": "^1.5.1",
+    "vue3-social-share": "^0.1.7"
   },
   "devDependencies": {
     "@rollup/plugin-inject": "^5.0.3",
