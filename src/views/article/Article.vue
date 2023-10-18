@@ -67,7 +67,7 @@
     <!-- 文章 -->
     <div style="background: var(--background)">
       <div id="page-container-id" :class="state.pageContainerClass">
-        <div class="article-container my-animation-slide-bottom">
+        <div class="article-container my-animation-slide-bottom my-card">
           <!-- 文章内容 -->
           <div class="entry-content">
             <v-md-preview
@@ -139,7 +139,11 @@
           <div class="article-reward">
             <!-- 点赞按钮 -->
             <a :class="isLike">
-              <v-icon size="14" color="#fff"></v-icon> 点赞
+              <i
+                class="iconfont icon-31dianzan"
+                style="font-size: 1.5em; margin-bottom: -1px"
+              ></i>
+              点赞
               <span v-show="state.article.likeCount > 0">{{
                 state.article.likeCount
               }}</span>
@@ -194,7 +198,11 @@
             v-if="state.article.recommendArticleList.length"
           >
             <div class="recommend-title">
-              <v-icon size="20" color="#4c4948">mdi-thumb-up</v-icon> 相关推荐
+              <i
+                class="iconfont icon-tuijian"
+                style="font-size: 1.5em; margin-bottom: -3px"
+              ></i>
+              相关推荐
             </div>
             <div class="recommend-list">
               <div
@@ -216,7 +224,9 @@
             </div>
           </div>
           <!-- 分割线 -->
-          <hr />
+
+          <div class="fenge"></div>
+
           <!-- 点赞 -->
           <div class="myCenter" id="article-like">
             <i
@@ -236,15 +246,19 @@
         </div>
         <div class="aside-content">
           <!-- <MyAside></MyAside> -->
-          <div style="width: 100px; height: 100px">占位</div>
+          <div class="my-card aside-card">占位</div>
           <div class="sticky-layout">
-            <div v-show="showToc || !isMobile" class="card-toc">
+            <div
+              v-show="showToc || !isMobile"
+              class="card-toc my-card aside-card"
+            >
               <div style="padding-bottom: 6px">
                 <el-icon><Operation /></el-icon>
                 <span style="margin-left: 10px">目录</span>
               </div>
               <div id="toc" class="toc"></div>
             </div>
+            <div class="my-card aside-card">占位</div>
           </div>
         </div>
       </div>
@@ -521,14 +535,22 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.iconerweima:before {
-  content: "\e69a";
+.my-card {
+  border-radius: 8px;
+  background: var(--card-bg);
+  border: 1px solid blue;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  transition: all 0.3s;
 }
 .page-container {
   display: flex;
   flex-direction: row;
-  width: 90%;
-  padding: 0 20px 40px 20px;
+  width: 100%;
+  max-width: 1200px;
+  padding: 40px 15px;
   margin: 0 auto;
   justify-content: center;
 
@@ -536,6 +558,16 @@ watch(
     // max-width: 800px;
     width: 70%;
     padding: 40px 50px;
+
+    .fenge {
+      background: url(https://npm.elemecdn.com/hassan-assets/img/Bilibili_Dividing_Line.png)
+        no-repeat;
+      position: relative;
+      margin: 20px auto;
+      width: calc(100% - 4px);
+      height: 100px;
+      background-size: 100%;
+    }
 
     blockquote {
       line-height: 2;
@@ -741,6 +773,7 @@ watch(
       }
     }
 
+    // 推荐文章
     .recommend-container {
       margin-top: 40px;
 
@@ -792,7 +825,6 @@ watch(
   .aside-content {
     width: calc(30% - 40px);
     user-select: none;
-    margin-top: 50px;
     margin-left: 40px;
     max-width: 300px;
     float: right;
@@ -800,12 +832,19 @@ watch(
     .sticky-layout {
       position: sticky;
       top: 20px;
-
+      margin-top: 20px;
       -webkit-transition: top 0.3s;
       -moz-transition: top 0.3s;
       -o-transition: top 0.3s;
       -ms-transition: top 0.3s;
       transition: top 0.3s;
+    }
+
+    .aside-card {
+      margin-top: 20px;
+    }
+    .aside-card:first-child {
+      margin-top: 0;
     }
   }
 }
@@ -951,6 +990,9 @@ watch(
           vertical-align: bottom;
         }
       }
+      .fenge {
+        height: 50px;
+      }
     }
   }
 }
@@ -969,6 +1011,7 @@ watch(
       width: 100%;
       max-width: 100%;
       margin: 0 auto;
+      margin-top: 50px;
 
       .sticky-layout {
         position: relative;
