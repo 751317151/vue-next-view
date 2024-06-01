@@ -53,7 +53,7 @@
   /* 黑色遮罩 */
   --mask: rgba(0, 0, 0, 0.3);
   /* 半透明 */
-  --translucent: rgba(0, 0, 0, 0.5);
+  --translucent: rgba(255, 255, 255, 0.8);
   /* 深黑遮罩 */
   --maxMask: rgba(0, 0, 0, 0.7);
 

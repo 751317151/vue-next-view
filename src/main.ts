@@ -6,6 +6,17 @@ import registerIcons from "@/utils/registerIcons";
 import $ from "jquery";
 import ElementPlus from "element-plus";
 
+import VMdPreview from "@kangc/v-md-editor/lib/preview";
+import "@kangc/v-md-editor/lib/style/preview.css";
+import githubTheme from "@kangc/v-md-editor/lib/theme/github.js";
+import "@kangc/v-md-editor/lib/theme/style/github.css";
+
+// highlightjs
+import hljs from "highlight.js";
+VMdPreview.use(githubTheme, {
+  Hljs: hljs,
+});
+
 //引入css
 import "./assets/css/animation.css";
 import "./assets/css/index.css";
@@ -27,5 +38,6 @@ createApp(App)
   .use(router)
   .use($)
   .use(ElementPlus)
+  .use(VMdPreview)
   .use(registerIcons)
   .mount("#app");

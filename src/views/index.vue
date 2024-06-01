@@ -1,22 +1,30 @@
 <template>
   <div class="main-index">
     <!-- el过渡动画 -->
-    <transition name="el-fade-in-linear">
-      <!-- 导航栏 -->
-      <TopNavBar></TopNavBar>
-    </transition>
+    <!-- <transition name="el-fade-in-linear"> -->
+    <!-- 导航栏 -->
+    <TopNavBar></TopNavBar>
+    <!-- </transition> -->
 
     <div id="main-container">
       <router-view></router-view>
     </div>
 
     <!-- 回到顶部按钮 -->
-    <div href="#" class="cd-top" v-if="!isMobile" @click="toTop()"></div>
+    <div href="#" class="cd-top" v-show="!isMobile" @click="toTop()"></div>
 
     <div class="toolButton">
-      <div class="backTop" v-if="isMobile && state.toolButton" @click="toTop()">
+      <div class="backTop" v-show="isMobile && showToolButton" @click="toTop()">
         <!-- 回到顶部按钮 -->
         <i class="fa fa-arrow-up"></i>
+      </div>
+
+      <div
+        v-show="route.path === '/article' && isMobile"
+        @click="changeTocStatus()"
+      >
+        <!-- 文章目录按钮 -->
+        <el-icon><Operation /></el-icon>
       </div>
 
       <!-- 设置 -->
@@ -74,10 +82,13 @@ import Footer from "@/components/layout/Footer.vue";
 import { useConfig } from "@/stores/config";
 import { storeToRefs } from "pinia";
 import { onMounted, onBeforeUnmount, watch, reactive } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import mousedown from "@/utils/mousedown";
 
+const router = useRouter();
+const route = useRoute();
 const storesConfig = useConfig();
-const { isMobile } = storeToRefs(storesConfig);
+const { isMobile, showToolButton } = storeToRefs(storesConfig);
 
 const state = reactive({
   mouseAnimation: false,
@@ -99,6 +110,8 @@ const changeColor = () => {
     root.style.setProperty("--articleGreyFontColor", "#D4D4D4");
     root.style.setProperty("--commentContent", "#D4D4D4");
     root.style.setProperty("--favoriteBg", "#1e1e1e");
+    root.style.setProperty("--translucent", "rgba(0, 0, 0, 0.8)");
+    root.style.setProperty("--toolbarFont", "white");
   } else {
     root.style.setProperty("--background", "white");
     root.style.setProperty("--fontColor", "black");
@@ -108,6 +121,8 @@ const changeColor = () => {
     root.style.setProperty("--articleGreyFontColor", "#616161");
     root.style.setProperty("--commentContent", "#F7F9FE");
     root.style.setProperty("--favoriteBg", "#f7f9fe");
+    root.style.setProperty("--translucent", "rgba(255, 255, 255, 0.8)");
+    root.style.setProperty("--toolbarFont", "#272727");
   }
 };
 
@@ -116,6 +131,9 @@ const toTop = () => {
     top: 0,
     behavior: "smooth",
   });
+};
+const changeTocStatus = () => {
+  storesConfig.changeTocStatus();
 };
 const isDaylight = () => {
   let currDate = new Date();
@@ -242,11 +260,11 @@ const createdMethod = () => {
   };
   storesConfig.changeToolbarStatus(toolbarStatus);
 
-  isMobile.value = document.body.clientWidth < 1100;
+  isMobile.value = document.body.clientWidth <= 1000;
 
   window.addEventListener("resize", () => {
     let docWidth = document.body.clientWidth;
-    isMobile.value = docWidth < 1100;
+    isMobile.value = docWidth <= 1000;
   });
   getSortInfo();
 };
@@ -275,6 +293,9 @@ onBeforeUnmount(() => {
 watch(
   () => storesConfig.scrollTop,
   (scrollTop, oldScrollTop) => {
+    if (scrollTop < 30) {
+      // root.style.setProperty("--translucent", "rgba(0, 0, 0, 0)");
+    }
     //如果滑动距离超过屏幕高度三分之一视为进入页面，背景改为白色
     let enter = scrollTop > window.innerHeight / 2;
     const top = scrollTop - oldScrollTop < 0;
