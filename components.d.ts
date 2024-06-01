@@ -23,6 +23,7 @@ declare module 'vue' {
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Emoji: typeof import('./src/components/common/emoji.vue')['default']
     Footer: typeof import('./src/components/layout/Footer.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
