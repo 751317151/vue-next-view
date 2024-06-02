@@ -106,7 +106,7 @@ const { sideNavBarShow } = storeToRefs(storesConfig);
 const state = reactive({});
 
 const smallMenu = (path) => {
-  //   router.push(path);
+  router.push(path);
   sideNavBarShow.value = false;
 };
 const smallMenuLogout = () => {

@@ -1,14 +1,18 @@
-.toc {
+.card-toc {
   overflow-y: auto;
-  /* width: 150px;
+  width: 250px;
   max-height: 300px;
   position: fixed;
   top: 50vh;
-  right: 50px; */
+  right: 50px;
   background: var(--background);
   border-radius: 5px;
   z-index: 100;
   transition: all 1s;
+}
+
+.card-toc {
+  padding: 10px 10px 10px 5px;
 }
 
 .toc::-webkit-scrollbar {
@@ -26,19 +30,25 @@
 
 .toc .toc-list {
   margin: 0;
-  padding: 4px 4px 4px 10px;
+  padding-inline-start: 25px;
 }
 
 .toc a.toc-link {
   color: currentColor;
   height: 100%;
   text-decoration: none;
+  margin: 2px 0;
+  display: block;
+}
+
+.toc a.toc-link:hover {
+  color: red;
 }
 
 .toc .is-collapsible {
   max-height: 1000px;
   overflow: hidden;
-  transition: all 300ms ease-in-out;
+  /* transition: all 300ms ease-in-out;  动画切换颜色 */
 }
 
 .toc .is-collapsed {
@@ -48,6 +58,8 @@
 .toc .is-active-link {
   font-weight: 700;
   color: var(--green) !important;
+  padding: 4px 8px;
+  border-radius: 5px;
 }
 
 .toc .toc-link::before {

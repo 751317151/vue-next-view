@@ -381,6 +381,22 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
    2. Find 'TypeScript and JavaScript Language Features', right click and select 'Disable (Workspace)'
 2. Reload the VSCode window by running 'Developer: Reload Window' from the command palette.
 
+# 一级标题
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，，dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的
+
+## 二级标题
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的
+
+### 三级标题
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的,
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的
+# 一级标题
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，，dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，
+dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的
+
  `,
   treeHoleList: [],
   weiYanDialogVisible: false,
@@ -433,7 +449,7 @@ const getTocbot = () => {
     scrollSmooth: true,
     fixedSidebarOffset: "auto",
     scrollSmoothOffset: -100,
-    hasInnerContainers: true,
+    hasInnerContainers: false,
     onClick: function (e) {
       console.log(e);
       e.preventDefault();

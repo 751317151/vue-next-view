@@ -1,6 +1,7 @@
 <template>
   <div v-if="!common.isEmpty(articleList)" class="recent-post-container">
     <div
+      @click="router.push({ path: '/article' })"
       class="recent-post-item shadow-box background-opacity"
       v-for="(article, index) in articleList"
       :key="index"
@@ -93,8 +94,10 @@
 
 <script setup lang="ts">
 import { toRefs } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import common from "@/utils/common";
 
+const router = useRouter();
 const props = defineProps({
   //子组件接收父组件传递过来的值
   articleList: [],
