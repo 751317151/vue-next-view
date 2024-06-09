@@ -8,6 +8,7 @@
         <ArticleList :articleList="state.articleList"></ArticleList>
         <div class="pagination-wrap">
           <!-- 分页 -->
+          <Pagination></Pagination>
         </div>
       </div>
       <div class="aside-content" v-if="state.showAside">

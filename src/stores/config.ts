@@ -8,7 +8,7 @@ export const useConfig = defineStore("config", {
     },
     showToolButton: false,
     aaa: true,
-    sortInfo: [],
+    Categories: new Array<Category>(),
     currentUser: {},
     currentAdmin: {},
     webInfo: {
@@ -39,9 +39,9 @@ export const useConfig = defineStore("config", {
       this.scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop;
     },
-    loadSortInfo(sortInfo) {
-      if (sortInfo !== null && sortInfo.length !== 0) {
-        this.sortInfo = sortInfo.sort((s1, s2) => s1.priority - s2.priority);
+    getCategories(Categories: Array<Category>) {
+      if (Categories !== null && Categories.length !== 0) {
+        this.Categories = Categories;
       }
     },
   },

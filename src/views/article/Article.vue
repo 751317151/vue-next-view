@@ -86,8 +86,7 @@
             <span
               @click="
                 $router.push({
-                  path: '/sort',
-                  query: { sortId: 1, labelId: 1 },
+                  path: '/categories/1',
                 })
               "
               >{{ "aaa ▶ bbb" }}</span

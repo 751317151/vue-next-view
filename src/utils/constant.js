@@ -56,10 +56,7 @@ export default {
     "#23d5ab",
   ],
 
-  two_poem_image: [
-    "https://s1.ax1x.com/2022/12/04/zsKgDs.jpg",
-    "https://s1.ax1x.com/2022/12/04/zsKh5V.jpg",
-  ],
+  two_poem_image: ["https://bu.dusays.com/2023/03/20/6418531adb843.jpg"],
 
   before_color_1: "black",
   after_color_1: "linear-gradient(45deg, #f43f3b, #ec008c)",

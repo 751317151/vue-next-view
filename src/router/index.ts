@@ -19,10 +19,16 @@ const routes = [
         meta: { title: "归档" },
       },
       {
-        path: "/category",
-        name: "category",
-        component: () => import("@/views/category/Category.vue"),
+        path: "/categories",
+        name: "categories",
+        component: () => import("@/views/category/Categories.vue"),
         meta: { title: "分类" },
+      },
+      {
+        path: "/categories/:id",
+        name: "aa",
+        component: () => import("@/views/category/Category.vue"),
+        meta: { title: "详细分类" },
       },
       {
         path: "/article",

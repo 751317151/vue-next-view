@@ -8,7 +8,7 @@ declare interface Config<T = any> {
     visible: boolean;
     enter: boolean;
   };
-  sortInfo: [];
+  Categories: Array<Category>;
   currentUser: {};
   currentAdmin: {};
   webInfo: {
@@ -19,4 +19,9 @@ declare interface Config<T = any> {
     backgroundImage: "";
     avatar: "";
   };
+}
+
+declare interface Category {
+  id: Number;
+  categoryName: String;
 }

@@ -151,106 +151,30 @@ const changeMouseAnimation = () => {
     });
   }
 };
-const getSortInfo = () => {
-  let sortInfo = [
+const getCategories = () => {
+  let Categories: Array<Category> = [
+    {
+      id: 1,
+      categoryName: "生活倒影",
+    },
     {
       id: 2,
-      sortName: "生活倒影",
-      sortDescription: "记录美好生活",
-      sortType: 0,
-      priority: 1,
-      countOfSort: 3,
-      labels: [
-        {
-          id: 6,
-          sortId: 2,
-          labelName: "被偷走的那几年",
-          labelDescription: "被偷走的那几年",
-          countOfLabel: 3,
-        },
-      ],
+      categoryName: "java",
     },
     {
       id: 3,
-      sortName: "学习人生",
-      sortDescription: "学到老，活到老",
-      sortType: 1,
-      priority: 4,
-      countOfSort: 5,
-      labels: [
-        {
-          id: 5,
-          sortId: 3,
-          labelName: "工作经验",
-          labelDescription: "工作经验",
-          countOfLabel: 0,
-        },
-        {
-          id: 8,
-          sortId: 3,
-          labelName: "Java基础",
-          labelDescription: "Java基础",
-          countOfLabel: 3,
-        },
-        {
-          id: 15,
-          sortId: 3,
-          labelName: "大数据",
-          labelDescription: "大数据",
-          countOfLabel: 2,
-        },
-      ],
+      categoryName: "python",
     },
     {
       id: 4,
-      sortName: "寻国记",
-      sortDescription: "你看这世界多奇妙",
-      sortType: 1,
-      priority: 3,
-      countOfSort: 3,
-      labels: [
-        {
-          id: 11,
-          sortId: 4,
-          labelName: "俄罗斯与乌克兰",
-          labelDescription: "俄罗斯与乌克兰",
-          countOfLabel: 3,
-        },
-      ],
+      categoryName: "javascript",
     },
     {
       id: 5,
-      sortName: "视听盛宴",
-      sortDescription: "听音乐，看书，看电影",
-      sortType: 1,
-      priority: 2,
-      countOfSort: 3,
-      labels: [
-        {
-          id: 12,
-          sortId: 5,
-          labelName: "电影最TOP",
-          labelDescription: "电影最TOP",
-          countOfLabel: 0,
-        },
-        {
-          id: 13,
-          sortId: 5,
-          labelName: "动漫最TOP",
-          labelDescription: "动漫最TOP",
-          countOfLabel: 2,
-        },
-        {
-          id: 14,
-          sortId: 5,
-          labelName: "万卷书",
-          labelDescription: "万卷书",
-          countOfLabel: 1,
-        },
-      ],
+      categoryName: "c++",
     },
   ];
-  storesConfig.loadSortInfo(sortInfo);
+  storesConfig.getCategories(Categories);
 };
 
 const createdMethod = () => {
@@ -266,7 +190,7 @@ const createdMethod = () => {
     let docWidth = document.body.clientWidth;
     isMobile.value = docWidth <= 1000;
   });
-  getSortInfo();
+  getCategories();
 };
 createdMethod();
 onMounted(() => {

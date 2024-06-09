@@ -12,22 +12,15 @@
         <!-- 标签 -->
         <div
           class="sort-warp shadow-box"
-          v-if="
-            !common.isEmpty(state.sort) && !common.isEmpty(state.sort.labels)
-          "
+          v-if="!common.isEmpty(state.Categories)"
         >
           <div
-            v-for="(label, index) in state.sort.labels"
+            v-for="(category, index) in state.Categories"
             :key="index"
-            :class="{
-              isActive:
-                !common.isEmpty(state.labelId) &&
-                parseInt(state.labelId) === label.id,
-            }"
-            @click="listArticle(label)"
+            @click="refresh(category.id)"
           >
             <ProTag
-              :info="label.labelName + ' ' + label.countOfLabel"
+              :info="category.categoryName"
               :color="constant.before_color_list[Math.floor(Math.random() * 6)]"
               style="margin: 12px"
             >
@@ -63,49 +56,16 @@ import common from "@/utils/common";
 import constant from "@/utils/constant";
 
 const storesConfig = useConfig();
-const { sortInfo } = storeToRefs(storesConfig);
+const { Categories } = storeToRefs(storesConfig);
 
 const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
-  articleList: [
-    {
-      id: 1,
-      articleTitle: "标题",
-      articleContent:
-        "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-      articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-      createTime: "2022.02.02",
-      viewCount: 99,
-      commentCount: 99,
-      likeCount: 99,
-    },
-    {
-      id: 1,
-      articleTitle: "标题",
-      articleContent:
-        "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-      articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-      createTime: "2022.02.02",
-      viewCount: 99,
-      commentCount: 99,
-      likeCount: 99,
-    },
-    {
-      id: 1,
-      articleTitle: "标题",
-      articleContent: "内容",
-      articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-      createTime: "2022.02.02",
-      viewCount: 99,
-      commentCount: 99,
-      likeCount: 99,
-    },
-  ],
+  articleList: [],
   sortId: route.query.sortId || 3,
   labelId: route.query.labelId || 8,
-  sort: null,
+  Categories: new Array<Category>(),
   pagination: {
     current: 1,
     size: 10,
@@ -118,24 +78,75 @@ const state = reactive({
 
 const pageArticles = () => {
   state.pagination.current = state.pagination.current + 1;
-  getArticles();
+  getArticles(route.params.id);
 };
 
-const getSort = () => {
-  if (!common.isEmpty(sortInfo.value)) {
-    let sortArray = sortInfo.value.filter((f) => {
-      return f.id === parseInt(state.sortId);
-    });
-    if (!common.isEmpty(sortArray)) {
-      state.sort = sortArray[0];
-    }
+const getCategories = () => {
+  if (!common.isEmpty(Categories.value)) {
+    state.Categories = Categories.value;
   }
 };
-const listArticle = (label) => {};
-const getArticles = () => {};
+
+const getArticles = (id) => {
+  if (id == 1) {
+    state.articleList = [
+      {
+        id: 1,
+        articleTitle: "标题",
+        articleContent:
+          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
+        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
+        createTime: "2022.02.02",
+        viewCount: 99,
+        commentCount: 99,
+        likeCount: 99,
+      },
+      {
+        id: 1,
+        articleTitle: "标题",
+        articleContent:
+          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
+        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
+        createTime: "2022.02.02",
+        viewCount: 99,
+        commentCount: 99,
+        likeCount: 99,
+      },
+      {
+        id: 1,
+        articleTitle: "标题",
+        articleContent: "内容",
+        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
+        createTime: "2022.02.02",
+        viewCount: 99,
+        commentCount: 99,
+        likeCount: 99,
+      },
+    ];
+  } else {
+    state.articleList = [
+      {
+        id: 1,
+        articleTitle: "标题",
+        articleContent:
+          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
+        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
+        createTime: "2022.02.02",
+        viewCount: 99,
+        commentCount: 99,
+        likeCount: 99,
+      },
+    ];
+  }
+};
+const refresh = (id) => {
+  getArticles(id);
+  router.push("/categories/" + id);
+};
 
 onMounted(() => {
-  getSort();
+  getCategories();
+  getArticles(route.params.id);
 });
 </script>
 

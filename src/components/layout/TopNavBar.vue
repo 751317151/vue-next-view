@@ -47,11 +47,13 @@
                     <i class="fa fa-user-circle" aria-hidden="true"></i>
                     <span>归档</span>
                   </el-dropdown-item>
-                  <el-dropdown-item @click="router.push({ path: '/category' })">
+                  <el-dropdown-item
+                    @click="router.push({ path: '/categories' })"
+                  >
                     <i class="fa fa-sign-out" aria-hidden="true"></i>
                     <span>分类</span>
                   </el-dropdown-item>
-                  <el-dropdown-item @click="router.push({ path: '/tag' })">
+                  <el-dropdown-item @click="router.push({ path: '/tags' })">
                     <i class="fa fa-sign-in" aria-hidden="true"></i>
                     <span>标签</span>
                   </el-dropdown-item>
