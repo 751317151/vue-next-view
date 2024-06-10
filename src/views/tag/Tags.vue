@@ -2,7 +2,7 @@
   <div>
     <!-- 两句诗 -->
     <div class="my-animation-slide-top">
-      <CommonHead :typeName="'分类'"></CommonHead>
+      <CommonHead :typeName="'标签'"></CommonHead>
     </div>
     <div
       style="background-color: var(--background); padding-top: 40px"
@@ -10,19 +10,16 @@
     >
       <div class="page-container">
         <!-- 标签 -->
-        <div
-          class="sort-warp shadow-box"
-          v-if="!common.isEmpty(state.Categories)"
-        >
+        <div class="sort-warp shadow-box" v-if="!common.isEmpty(state.Tags)">
           <ProTag
-            v-for="(category, index) in state.Categories"
+            v-for="(tag, index) in state.Tags"
             :key="index"
             @click="
               router.push({
-                path: '/categories/' + category.id,
+                path: '/tags/' + tag.id,
               })
             "
-            :info="category.categoryName"
+            :info="tag.tagName"
             :color="constant.before_color_list[Math.floor(Math.random() * 6)]"
           >
           </ProTag>
@@ -37,29 +34,30 @@
 
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 
 const storesConfig = useConfig();
-const { Categories } = storeToRefs(storesConfig);
+const { Tags } = storeToRefs(storesConfig);
 
 const router = useRouter();
+const route = useRoute();
 
 const state = reactive({
-  Categories: new Array<Category>(),
+  Tags: new Array<Tag>(),
 });
 
-const getCategories = () => {
-  if (!common.isEmpty(Categories.value)) {
-    state.Categories = Categories.value;
+const getTags = () => {
+  if (!common.isEmpty(Tags.value)) {
+    state.Tags = Tags.value;
   }
 };
 
 onMounted(() => {
-  getCategories();
+  getTags();
 });
 </script>
 
@@ -79,6 +77,12 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+
+  .my-category {
+    display: flex;
+    font-size: 1.4em !important;
+    margin: 12px;
+  }
 }
 
 .article-wrap {

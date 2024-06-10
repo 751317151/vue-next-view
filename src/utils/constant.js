@@ -39,7 +39,7 @@ export default {
     "https://cdn.cbd.int//hexo-butterfly-envelope/lib/violet.jpg",
 
   before_color_list: [
-    "#ff4b2b",
+    "rgb(60 94 110)",
     "#EF794F",
     "#67C23A",
     "orange",

@@ -26,13 +26,25 @@ const routes = [
       },
       {
         path: "/categories/:id",
-        name: "aa",
+        name: "category",
         component: () => import("@/views/category/Category.vue"),
         meta: { title: "详细分类" },
       },
       {
+        path: "/tags",
+        name: "tags",
+        component: () => import("@/views/tag/Tags.vue"),
+        meta: { title: "标签" },
+      },
+      {
+        path: "/tags/:id",
+        name: "tag",
+        component: () => import("@/views/tag/Tag.vue"),
+        meta: { title: "详细标签" },
+      },
+      {
         path: "/article",
-        name: "Article",
+        name: "article",
         component: () => import("@/views/article/Article.vue"),
         meta: { title: "文章详情" },
       },

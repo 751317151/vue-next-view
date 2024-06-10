@@ -9,6 +9,7 @@ export const useConfig = defineStore("config", {
     showToolButton: false,
     aaa: true,
     Categories: new Array<Category>(),
+    Tags: new Array<Tag>(),
     currentUser: {},
     currentAdmin: {},
     webInfo: {
@@ -43,6 +44,9 @@ export const useConfig = defineStore("config", {
       if (Categories !== null && Categories.length !== 0) {
         this.Categories = Categories;
       }
+    },
+    getTags(Tags: Array<Tag>) {
+      this.Tags = Tags;
     },
   },
 });

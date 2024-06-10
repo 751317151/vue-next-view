@@ -10,22 +10,16 @@
     >
       <div class="page-container">
         <!-- 标签 -->
-        <div
-          class="tags-nav shadow-box"
-          v-if="!common.isEmpty(state.Categories)"
-        >
-          <div
-            v-for="(category, index) in state.Categories"
+        <div class="shadow-box tags-nav" v-if="!common.isEmpty(state.Tags)">
+          <ProTag
+            v-for="(tag, index) in state.Tags"
             :key="index"
-            @click="refresh(category.id)"
+            @click="refresh(tag.id)"
+            :info="tag.tagName"
+            :color="constant.before_color_list[Math.floor(Math.random() * 6)]"
+            style="margin: 12px"
           >
-            <ProTag
-              :info="category.categoryName"
-              :color="constant.before_color_list[Math.floor(Math.random() * 6)]"
-              style="margin: 12px"
-            >
-            </ProTag>
-          </div>
+          </ProTag>
         </div>
 
         <!-- 文章 -->
@@ -56,14 +50,14 @@ import common from "@/utils/common";
 import constant from "@/utils/constant";
 
 const storesConfig = useConfig();
-const { Categories } = storeToRefs(storesConfig);
+const { Tags } = storeToRefs(storesConfig);
 
 const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
   articleList: [],
-  Categories: new Array<Category>(),
+  Tags: new Array<Tag>(),
   pagination: {
     current: 1,
     size: 10,
@@ -77,9 +71,9 @@ const pageArticles = () => {
   getArticles(route.params.id);
 };
 
-const getCategories = () => {
-  if (!common.isEmpty(Categories.value)) {
-    state.Categories = Categories.value;
+const getTags = () => {
+  if (!common.isEmpty(Tags.value)) {
+    state.Tags = Tags.value;
   }
 };
 
@@ -137,11 +131,11 @@ const getArticles = (id) => {
 };
 const refresh = (id) => {
   getArticles(id);
-  router.push("/categories/" + id);
+  router.push("/tags/" + id);
 };
 
 onMounted(() => {
-  getCategories();
+  getTags();
   getArticles(route.params.id);
 });
 </script>
@@ -153,8 +147,8 @@ onMounted(() => {
   margin: 0 auto;
   flex-direction: row;
   max-width: 1200px;
-  position: relative;
   padding: 4rem 2rem 1rem 2rem;
+  position: relative;
 }
 .sort-warp {
   margin: 0 auto;
@@ -206,7 +200,6 @@ onMounted(() => {
     width: 90%;
   }
 }
-
 .tags-nav {
   display: flex;
   flex-direction: row;

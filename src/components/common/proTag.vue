@@ -25,6 +25,9 @@ const state = reactive({
   color: var(--white);
   border-radius: 5px;
   padding: 8px;
+  display: flex;
+  font-size: 1.4em !important;
+  margin: 12px;
 }
 
 .myTag:hover {

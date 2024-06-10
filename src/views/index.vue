@@ -173,8 +173,93 @@ const getCategories = () => {
       id: 5,
       categoryName: "c++",
     },
+    {
+      id: 6,
+      categoryName: "php",
+    },
+    {
+      id: 7,
+      categoryName: "大数据",
+    },
+    {
+      id: 8,
+      categoryName: "spring boot",
+    },
+    {
+      id: 9,
+      categoryName: "redis",
+    },
+    {
+      id: 10,
+      categoryName: "MySQL",
+    },
+    {
+      id: 11,
+      categoryName: "nginx",
+    },
+    {
+      id: 12,
+      categoryName: "vue",
+    },
   ];
   storesConfig.getCategories(Categories);
+};
+const getTags = () => {
+  let Tags: Array<Tag> = [
+    {
+      id: 1,
+      tagName: "生活倒影",
+    },
+    {
+      id: 2,
+      tagName: "java",
+    },
+    {
+      id: 3,
+      tagName: "python",
+    },
+    {
+      id: 4,
+      tagName: "javascript",
+    },
+    {
+      id: 5,
+      tagName: "c++",
+    },
+    {
+      id: 6,
+      tagName: "php",
+    },
+    {
+      id: 7,
+      tagName: "大数据",
+    },
+    {
+      id: 8,
+      tagName: "spring boot",
+    },
+    {
+      id: 9,
+      tagName: "redis",
+    },
+    {
+      id: 10,
+      tagName: "MySQL",
+    },
+    {
+      id: 11,
+      tagName: "nginx",
+    },
+    {
+      id: 12,
+      tagName: "vue",
+    },
+    {
+      id: 13,
+      tagName: "gpt",
+    },
+  ];
+  storesConfig.getTags(Tags);
 };
 
 const createdMethod = () => {
@@ -191,6 +276,7 @@ const createdMethod = () => {
     isMobile.value = docWidth <= 1000;
   });
   getCategories();
+  getTags();
 };
 createdMethod();
 onMounted(() => {

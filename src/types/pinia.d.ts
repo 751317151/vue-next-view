@@ -9,6 +9,7 @@ declare interface Config<T = any> {
     enter: boolean;
   };
   Categories: Array<Category>;
+  Tags: Array<Tag>;
   currentUser: {};
   currentAdmin: {};
   webInfo: {
@@ -24,4 +25,8 @@ declare interface Config<T = any> {
 declare interface Category {
   id: Number;
   categoryName: String;
+}
+declare interface Tag {
+  id: Number;
+  tagName: String;
 }
