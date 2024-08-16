@@ -33,6 +33,16 @@ import "@/assets/css/icon/iconfont.css";
 
 import "virtual:svg-icons-register";
 
+//页面滚动加载动画
+import AOS from "aos";
+import "aos/dist/aos.css";
+AOS.init({
+  offset: 120,
+  duration: 700,
+  easing: "ease-in-out-sine",
+  delay: 100,
+});
+
 createApp(App)
   .use(pinia)
   .use(router)

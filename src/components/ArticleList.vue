@@ -1,6 +1,7 @@
 <template>
   <div v-if="!common.isEmpty(articleList)" class="recent-post-container">
     <div
+      data-aos="fade-right"
       @click="router.push({ path: '/article' })"
       class="recent-post-item shadow-box background-opacity"
       v-for="(article, index) in articleList"

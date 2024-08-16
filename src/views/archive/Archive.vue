@@ -183,7 +183,6 @@ const state = reactive({
 
 .page-container {
   justify-content: center;
-  width: 90%;
   padding: 0 20px 40px 20px;
   margin: 0 auto;
   flex-direction: row;
@@ -211,5 +210,12 @@ const state = reactive({
 .travel-content {
   margin: 0 auto;
   max-width: 1200px;
+}
+
+@media screen and (max-width: 700px) {
+  // 小于700时生效
+  .page-container {
+    padding: 0;
+  }
 }
 </style>
