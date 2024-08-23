@@ -19,11 +19,11 @@ VMdPreview.use(githubTheme, {
 
 //引入css
 import "./assets/css/animation.css";
+import "./assets/css/color.css";
 import "./assets/css/index.css";
 import "./assets/css/tocbot.css";
-import "./assets/css/color.css";
 import "./assets/css/markdown-highlight.css";
-import "./assets/css/font-awesome.min.css";
+// import "./assets/css/font-awesome.min.css";
 
 import "element-plus/theme-chalk/index.css";
 // import "element-plus/theme-chalk/dark/css-vars.css"; //这句是暗黑模式切换

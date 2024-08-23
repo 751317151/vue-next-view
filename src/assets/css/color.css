@@ -1,6 +1,10 @@
 :root {
   /* 背景 */
   --background: white;
+  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/home_bg.webp");
+  --backgroundDarkImage: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp");
+  --backgroundPhoneImage: url("https://blackstar.s3.bitiful.net/img/snow.webp");
+  --backgroundPhoneDarkImage: url("https://blackstar.s3.bitiful.net/img/mb8.webp");
   --gradualBackground: linear-gradient(
     to right bottom,
     #ee7752,
@@ -80,7 +84,7 @@
   --black: black;
   --lightYellow: #f4e1c0;
 
-  --globalFont: SmileySans;
+  --globalFont: "LXGW";
 
   --commentURL: url(../file/comment.jpg);
   --springBg: url(../file/bg1.jpg);

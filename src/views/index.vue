@@ -7,6 +7,7 @@
     <!-- </transition> -->
 
     <div id="main-container">
+      <div class="web-bg"></div>
       <router-view></router-view>
     </div>
 
@@ -71,14 +72,14 @@
 
     <SideNavBar></SideNavBar>
 
-    <Footer></Footer>
+    <Footer2></Footer2>
   </div>
 </template>
 
 <script setup lang="ts">
 import TopNavBar from "@/components/layout/TopNavBar.vue";
 import SideNavBar from "@/components/layout/SideNavBar.vue";
-import Footer from "@/components/layout/Footer.vue";
+import Footer2 from "@/components/layout/Footer2.vue";
 import { useConfig } from "@/stores/config";
 import { storeToRefs } from "pinia";
 import { onMounted, onBeforeUnmount, watch, reactive } from "vue";
@@ -103,6 +104,10 @@ const changeColor = () => {
 
   if (state.isDark) {
     root.style.setProperty("--background", "#272727");
+    root.style.setProperty(
+      "--backgroundImage",
+      "url('https://blackstar.s3.bitiful.net/img/dark_mode.webp')"
+    );
     root.style.setProperty("--fontColor", "white");
     root.style.setProperty("--borderColor", "#4F4F4F");
     root.style.setProperty("--borderHoverColor", "black");
@@ -114,6 +119,10 @@ const changeColor = () => {
     root.style.setProperty("--toolbarFont", "white");
   } else {
     root.style.setProperty("--background", "white");
+    root.style.setProperty(
+      "--backgroundImage",
+      "url('https://blackstar.s3.bitiful.net/img/home_bg.webp')"
+    );
     root.style.setProperty("--fontColor", "black");
     root.style.setProperty("--borderColor", "rgba(0, 0, 0, 0.5)");
     root.style.setProperty("--borderHoverColor", "rgba(110, 110, 110, 0.4)");
@@ -332,6 +341,16 @@ watch(
 </script>
 
 <style lang="scss" scoped>
+.web-bg {
+  background: var(--backgroundImage);
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-attachment: local;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
 .main-index {
   min-height: 100vh;
   background-color: var(--background);

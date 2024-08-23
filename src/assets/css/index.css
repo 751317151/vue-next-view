@@ -9,15 +9,25 @@ body,
   padding: 0;
   width: 100%;
 }
-
+html {
+  overflow-x: hidden;
+}
 body {
   margin: 0;
-  overflow-x: hidden;
+  overflow: hidden;
   color: var(--fontColor); /*主题配色切换，使用elemtnt-plus需要注释掉 */
-  font-family: var(--globalFont), serif;
+  font-family: var(--globalFont), cursive;
+  font-weight: 700 !important;
   word-break: break-word;
 }
-
+a {
+  text-decoration: none;
+}
+@font-face {
+  font-family: "LXGW";
+  src: url("../fonts/霞鹜文楷.woff2");
+  font-display: swap;
+}
 @font-face {
   font-family: SmileySans;
   src: url(../fonts/SmileySans.otf);

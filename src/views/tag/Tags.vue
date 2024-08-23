@@ -4,10 +4,7 @@
     <div class="my-animation-slide-top">
       <CommonHead :typeName="'标签'"></CommonHead>
     </div>
-    <div
-      style="background-color: var(--background); padding-top: 40px"
-      class="my-animation-slide-bottom"
-    >
+    <div style="padding-top: 40px" class="my-animation-slide-bottom">
       <div class="page-container">
         <!-- 标签 -->
         <div class="sort-warp shadow-box" v-if="!common.isEmpty(state.Tags)">

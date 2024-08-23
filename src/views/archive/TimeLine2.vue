@@ -515,8 +515,7 @@
       letter-spacing: 1px;
     }
     .card-time {
-      position: absolute;
-      bottom: 10px;
+      margin-top: 16px;
       font-size: 18px;
       color: var(--greyFont);
     }
