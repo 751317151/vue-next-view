@@ -6,7 +6,6 @@ export const useConfig = defineStore("config", {
       visible: true,
       enter: false,
     },
-    showToolButton: false,
     aaa: true,
     Categories: new Array<Category>(),
     Tags: new Array<Tag>(),

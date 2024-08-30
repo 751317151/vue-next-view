@@ -73,8 +73,11 @@
                 align-items: center;
               "
             >
-              &nbsp;©&nbsp;2019 - 2024 ─=≡Σ(((つ•̀ω•́)つ
-              <a href="/" target="_blank" class="black-text">BlackStar</a>
+              <div>
+                &nbsp;©&nbsp;2019 - 2024 ─=≡Σ(((つ•̀ω•́)つ
+                <a href="/" target="_blank" class="black-text">BlackStar</a>
+              </div>
+
               <div
                 style="
                   display: flex;
@@ -107,73 +110,72 @@
                 </a>
               </div>
             </div>
-            <br /><br />
-            <div class="v-badge"></div>
-            <div class="V-badge">
-              <a
-                style="color: #fff"
-                rel="license"
-                href="https://github.com/"
-                target="_blank"
-              >
-                <span class="badge-subject">Theme</span
-                ><span class="badge-value bg-red">Vino</span>
-              </a>
+            <br />
+            <div>
+              <div class="V-badge">
+                <a
+                  style="color: #fff"
+                  rel="license"
+                  href="https://github.com/"
+                  target="_blank"
+                >
+                  <span class="badge-subject">Theme</span
+                  ><span class="badge-value bg-red">Vino</span>
+                </a>
+              </div>
+              <div class="V-badge">
+                <a
+                  style="color: #fff"
+                  rel="license"
+                  href="https://www.slcp.top"
+                  target="_blank"
+                  title="主题由Slcp修改"
+                >
+                  <span class="badge-subject">Modified</span
+                  ><span class="badge-value" style="background-color: #483d8b"
+                    >Slcp</span
+                  ></a
+                >
+              </div>
+              <div class="V-badge">
+                <a
+                  style="color: #fff"
+                  rel="license"
+                  href="https://spring.io/projects/spring-boot"
+                  target="_blank"
+                  title="本站使用springBoot搭建"
+                >
+                  <span class="badge-subject">Powered</span
+                  ><span class="badge-value bg-green">SpringBoot</span></a
+                >
+              </div>
+              <div class="V-badge">
+                <a
+                  style="color: #fff"
+                  rel="license"
+                  href="https://portal.qiniu.com/"
+                  target="_blank"
+                  title="本站图片CDN加速由七牛云提供"
+                  data-pjax-state=""
+                >
+                  <span class="badge-subject">CDN</span
+                  ><span class="badge-value bg-blue">Qiniu</span></a
+                >
+              </div>
+              <div class="V-badge">
+                <a
+                  style="color: #fff"
+                  rel="license"
+                  href="https://cloud.tencent.com/"
+                  target="_blank"
+                  title="运行于腾讯云轻量服务器"
+                  data-pjax-state=""
+                >
+                  <span class="badge-subject">Hosted</span
+                  ><span class="badge-value bg-orange">Tencent</span></a
+                >
+              </div>
             </div>
-            <div class="V-badge">
-              <a
-                style="color: #fff"
-                rel="license"
-                href="https://www.slcp.top"
-                target="_blank"
-                title="主题由Slcp修改"
-              >
-                <span class="badge-subject">Modified</span
-                ><span class="badge-value" style="background-color: #483d8b"
-                  >Slcp</span
-                ></a
-              >
-            </div>
-            <div class="V-badge">
-              <a
-                style="color: #fff"
-                rel="license"
-                href="https://spring.io/projects/spring-boot"
-                target="_blank"
-                title="本站使用springBoot搭建"
-              >
-                <span class="badge-subject">Powered</span
-                ><span class="badge-value bg-green">SpringBoot</span></a
-              >
-            </div>
-            <div class="V-badge">
-              <a
-                style="color: #fff"
-                rel="license"
-                href="https://portal.qiniu.com/"
-                target="_blank"
-                title="本站图片CDN加速由七牛云提供"
-                data-pjax-state=""
-              >
-                <span class="badge-subject">CDN</span
-                ><span class="badge-value bg-blue">Qiniu</span></a
-              >
-            </div>
-            <div class="V-badge">
-              <a
-                style="color: #fff"
-                rel="license"
-                href="https://cloud.tencent.com/"
-                target="_blank"
-                title="运行于腾讯云轻量服务器"
-                data-pjax-state=""
-              >
-                <span class="badge-subject">Hosted</span
-                ><span class="badge-value bg-orange">Tencent</span></a
-              >
-            </div>
-            <input type="hidden" id="busuanzi_value_site_uv" />
-            <input type="hidden" id="busuanzi_value_site_pv" />
           </div>
         </div>
         <div id="blog-message">
@@ -317,18 +319,11 @@ const getHitokoto = () => {
 }
 .page-footer {
   position: relative;
+  padding: 20px 20px;
   color: rgba(255, 255, 255, 0.7);
-  &:before {
-    content: "";
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.25) !important;
-    width: 100%;
-    height: 100%;
-    left: 0;
-  }
 }
 .black-text {
-  color: #000 !important;
+  color: rgba(255, 255, 255, 0.7);
 }
 .V-badge {
   display: inline-block;
@@ -339,5 +334,23 @@ const getHitokoto = () => {
   line-height: 15px;
   background-color: #abbac3;
   margin-bottom: 5px;
+  margin-left: 2px;
+
+  .badge-subject {
+    display: inline;
+    background-color: #4d4d4d;
+    padding: 4px 4px 4px 6px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    color: #fff !important;
+  }
+  .badge-value {
+    display: inline;
+    padding: 4px 6px 4px 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    color: #fff !important;
+    background-color: #e05d44 !important;
+  }
 }
 </style>

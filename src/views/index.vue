@@ -8,6 +8,7 @@
 
     <div id="main-container">
       <div class="web-bg"></div>
+      <canvas id="universe"></canvas>
       <router-view></router-view>
     </div>
 
@@ -15,7 +16,11 @@
     <div href="#" class="cd-top" v-show="!isMobile" @click="toTop()"></div>
 
     <div class="toolButton">
-      <div class="backTop" v-show="isMobile && showToolButton" @click="toTop()">
+      <div
+        class="backTop"
+        v-show="isMobile && state.showToolButton"
+        @click="toTop()"
+      >
         <!-- 回到顶部按钮 -->
         <i class="fa fa-arrow-up"></i>
       </div>
@@ -32,7 +37,7 @@
       <el-popover placement="left" :close-delay="500" trigger="hover">
         <template #reference>
           <div>
-            <i class="fa fa-cog iconRotate" aria-hidden="true"></i>
+            <i class="fa fa-cog" aria-hidden="true"></i>
           </div>
         </template>
         <div class="my-setting">
@@ -85,53 +90,27 @@ import { storeToRefs } from "pinia";
 import { onMounted, onBeforeUnmount, watch, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import mousedown from "@/utils/mousedown";
+import blackstar from "@/utils/blackstar";
 
 const router = useRouter();
 const route = useRoute();
 const storesConfig = useConfig();
-const { isMobile, showToolButton } = storeToRefs(storesConfig);
+const { isMobile } = storeToRefs(storesConfig);
 
 const state = reactive({
   mouseAnimation: false,
-  isDark: false,
+  isDark: true,
   toolButton: false,
+  showToolButton: false,
 });
 
 // methods
 const changeColor = () => {
   state.isDark = !state.isDark;
-  let root = document.querySelector(":root");
-
   if (state.isDark) {
-    root.style.setProperty("--background", "#272727");
-    root.style.setProperty(
-      "--backgroundImage",
-      "url('https://blackstar.s3.bitiful.net/img/dark_mode.webp')"
-    );
-    root.style.setProperty("--fontColor", "white");
-    root.style.setProperty("--borderColor", "#4F4F4F");
-    root.style.setProperty("--borderHoverColor", "black");
-    root.style.setProperty("--articleFontColor", "#E4E4E4");
-    root.style.setProperty("--articleGreyFontColor", "#D4D4D4");
-    root.style.setProperty("--commentContent", "#D4D4D4");
-    root.style.setProperty("--favoriteBg", "#1e1e1e");
-    root.style.setProperty("--translucent", "rgba(0, 0, 0, 0.8)");
-    root.style.setProperty("--toolbarFont", "white");
+    document.documentElement.setAttribute("theme", "dark");
   } else {
-    root.style.setProperty("--background", "white");
-    root.style.setProperty(
-      "--backgroundImage",
-      "url('https://blackstar.s3.bitiful.net/img/home_bg.webp')"
-    );
-    root.style.setProperty("--fontColor", "black");
-    root.style.setProperty("--borderColor", "rgba(0, 0, 0, 0.5)");
-    root.style.setProperty("--borderHoverColor", "rgba(110, 110, 110, 0.4)");
-    root.style.setProperty("--articleFontColor", "#1F1F1F");
-    root.style.setProperty("--articleGreyFontColor", "#616161");
-    root.style.setProperty("--commentContent", "#F7F9FE");
-    root.style.setProperty("--favoriteBg", "#f7f9fe");
-    root.style.setProperty("--translucent", "rgba(255, 255, 255, 0.8)");
-    root.style.setProperty("--toolbarFont", "#272727");
+    document.documentElement.setAttribute("theme", "light");
   }
 };
 
@@ -147,9 +126,9 @@ const changeTocStatus = () => {
 const isDaylight = () => {
   let currDate = new Date();
   if (currDate.getHours() > 22 || currDate.getHours() < 7) {
-    return true;
-  } else {
     return false;
+  } else {
+    return true;
   }
 };
 const changeMouseAnimation = () => {
@@ -284,6 +263,7 @@ const createdMethod = () => {
     let docWidth = document.body.clientWidth;
     isMobile.value = docWidth <= 1000;
   });
+
   getCategories();
   getTags();
 };
@@ -295,16 +275,13 @@ onMounted(() => {
   window.addEventListener("scroll", storesConfig.onScrollPage);
   if (isDaylight()) {
     state.isDark = true;
-    let root = document.querySelector(":root");
-    root.style.setProperty("--background", "#272727");
-    root.style.setProperty("--fontColor", "white");
-    root.style.setProperty("--borderColor", "#4F4F4F");
-    root.style.setProperty("--borderHoverColor", "black");
-    root.style.setProperty("--articleFontColor", "#E4E4E4");
-    root.style.setProperty("--articleGreyFontColor", "#D4D4D4");
-    root.style.setProperty("--commentContent", "#D4D4D4");
-    root.style.setProperty("--favoriteBg", "#1e1e1e");
   }
+  if (state.isDark) {
+    document.documentElement.setAttribute("theme", "dark");
+  } else {
+    document.documentElement.setAttribute("theme", "light");
+  }
+  blackstar.dark();
 });
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", storesConfig.onScrollPage);
@@ -329,6 +306,12 @@ watch(
     } else if (!isShow && !isMobile.value) {
       $(".cd-top").css("top", "-900px");
     }
+    if (isShow && isMobile.value) {
+      state.showToolButton = true;
+    }
+    if (!isShow || !isMobile.value) {
+      state.showToolButton = false;
+    }
 
     //导航栏显示与颜色
     let toolbarStatus = {
@@ -350,6 +333,18 @@ watch(
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+}
+#universe {
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 .main-index {
   min-height: 100vh;

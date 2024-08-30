@@ -96,3 +96,45 @@
   --toolbar: url(../file/bg.jpg);
   --love: url(../file/bg.jpg);
 }
+
+@keyframes light_15px {
+  0% {
+    text-shadow: #5636ed 0 0 15px;
+  }
+
+  12.5% {
+    text-shadow: #11ee5e 0 0 15px;
+  }
+
+  25% {
+    text-shadow: #f14747 0 0 15px;
+  }
+
+  37.5% {
+    text-shadow: #f1a247 0 0 15px;
+  }
+
+  50% {
+    text-shadow: #f1ee47 0 0 15px;
+  }
+
+  50% {
+    text-shadow: #b347f1 0 0 15px;
+  }
+
+  62.5% {
+    text-shadow: #002afa 0 0 15px;
+  }
+
+  75% {
+    text-shadow: #ed709b 0 0 15px;
+  }
+
+  87.5% {
+    text-shadow: #39c5bb 0 0 15px;
+  }
+
+  100% {
+    text-shadow: #5636ed 0 0 15px;
+  }
+}

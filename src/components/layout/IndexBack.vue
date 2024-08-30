@@ -42,7 +42,12 @@
     <!-- 首页文字 -->
     <div class="signature-wall myCenter my-animation-hideToShow">
       <h1 class="playful">
-        <span>Elden Ring</span>
+        <span
+          style="
+            animation: 10s linear 0s infinite normal none running light_15px;
+          "
+          >BlackStar</span
+        >
       </h1>
       <div class="printer" @click="getGuShi()">
         <printer :printerInfo="state.printerInfo">
@@ -58,7 +63,7 @@
         @click="scrollToNavigation('.page-container-wrap')"
       ></i>
     </div>
-    <div class="wave">
+    <div v-show="!isMobile" class="wave">
       <div class="wave1"></div>
       <div class="wave2"></div>
     </div>

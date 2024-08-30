@@ -36,7 +36,7 @@ const state = reactive({
   articleList: [
     {
       id: 1,
-      articleTitle: "标题",
+      articleTitle: "标题1",
       articleContent:
         "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
       articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",

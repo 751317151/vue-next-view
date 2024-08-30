@@ -25,6 +25,7 @@
     "vue-router": "^4.2.2",
     "vue-seamless-scroll": "^1.1.23",
     "vue3-danmaku": "^1.5.1",
+    "vue3-seamless-scroll": "^2.0.1",
     "vue3-social-share": "^0.1.7"
   },
   "devDependencies": {

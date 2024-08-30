@@ -31,8 +31,8 @@
     >
       <div style="font-weight: bold; margin-bottom: 20px">🧨赞赏名单</div>
       <div>
-        <vue-seamless-scroll
-          :data="state.admires"
+        <vue3-seamless-scroll
+          :list="state.admires"
           style="height: 200px; overflow: hidden"
         >
           <div
@@ -62,7 +62,7 @@
               {{ item.admire }}元
             </div>
           </div>
-        </vue-seamless-scroll>
+        </vue3-seamless-scroll>
       </div>
       <div class="admire-btn" @click="showAdmire()">赞赏</div>
     </div>
@@ -187,7 +187,7 @@
 </template>
 
 <script setup lang="ts">
-import { Vue3SeamlessScroll } from "vue-seamless-scroll";
+import { Vue3SeamlessScroll } from "vue3-seamless-scroll";
 import { onMounted, watch, reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";

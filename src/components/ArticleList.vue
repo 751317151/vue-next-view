@@ -101,7 +101,7 @@ import common from "@/utils/common";
 const router = useRouter();
 const props = defineProps({
   //子组件接收父组件传递过来的值
-  articleList: [],
+  articleList: Array,
 });
 //使用父组件传递过来的值
 const { articleList } = toRefs(props);

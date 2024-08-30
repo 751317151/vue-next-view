@@ -1,11 +1,61 @@
 /* 默认dark主题 */
-:root[theme="dark"] {
+[theme="dark"] {
   --bg-color: #0d1117;
   --text-color: #f0f6fc;
+
+  --background: #272727;
+  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp");
+  --fontColor: white;
+  --borderColor: #4f4f4f;
+  --borderHoverColor: black;
+  --articleFontColor: #e4e4e4;
+  --articleGreyFontColor: #d4d4d4;
+  --commentContent: #d4d4d4;
+  --favoriteBg: #1e1e1e;
+  --translucent: rgba(0, 0, 0, 0.8);
+  --toolbarFont: white;
+
+  .aa {
+  }
+
+  .web-bg::before {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    content: "";
+  }
+
+  .my-el-image {
+    filter: brightness(0.7);
+  }
 }
 
 /* light主题 */
-:root[theme="light"] {
+[theme="light"] {
   --bg-color: #ecf0f3;
   --text-color: #181818;
+
+  --background: white;
+  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/home_bg.webp");
+  --fontColor: black;
+  --borderColor: rgba(0, 0, 0, 0.5);
+  --borderHoverColor: rgba(110, 110, 110, 0.4);
+  --articleFontColor: #1f1f1f;
+  --articleGreyFontColor: #616161;
+  --commentContent: #f7f9fe;
+  --favoriteBg: #f7f9fe;
+  --translucent: rgba(255, 255, 255, 0.8);
+  --toolbarFont: #272727;
+
+  .aa {
+  }
+  .page-footer::before {
+    content: "";
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.25) !important;
+    width: 100%;
+    height: 100%;
+    left: 0;
+  }
 }

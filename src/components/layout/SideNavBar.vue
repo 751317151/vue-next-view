@@ -3,7 +3,7 @@
     v-model="sideNavBarShow"
     :show-close="false"
     size="65%"
-    custom-class="toolbarDrawer"
+    class="toolbarDrawer"
     :with-header="false"
     direction="ltr"
   >
