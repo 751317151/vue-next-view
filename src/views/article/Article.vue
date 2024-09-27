@@ -71,6 +71,7 @@
           <!-- 文章内容 -->
           <div class="entry-content">
             <v-md-preview
+              class="font-class"
               ref="articleRef"
               :text="state.articleContentText"
               height="400px"
@@ -550,10 +551,13 @@ watch(
 </script>
 
 <style lang="scss" scoped>
+::v-deep .github-markdown-body {
+  font-family: "LXGW";
+}
 .my-card {
   border-radius: 8px;
-  background: var(--card-bg);
-  border: 1px solid blue;
+  background: var(--trans-card-bg);
+  border: var(--border-style);
   -webkit-transition: all 0.3s;
   -moz-transition: all 0.3s;
   -o-transition: all 0.3s;
@@ -573,6 +577,7 @@ watch(
     // max-width: 800px;
     width: 70%;
     padding: 40px 50px;
+    border: var(--border-style);
 
     .fenge {
       background: url(https://npm.elemecdn.com/hassan-assets/img/Bilibili_Dividing_Line.png)

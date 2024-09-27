@@ -15,51 +15,70 @@
     <!-- 回到顶部按钮 -->
     <div href="#" class="cd-top" v-show="!isMobile" @click="toTop()"></div>
 
-    <div class="toolButton">
+    <div class="rightside" :class="{ show: state.showToolButton }">
       <div
-        class="backTop"
-        v-show="isMobile && state.showToolButton"
-        @click="toTop()"
+        class="rightside-config-hide"
+        :class="{ show: state.showSettingStatus }"
       >
-        <!-- 回到顶部按钮 -->
-        <i class="fa fa-arrow-up"></i>
+        <button class="readmode" type="button" title="阅读模式">
+          <i class="fa fa-book-open"></i>
+        </button>
+        <button @click="changeColor()">
+          <!-- 太阳按钮 -->
+          <el-icon v-if="state.isDark">
+            <Sunny />
+          </el-icon>
+          <!-- 月亮按钮 -->
+          <el-icon v-else aria-hidden="true">
+            <Moon />
+          </el-icon>
+        </button>
+        <button
+          class="share"
+          type="button"
+          title="点击动画s"
+          @click="changeMouseAnimation()"
+        >
+          <el-icon>
+            <SwitchFilled />
+          </el-icon>
+        </button>
       </div>
-
-      <div
-        v-show="route.path === '/article' && isMobile"
-        @click="changeTocStatus()"
-      >
-        <!-- 文章目录按钮 -->
-        <el-icon><Operation /></el-icon>
+      <div class="rightside-config-show">
+        <button
+          class="rightside_config"
+          type="button"
+          title="设置"
+          @click="changeSettingStatus()"
+        >
+          <i class="fa fa-cog right_side iconRotate"></i>
+        </button>
+        <button
+          v-show="route.path === '/article' && isMobile"
+          @click="changeTocStatus()"
+          class="close"
+          id="mobile-toc-button"
+          type="button"
+          title="目录"
+        >
+          <i class="fa fa-list-ul"></i>
+        </button>
+        <button class="share" type="button" title="分享链接" onclick="share()">
+          <i class="fa fa-share-alt"></i>
+        </button>
+        <button class="go-up" type="button" title="回到顶部" @click="toTop()">
+          <i class="fa fa-arrow-up"></i>
+          <span class="percent">{{ state.percent }}%</span>
+        </button>
+        <button
+          class="go-down"
+          type="button"
+          title="直达底部"
+          @click="toBottom()"
+        >
+          <i class="fa fa-arrow-down"></i>
+        </button>
       </div>
-
-      <!-- 设置 -->
-      <el-popover placement="left" :close-delay="500" trigger="hover">
-        <template #reference>
-          <div>
-            <i class="fa fa-cog" aria-hidden="true"></i>
-          </div>
-        </template>
-        <div class="my-setting">
-          <div>
-            <!-- 太阳按钮 -->
-            <el-icon
-              class="iconRotate"
-              v-if="state.isDark"
-              @click="changeColor()"
-              ><Sunny
-            /></el-icon>
-            <!-- 月亮按钮 -->
-            <el-icon v-else aria-hidden="true" @click="changeColor()"
-              ><Moon
-            /></el-icon>
-          </div>
-          <div>
-            <el-icon @click="changeMouseAnimation()"><SwitchFilled /></el-icon>
-          </div>
-        </div>
-      </el-popover>
-
       <!-- 点击动画 -->
       <canvas
         v-if="state.mouseAnimation"
@@ -71,8 +90,7 @@
           pointer-events: none;
           z-index: 1000;
         "
-      >
-      </canvas>
+      ></canvas>
     </div>
 
     <SideNavBar></SideNavBar>
@@ -100,8 +118,9 @@ const { isMobile } = storeToRefs(storesConfig);
 const state = reactive({
   mouseAnimation: false,
   isDark: true,
-  toolButton: false,
   showToolButton: false,
+  showSettingStatus: false,
+  percent: 0,
 });
 
 // methods
@@ -119,6 +138,15 @@ const toTop = () => {
     top: 0,
     behavior: "smooth",
   });
+};
+const toBottom = () => {
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth",
+  });
+};
+const changeSettingStatus = () => {
+  state.showSettingStatus = !state.showSettingStatus;
 };
 const changeTocStatus = () => {
   storesConfig.changeTocStatus();
@@ -292,11 +320,19 @@ watch(
     if (scrollTop < 30) {
       // root.style.setProperty("--translucent", "rgba(0, 0, 0, 0)");
     }
+
+    // 获取文档的总高度
+    const docHeight = document.body.scrollHeight;
+    // 获取视窗的高度
+    const winHeight = window.innerHeight;
+    // 计算当前滚动的百分比
+    state.percent = Math.round((scrollTop / (docHeight - winHeight)) * 100);
+
     //如果滑动距离超过屏幕高度三分之一视为进入页面，背景改为白色
     let enter = scrollTop > window.innerHeight / 2;
     const top = scrollTop - oldScrollTop < 0;
-    let isShow = scrollTop - window.innerHeight > 30;
-    state.toolButton = isShow;
+    let isShow = scrollTop - window.innerHeight > -1;
+    state.showToolButton = isShow;
     if (isShow && !isMobile.value) {
       if (window.innerHeight > 950) {
         $(".cd-top").css("top", "0");
@@ -305,12 +341,6 @@ watch(
       }
     } else if (!isShow && !isMobile.value) {
       $(".cd-top").css("top", "-900px");
-    }
-    if (isShow && isMobile.value) {
-      state.showToolButton = true;
-    }
-    if (!isShow || !isMobile.value) {
-      state.showToolButton = false;
     }
 
     //导航栏显示与颜色
@@ -334,6 +364,7 @@ watch(
   background-size: cover;
   background-repeat: no-repeat;
 }
+
 #universe {
   position: fixed;
   margin: 0;
@@ -346,44 +377,105 @@ watch(
   height: 100%;
   pointer-events: none;
 }
+
 .main-index {
   min-height: 100vh;
   background-color: var(--background);
   display: flex;
   flex-direction: column;
 }
+
 #main-container {
   -webkit-flex: 1 auto;
 }
-.my-setting {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  cursor: pointer;
-  font-size: 20px;
-  align-items: center;
-}
 
-.my-setting div {
-  height: 20px;
-}
-
-.my-setting i:hover {
-  color: var(--themeBackground);
-}
 .el-popper[x-placement^="bottom"] {
   margin-top: -8px;
 }
 
-.toolButton {
-  width: 50px;
+.rightside {
+  display: block;
+  opacity: 0;
+  transform: translateX(-58px);
   position: fixed;
-  right: 3vh;
-  bottom: 3vh;
-  animation: slide-bottom 0.5s ease-in-out both;
+  right: -100px;
+  bottom: 40px;
   z-index: 100;
-  cursor: pointer;
-  font-size: 25px;
+  -moz-transition: all 0.5s;
+  -o-transition: all 0.5s;
+  -ms-transition: all 0.5s;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  // transform: translateX(70px); /* 初始位置在右侧 */
+
+  .rightside-config-hide {
+    max-height: 0px;
+    opacity: 0;
+    transition: max-height 0.6s ease, opacity 0.6s ease, transform 0.6s ease;
+    transform: translateX(70px); /* 初始位置在右侧 */
+  }
+  .show {
+    max-height: 500px; /* 使用较大的 max-height 值来代替 auto */
+    opacity: 1;
+    transform: translateY(0); /* 先上移 */
+    transition: transform 0.6s ease; /* 上移过渡 0.4s 完成 */
+  }
+
+  div > a,
+  div > button {
+    display: block;
+    margin-bottom: 5px;
+    width: 35px;
+    height: 35px;
+    border-radius: 5px;
+    background-color: var(--btn-bg);
+    color: var(--btn-color);
+    text-align: center;
+    font-size: 16px;
+    line-height: 35px;
+  }
+
+  div > a:hover,
+  div > button:hover {
+    background-color: var(--btn-hover-color);
+  }
+  div > a,
+  div > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+    border-radius: 6px;
+    border: none;
+  }
+
+  .fa-arrow-up {
+    display: none;
+  }
+  .go-up:hover {
+    .fa-arrow-up {
+      display: block;
+    }
+    .percent {
+      display: none;
+    }
+  }
+  .go-up span {
+    margin-right: -1px;
+    font-size: 12px !important;
+  }
+  .go-up .percent {
+    font-weight: 700;
+    font-size: 15px !important;
+  }
+}
+
+.rightside.show {
+  // max-height: 500px; /* 使用较大的 max-height 值来代替 auto */
+  opacity: 1;
+  transform: translateX(-120px); /* 平移200px */
+  transition: transform 0.5s ease; /* 上移过渡 0.4s 完成 */
 }
 
 .cd-top {
@@ -397,22 +489,5 @@ watch(
   background-size: contain;
   transition: all 0.5s ease-in-out;
   cursor: pointer;
-}
-
-.backTop {
-  transition: all 0.3s ease-in;
-  position: relative;
-  top: 0;
-  left: -1px;
-}
-
-.backTop:hover {
-  top: -10px;
-}
-
-@media screen and (max-width: 400px) {
-  .toolButton {
-    right: 0.5vh;
-  }
 }
 </style>

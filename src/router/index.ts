@@ -4,10 +4,10 @@ const routes = [
   {
     path: "/",
     component: () => import("@/views/index.vue"),
-    redirect: "/home",
+    redirect: "/",
     children: [
       {
-        path: "/home",
+        path: "/",
         name: "home",
         component: () => import("@/views/home/Home.vue"),
         meta: { title: "首页" },

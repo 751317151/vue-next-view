@@ -18,7 +18,7 @@ body {
   color: var(--fontColor); /*主题配色切换，使用elemtnt-plus需要注释掉 */
   font-family: var(--globalFont), cursive;
   font-weight: 700 !important;
-  word-break: break-word;
+  /* word-break: break-word; */
 }
 a {
   text-decoration: none;

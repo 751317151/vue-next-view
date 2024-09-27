@@ -10,7 +10,6 @@ declare module 'vue' {
     ArticleList: typeof import('./src/components/ArticleList.vue')['default']
     Card: typeof import('./src/components/common/card.vue')['default']
     CommonHead: typeof import('./src/components/common/CommonHead.vue')['default']
-    copy: typeof import('./src/components/layout/Footer copy.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElCol: typeof import('element-plus/es')['ElCol']
     ElDialog: typeof import('element-plus/es')['ElDialog']

@@ -263,7 +263,7 @@ header.moving .bg3 {
   margin: auto;
   font-size: 26px;
   top: 30%;
-  z-index: 150;
+  z-index: 1;
 }
 
 .playful {
