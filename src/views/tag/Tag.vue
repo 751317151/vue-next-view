@@ -7,9 +7,9 @@
     <div style="padding-top: 40px" class="my-animation-slide-bottom">
       <div class="page-container">
         <!-- 标签 -->
-        <div class="shadow-box tags-nav" v-if="!common.isEmpty(state.Tags)">
+        <div class="shadow-box tags-nav" v-if="!common.isEmpty(Tags)">
           <ProTag
-            v-for="(tag, index) in state.Tags"
+            v-for="(tag, index) in Tags"
             :key="index"
             @click="refresh(tag.id)"
             :info="tag.tagName"
@@ -21,7 +21,7 @@
 
         <!-- 文章 -->
         <div class="article-wrap">
-          <articleList :articleList="state.articleList"></articleList>
+          <articleList :ArticleList="state.articleList"></articleList>
           <div class="pagination-wrap">
             <div
               @click="pageArticles()"
@@ -53,8 +53,7 @@ const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
-  articleList: [],
-  Tags: new Array<Tag>(),
+  articleList: Array<Article>(),
   pagination: {
     current: 1,
     size: 10,
@@ -65,16 +64,10 @@ const state = reactive({
 
 const pageArticles = () => {
   state.pagination.current = state.pagination.current + 1;
-  getArticles(route.params.id);
+  getArticles(Number(route.params.id));
 };
 
-const getTags = () => {
-  if (!common.isEmpty(Tags.value)) {
-    state.Tags = Tags.value;
-  }
-};
-
-const getArticles = (id) => {
+const getArticles = (id: number) => {
   if (id == 1) {
     state.articleList = [
       {
@@ -126,14 +119,13 @@ const getArticles = (id) => {
     ];
   }
 };
-const refresh = (id) => {
+const refresh = (id: number) => {
   getArticles(id);
   router.push("/tags/" + id);
 };
 
 onMounted(() => {
-  getTags();
-  getArticles(route.params.id);
+  getArticles(Number(route.params.id));
 });
 </script>
 

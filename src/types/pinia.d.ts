@@ -23,10 +23,21 @@ declare interface Config<T = any> {
 }
 
 declare interface Category {
-  id: Number;
-  categoryName: String;
+  id: number;
+  categoryName: string;
 }
 declare interface Tag {
-  id: Number;
-  tagName: String;
+  id: number;
+  tagName: string;
+}
+
+declare interface Article {
+  id: number;
+  articleTitle: string;
+  articleContent: string;
+  articleCover: string;
+  createTime: date;
+  viewCount: number;
+  commentCount: number;
+  likeCount: number;
 }

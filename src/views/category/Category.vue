@@ -7,12 +7,9 @@
     <div style="padding-top: 40px" class="my-animation-slide-bottom">
       <div class="page-container">
         <!-- 标签 -->
-        <div
-          class="tags-nav shadow-box"
-          v-if="!common.isEmpty(state.Categories)"
-        >
+        <div class="tags-nav shadow-box" v-if="!common.isEmpty(Categories)">
           <div
-            v-for="(category, index) in state.Categories"
+            v-for="(category, index) in Categories"
             :key="index"
             @click="refresh(category.id)"
           >
@@ -27,7 +24,7 @@
 
         <!-- 文章 -->
         <div class="article-wrap">
-          <articleList :articleList="state.articleList"></articleList>
+          <articleList :ArticleList="state.articleList"></articleList>
           <div class="pagination-wrap">
             <div
               @click="pageArticles()"
@@ -59,8 +56,7 @@ const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
-  articleList: [],
-  Categories: new Array<Category>(),
+  articleList: Array<Article>(),
   pagination: {
     current: 1,
     size: 10,
@@ -71,16 +67,10 @@ const state = reactive({
 
 const pageArticles = () => {
   state.pagination.current = state.pagination.current + 1;
-  getArticles(route.params.id);
+  getArticles(Number(route.params.id));
 };
 
-const getCategories = () => {
-  if (!common.isEmpty(Categories.value)) {
-    state.Categories = Categories.value;
-  }
-};
-
-const getArticles = (id) => {
+const getArticles = (id: number) => {
   if (id == 1) {
     state.articleList = [
       {
@@ -132,14 +122,13 @@ const getArticles = (id) => {
     ];
   }
 };
-const refresh = (id) => {
+const refresh = (id: number) => {
   getArticles(id);
   router.push("/categories/" + id);
 };
 
 onMounted(() => {
-  getCategories();
-  getArticles(route.params.id);
+  getArticles(Number(route.params.id));
 });
 </script>
 

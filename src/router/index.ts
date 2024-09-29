@@ -1,3 +1,11 @@
+/*
+ * @Author: 华豪 huah@sunwayworld.com
+ * @Date: 2024-07-18 10:28:47
+ * @LastEditors: 华豪 huah@sunwayworld.com
+ * @LastEditTime: 2024-09-29 15:05:12
+ * @FilePath: \vue-next-view\src\router\index.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
@@ -43,7 +51,7 @@ const routes = [
         meta: { title: "详细标签" },
       },
       {
-        path: "/article",
+        path: "/article/:id",
         name: "article",
         component: () => import("@/views/article/Article.vue"),
         meta: { title: "文章详情" },

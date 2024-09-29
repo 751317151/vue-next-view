@@ -7,9 +7,9 @@
     <div style="padding-top: 40px" class="my-animation-slide-bottom">
       <div class="page-container">
         <!-- 标签 -->
-        <div class="sort-warp shadow-box" v-if="!common.isEmpty(state.Tags)">
+        <div class="sort-warp shadow-box" v-if="!common.isEmpty(Tags)">
           <ProTag
-            v-for="(tag, index) in state.Tags"
+            v-for="(tag, index) in Tags"
             :key="index"
             @click="
               router.push({
@@ -30,8 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
 import common from "@/utils/common";
@@ -41,21 +40,6 @@ const storesConfig = useConfig();
 const { Tags } = storeToRefs(storesConfig);
 
 const router = useRouter();
-const route = useRoute();
-
-const state = reactive({
-  Tags: new Array<Tag>(),
-});
-
-const getTags = () => {
-  if (!common.isEmpty(Tags.value)) {
-    state.Tags = Tags.value;
-  }
-};
-
-onMounted(() => {
-  getTags();
-});
 </script>
 
 <style lang="scss" scoped>

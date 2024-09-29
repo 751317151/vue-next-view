@@ -169,7 +169,7 @@
           <div class="pagination-post">
             <!-- 上一篇 -->
             <div :class="isFull(state.article.id)" v-if="state.article.id">
-              <router-link :to="'/articles?id=' + state.article.id">
+              <router-link :to="'/article/' + state.article.id">
                 <img class="post-cover" :src="state.article.articleCover" />
                 <div class="post-info">
                   <div class="label">上一篇</div>
@@ -181,7 +181,7 @@
             </div>
             <!-- 下一篇 -->
             <div :class="isFull(state.article.id)" v-if="state.article.id">
-              <router-link :to="'/articles?id=' + state.article.id">
+              <router-link :to="'/article/' + state.article.id">
                 <img class="post-cover" :src="state.article.articleCover" />
                 <div class="post-info" style="text-align: right">
                   <div class="label">下一篇</div>
@@ -210,7 +210,7 @@
                 v-for="item of state.article.recommendArticleList"
                 :key="item.id"
               >
-                <router-link :to="'/articles/' + item.id">
+                <router-link :to="'/article/' + item.id">
                   <img class="recommend-cover" :src="item.articleCover" />
                   <div class="recommend-info">
                     <div class="recommend-date">
@@ -424,7 +424,7 @@ const isLike = computed(() => {
 });
 
 const isFull = computed(() => {
-  return function (id: Number) {
+  return function (id: number) {
     return id ? "post full" : "post";
   };
 });

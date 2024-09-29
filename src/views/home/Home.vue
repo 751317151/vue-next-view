@@ -5,7 +5,7 @@
   <div class="page-container-wrap">
     <div class="page-container">
       <div class="recent-posts">
-        <ArticleList :articleList="state.articleList"></ArticleList>
+        <ArticleList :ArticleList="state.articleList"></ArticleList>
         <div class="pagination-wrap">
           <!-- 分页 -->
           <Pagination></Pagination>

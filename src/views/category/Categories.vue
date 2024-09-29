@@ -7,12 +7,9 @@
     <div style="padding-top: 40px" class="my-animation-slide-bottom">
       <div class="page-container">
         <!-- 标签 -->
-        <div
-          class="sort-warp shadow-box"
-          v-if="!common.isEmpty(state.Categories)"
-        >
+        <div class="sort-warp shadow-box" v-if="!common.isEmpty(Categories)">
           <ProTag
-            v-for="(category, index) in state.Categories"
+            v-for="(category, index) in Categories"
             :key="index"
             @click="
               router.push({
@@ -33,7 +30,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
@@ -44,20 +40,6 @@ const storesConfig = useConfig();
 const { Categories } = storeToRefs(storesConfig);
 
 const router = useRouter();
-
-const state = reactive({
-  Categories: new Array<Category>(),
-});
-
-const getCategories = () => {
-  if (!common.isEmpty(Categories.value)) {
-    state.Categories = Categories.value;
-  }
-};
-
-onMounted(() => {
-  getCategories();
-});
 </script>
 
 <style lang="scss" scoped>
