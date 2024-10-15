@@ -5,13 +5,14 @@
     size="65%"
     class="toolbarDrawer"
     :with-header="false"
+    :lock-scroll="false"
     direction="ltr"
   >
     <div class="nav-info">
       <el-avatar
         class="user-avatar"
         :size="120"
-        src="https://haiyong.site/img/favicon.png"
+        :src="webInfo.avatar"
       ></el-avatar>
       <!-- <div class="web-name">hush</div> -->
       <div class="web-info">
@@ -92,18 +93,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
-import common from "@/utils/common";
 
 const router = useRouter();
-const route = useRoute();
 const storesConfig = useConfig();
-const { sideNavBarShow } = storeToRefs(storesConfig);
-
-const state = reactive({});
+const { webInfo, sideNavBarShow } = storeToRefs(storesConfig);
 
 const smallMenu = (path) => {
   router.push(path);
@@ -141,17 +137,16 @@ const smallMenuLogout = () => {
 }
 hr {
   border: 2px dashed var(--high-trans-color) !important;
+  margin-top: 20px;
 }
 hr:before {
   color: var(--theme-color) !important;
-}
-hr::before {
   position: absolute;
   top: -10px;
   left: 5%;
   z-index: 1;
   color: var(--hr-before-color);
-  content: "\f2dc";
+  // content: "🌺";
   font-size: 20px;
   line-height: 1;
   -webkit-transition: all 1s ease-in-out;

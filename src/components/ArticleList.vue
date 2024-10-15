@@ -4,103 +4,101 @@
       data-aos="fade-right"
       class="recent-post-item shadow-box background-opacity"
       v-for="(article, index) in ArticleList"
+      @click="router.push({ path: '/article/' + article.id })"
       :key="index"
       :class="{
         'my-animation-slide-top': index % 2 !== 0,
         'my-animation-slide-bottom': index % 2 === 0,
       }"
     >
-      <router-link :to="'/article/' + article.id">
-        <!-- 封面 -->
-        <div
-          class="recent-post-item-image"
-          :class="{
-            leftImage: index % 2 !== 0,
-            rightImage: index % 2 === 0,
-          }"
+      <!-- 封面 -->
+      <div
+        class="recent-post-item-image"
+        :class="{
+          leftImage: index % 2 !== 0,
+          rightImage: index % 2 === 0,
+        }"
+      >
+        <el-image
+          class="my-el-image"
+          v-once
+          lazy
+          :src="
+            !common.isEmpty(article.articleCover)
+              ? article.articleCover
+              : constant.random_image +
+                new Date() +
+                Math.floor(Math.random() * 10)
+          "
+          fit="cover"
         >
-          <el-image
-            class="my-el-image"
-            v-once
-            lazy
-            :src="
-              !common.isEmpty(article.articleCover)
-                ? article.articleCover
-                : constant.random_image +
-                  new Date() +
-                  Math.floor(Math.random() * 10)
-            "
-            fit="cover"
-          >
-          </el-image>
+        </el-image>
+      </div>
+      <!-- 内容 -->
+      <div
+        class="recent-post-item-post"
+        :class="{
+          leftImage: index % 2 === 0,
+          rightImage: index % 2 !== 0,
+        }"
+      >
+        <!-- 时间 -->
+        <div class="post-meta">
+          <SvgIcon style="vertical-align: -2px" icon-name="time"></SvgIcon>
+          发布于 {{ article.createTime }}
+        </div>
+        <!-- 标题 -->
+        <h3>{{ article.articleTitle }}</h3>
+
+        <!-- 信息 -->
+        <div class="post-meta" style="margin-bottom: 15px">
+          <span>
+            <SvgIcon style="vertical-align: -2px" icon-name="hot"></SvgIcon>
+            {{ article.viewCount }} 热度
+          </span>
+          <span>
+            <SvgIcon style="vertical-align: -2px" icon-name="comment"></SvgIcon>
+            {{ article.commentCount }} 条评论
+          </span>
+          <span>
+            <SvgIcon style="vertical-align: -2px" icon-name="like"></SvgIcon>
+            {{ article.likeCount }} 点赞
+          </span>
         </div>
         <!-- 内容 -->
-        <div
-          class="recent-post-item-post"
-          :class="{
-            leftImage: index % 2 === 0,
-            rightImage: index % 2 !== 0,
-          }"
-        >
-          <!-- 时间 -->
-          <div class="post-meta">
-            <SvgIcon style="vertical-align: -2px" icon-name="time"></SvgIcon>
-            发布于 {{ article.createTime }}
-          </div>
-          <!-- 标题 -->
-          <h3>{{ article.articleTitle }}</h3>
-
-          <!-- 信息 -->
-          <div class="post-meta" style="margin-bottom: 15px">
-            <span>
-              <SvgIcon style="vertical-align: -2px" icon-name="hot"></SvgIcon>
-              {{ article.viewCount }} 热度
-            </span>
-            <span>
-              <SvgIcon
-                style="vertical-align: -2px"
-                icon-name="comment"
-              ></SvgIcon>
-              {{ article.commentCount }} 条评论
-            </span>
-            <span>
-              <SvgIcon style="vertical-align: -2px" icon-name="like"></SvgIcon>
-              {{ article.likeCount }} 点赞
-            </span>
-          </div>
-          <!-- 内容 -->
-          <div class="recent-post-desc">
-            {{ article.articleContent }}
-          </div>
-          <!-- 分类 标签 -->
-          <div class="sort-label">
-            <span style="margin-right: 12px">
-              <SvgIcon
-                style="vertical-align: -2px"
-                icon-name="folder"
-                size="15"
-              ></SvgIcon>
-              分类
-            </span>
-            <span>
-              <SvgIcon
-                style="vertical-align: -2px"
-                icon-name="tag"
-                size="15"
-              ></SvgIcon>
-              标签2
-            </span>
-          </div>
+        <div class="recent-post-desc">
+          {{ article.articleContent }}
         </div>
-      </router-link>
+        <!-- 分类 标签 -->
+        <div class="sort-label">
+          <span style="margin-right: 12px">
+            <SvgIcon
+              style="vertical-align: -2px"
+              icon-name="folder"
+              size="15"
+            ></SvgIcon>
+            分类
+          </span>
+          <span>
+            <SvgIcon
+              style="vertical-align: -2px"
+              icon-name="tag"
+              size="15"
+            ></SvgIcon>
+            标签2
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 
+const router = useRouter();
 // 使用 <script setup> 时，props 可以直接在模板中使用
 const props = defineProps({
   ArticleList: Array<Article>,

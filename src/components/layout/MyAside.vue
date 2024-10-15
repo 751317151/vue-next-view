@@ -3,12 +3,12 @@
     <!-- 网站信息 -->
     <div class="card-content1 shadow-box background-opacity">
       <el-avatar
-        style="margin-top: 20px"
         class="user-avatar"
         :size="120"
         :src="webInfo.avatar"
       ></el-avatar>
-      <div class="web-name">网站名称</div>
+      <div class="web-name">BlackStar</div>
+      <div class="web-desc">势必达成💪💪💪</div>
       <div class="web-info">
         <div class="blog-info-box">
           <span>文章</span>
@@ -16,6 +16,10 @@
         </div>
         <div class="blog-info-box">
           <span>分类</span>
+          <span class="blog-info-num">99</span>
+        </div>
+        <div class="blog-info-box">
+          <span>标签</span>
           <span class="blog-info-num">99</span>
         </div>
       </div>
@@ -242,7 +246,7 @@ const state = reactive({
   ],
   admires: [
     {
-      avatar: "https://haiyong.site/img/favicon.png",
+      avatar: "https://blackstar.s3.bitiful.net/img/userinfo/luffy.jpg",
       username: "blackstar",
       admire: 122,
     },
@@ -287,7 +291,10 @@ getAdmire();
 .web-name {
   font-size: 30px;
   font-weight: bold;
-  margin: 20px 0;
+}
+.web-desc {
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 
 .web-info {

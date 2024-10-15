@@ -77,7 +77,8 @@ a {
 }
 
 .user-avatar {
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
+  margin-top: 10px;
   cursor: pointer;
   transition: all 0.3s;
   user-select: none;
