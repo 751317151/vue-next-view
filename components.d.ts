@@ -45,6 +45,8 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SideNavBar: typeof import('./src/components/layout/SideNavBar.vue')['default']
     SvgIcon: typeof import('./src/components/common/SvgIcon.vue')['default']
+    TagCloud: typeof import('./src/components/common/TagCloud.vue')['default']
+    TagCloud2: typeof import('./src/components/common/TagCloud2.vue')['default']
     TopNavBar: typeof import('./src/components/layout/TopNavBar.vue')['default']
     TreeHole: typeof import('./src/components/common/treeHole.vue')['default']
     TwoPoem: typeof import('./src/components/common/TwoPoem.vue')['default']

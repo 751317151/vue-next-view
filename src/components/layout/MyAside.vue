@@ -102,6 +102,12 @@
       </div>
     </div>
 
+    <!-- 标签云 -->
+    <div class="tag-cloud shadow-box background-opacity wow">
+      <div style="padding: 20px 25px 5px">标签云</div>
+      <TagCloud />
+    </div>
+
     <!-- 分类 -->
     <div
       class="shadow-box background-opacity wow"
@@ -198,6 +204,7 @@ import { useConfig } from "@/stores/config";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 import { ElMessage } from "element-plus";
+import TagCloud from "@/components/common/TagCloud.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -246,7 +253,8 @@ const state = reactive({
   ],
   admires: [
     {
-      avatar: "https://blackstar.s3.bitiful.net/img/userinfo/luffy.jpg",
+      avatar:
+        "https://blackstar.s3.bitiful.net/img/userinfo/luffy.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082543Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=eb95285ee92ff18ba32b2afd546dd915ad8da106120ebfb9b45c10ee908ed7b8",
       username: "blackstar",
       admire: 122,
     },
@@ -271,6 +279,13 @@ getAdmire();
 </script>
 
 <style lang="scss" scoped>
+.tag-cloud {
+  background: linear-gradient(-45deg, #b7d3ee, #5d6fc9, #ebfffe, #485dab);
+  background-size: 400% 400%;
+  animation: gradientBG 5s ease infinite;
+  margin-top: 40px;
+  border-radius: 10px;
+}
 .card-content1 {
   background: linear-gradient(-45deg, #b7d3ee, #5d6fc9, #ebfffe, #485dab);
   background-size: 400% 400%;

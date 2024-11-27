@@ -4,7 +4,7 @@
   --text-color: #f0f6fc;
 
   --background: #272727;
-  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp");
+  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082642Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b2304afa40f6fc49c83cd79ba659d0fc9bddb1153f1aee77b598d3cb5c8ebda0");
   --fontColor: white;
   --borderColor: #4f4f4f;
   --borderHoverColor: black;
@@ -44,7 +44,7 @@
   --text-color: #181818;
 
   --background: white;
-  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/home_bg.webp");
+  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/home_bg.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082758Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=103daedf25e0c78d412719a7396cd6a63864ddac3e2ec2c53a67d429eaeaaf3a");
   --fontColor: black;
   --borderColor: rgba(0, 0, 0, 0.5);
   --borderHoverColor: rgba(110, 110, 110, 0.4);

@@ -1,10 +1,10 @@
 :root {
   /* 背景 */
   --background: white;
-  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/home_bg.webp");
-  --backgroundDarkImage: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp");
-  --backgroundPhoneImage: url("https://blackstar.s3.bitiful.net/img/snow.webp");
-  --backgroundPhoneDarkImage: url("https://blackstar.s3.bitiful.net/img/mb8.webp");
+  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/home_bg.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082758Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=103daedf25e0c78d412719a7396cd6a63864ddac3e2ec2c53a67d429eaeaaf3a");
+  --backgroundDarkImage: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082642Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b2304afa40f6fc49c83cd79ba659d0fc9bddb1153f1aee77b598d3cb5c8ebda0");
+  --backgroundPhoneImage: url("https://blackstar.s3.bitiful.net/img/snow.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082859Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=02a27fe7a0df5e36e8fb752d2b66d594478e1fb2a877c8056e3be0b632ef5e61");
+  --backgroundPhoneDarkImage: url("https://blackstar.s3.bitiful.net/img/mb8.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082910Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=24781ad366591a7b37c77c57c78963a17fe14947bdd0b64af56ae7facf87d2bb");
   --gradualBackground: linear-gradient(
     to right bottom,
     #ee7752,
