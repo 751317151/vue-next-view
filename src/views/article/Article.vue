@@ -116,7 +116,7 @@
                   CC BY-NC-SA 4.0
                 </a>
                 许可协议。转载请注明文章来自
-                <a href="http://localhost:8080" target="_blank"> blackstar </a>
+                <a href="http://localhost:<!-- 8080 -->" target="_blank"> blackstar </a>
                 。
               </div>
             </div>
@@ -245,20 +245,43 @@
           </div>
         </div>
         <div class="aside-content">
-          <!-- <MyAside></MyAside> -->
-          <div class="my-card aside-card">占位</div>
+          <!-- 作者信息卡片 -->
+          <div class="my-card aside-card author-card">
+            <div class="author-avatar">
+              <el-avatar :size="80" src="https://bu.dusays.com/2022/05/03/627010707b598.webp" />
+            </div>
+            <div class="author-name">BlackStar</div>
+            <div class="author-desc">记录技术成长，分享编程心得</div>
+            <div class="author-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ state.article.viewCount }}</span>
+                <span class="stat-label">阅读</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">{{ state.article.likeCount }}</span>
+                <span class="stat-label">点赞</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">{{ state.article.commentCount }}</span>
+                <span class="stat-label">评论</span>
+              </div>
+            </div>
+          </div>
+          
           <div class="sticky-layout">
+            <!-- 目录卡片 -->
             <div
               v-show="showToc || !isMobile"
               class="card-toc my-card aside-card"
+              ref="tocCardRef"
             >
-              <div style="padding-bottom: 6px">
-                <el-icon><Operation /></el-icon>
-                <span style="margin-left: 10px">目录</span>
+              <div class="toc-header">
+                <el-icon><List /></el-icon>
+                <span>目录导航</span>
+                <span class="toc-count" v-if="tocCount > 0">{{ tocCount }}</span>
               </div>
               <div id="toc" class="toc"></div>
             </div>
-            <div class="my-card aside-card">占位</div>
           </div>
         </div>
       </div>
@@ -267,7 +290,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive, computed, nextTick, ref } from "vue";
+import { onMounted, onUnmounted, reactive, computed, nextTick, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
@@ -367,35 +390,42 @@ const state = reactive({
     ],
   },
   articleContentText: `# Vue 3 + TypeScript + Vite
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 '<1script setup1>' SFCs, check out the [script1 setup1 docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+
+This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 \`<script setup>\` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+
+## 示例图片（点击可预览）
+
+下面是一些示例图片，点击图片可以放大预览：
+
+![风景图片1](https://picsum.photos/800/600?random=1)
+
+这是一张美丽的风景图片，展示了大自然的壮丽景色。
+
+![风景图片2](https://picsum.photos/800/600?random=2)
+
 ## Recommended IDE Setup
+
 - [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+
 ## Type Support For '.vue' Imports in TS
 
-TypeScript cannot handle type information for '.vue' imports by default, so we replace the 'tsc' CLI with 'vue-tsc' for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of '.vue' types.
+TypeScript cannot handle type information for '.vue' imports by default, so we replace the 'tsc' CLI with 'vue-tsc' for type checking.
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-   1. Run 'Extensions: Show Built-in Extensions' from VSCode's command palette
-   2. Find 'TypeScript and JavaScript Language Features', right click and select 'Disable (Workspace)'
-2. Reload the VSCode window by running 'Developer: Reload Window' from the command palette.
+![代码示例](https://picsum.photos/800/400?random=3)
 
 # 一级标题
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，，dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的
+
+这里是一些示例文本内容，用于展示文章的排版效果。
 
 ## 二级标题
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的
+
+更多的示例内容，包含一张图片：
+
+![示例图片](https://picsum.photos/600/400?random=4)
 
 ### 三级标题
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的,
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的
-# 一级标题
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，，dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的，
-dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干净很干净地方官梵蒂冈发生的官方电话给发货的
+
+这是三级标题下的内容，展示了文章的层级结构。
 
  `,
   treeHoleList: [],
@@ -418,6 +448,11 @@ dsa犯得上发射点广泛的和哥哥符合国家和国际换个房间很干�
 });
 
 const articleRef = ref();
+const tocCount = ref(0);
+const tocCardRef = ref<HTMLElement | null>(null);
+const tocFixed = ref(false);
+const stickyRight = ref(0);
+const stickyWidth = ref(0);
 
 const isLike = computed(() => {
   return state.tagList.length > 1 ? "like-btn-active" : "like-btn";
@@ -432,12 +467,14 @@ const isFull = computed(() => {
 const getTocbot = () => {
   // 添加文章生成目录功能
   let nodes = articleRef.value.$el.querySelectorAll("h1,h2,h3,h4,h5,h6");
+  tocCount.value = nodes.length;
+  
   if (nodes.length) {
     for (let i = 0; i < nodes.length; i++) {
       let node = nodes[i];
-      let reg = /^H[1-4]{1}$/;
+      let reg = /^H[1-6]{1}$/;
       if (reg.exec(node.tagName)) {
-        node.id = i;
+        node.id = `heading-${i}`;
       }
     }
   }
@@ -448,10 +485,10 @@ const getTocbot = () => {
     headingSelector: "h1, h2, h3, h4, h5, h6",
     scrollSmooth: true,
     fixedSidebarOffset: "auto",
-    scrollSmoothOffset: -100,
+    scrollSmoothOffset: -80,
     hasInnerContainers: false,
-    onClick: function (e) {
-      console.log(e);
+    headingsOffset: 80,
+    onClick: function (e: MouseEvent) {
       e.preventDefault();
     },
   });
@@ -533,6 +570,81 @@ const highlight = () => {
 };
 onMounted(() => {
   getArticle();
+  
+  // 初始化粘性定位
+  const stickyState = {
+    initialTop: 0,
+    initialized: false
+  };
+  
+  const initStickyPosition = () => {
+    if (tocCardRef.value && !stickyState.initialized) {
+      const rect = tocCardRef.value.getBoundingClientRect();
+      stickyState.initialTop = rect.top + window.scrollY;
+      stickyRight.value = window.innerWidth - rect.right;
+      stickyWidth.value = rect.width;
+      stickyState.initialized = true;
+      console.log('Sticky initialized:', stickyState.initialTop, stickyRight.value, stickyWidth.value);
+    }
+  };
+  
+  nextTick(() => {
+    setTimeout(initStickyPosition, 300);
+  });
+  
+  // 监听滚动
+  const handleScroll = () => {
+    if (!tocCardRef.value || isMobile.value) return;
+    
+    // 如果还没初始化，先初始化
+    if (!stickyState.initialized) {
+      initStickyPosition();
+    }
+    
+    const scrollY = window.scrollY;
+    const threshold = stickyState.initialTop - 80;
+    
+    if (scrollY > threshold && !tocFixed.value) {
+      // 记录当前位置
+      const rect = tocCardRef.value.getBoundingClientRect();
+      stickyRight.value = window.innerWidth - rect.right;
+      stickyWidth.value = rect.width;
+      tocFixed.value = true;
+      
+      // 直接设置 .card-toc 的样式
+      tocCardRef.value.style.position = 'fixed';
+      tocCardRef.value.style.top = '80px';
+      tocCardRef.value.style.right = `${stickyRight.value}px`;
+      tocCardRef.value.style.width = `${stickyWidth.value}px`;
+      tocCardRef.value.style.zIndex = '90';
+      
+      console.log('Fixed!', scrollY, threshold, stickyRight.value, stickyWidth.value);
+    } else if (scrollY <= threshold && tocFixed.value) {
+      tocFixed.value = false;
+      
+      // 移除固定样式
+      tocCardRef.value.style.position = '';
+      tocCardRef.value.style.top = '';
+      tocCardRef.value.style.right = '';
+      tocCardRef.value.style.width = '';
+      tocCardRef.value.style.zIndex = '';
+      
+      console.log('Unfixed!', scrollY, threshold);
+    }
+  };
+  
+  window.addEventListener('scroll', handleScroll);
+  
+  // 监听窗口大小变化
+  const handleResize = () => {
+    if (tocCardRef.value && !tocFixed.value) {
+      const rect = tocCardRef.value.getBoundingClientRect();
+      stickyRight.value = window.innerWidth - rect.right;
+      stickyWidth.value = rect.width;
+    }
+  };
+  
+  window.addEventListener('resize', handleResize);
 });
 onUnmounted(() => {
   tocbot.destroy();
@@ -572,6 +684,7 @@ watch(
   padding: 40px 15px;
   margin: 0 auto;
   justify-content: center;
+  align-items: stretch; /* 让子元素拉伸到相同高度，使 sticky 生效 */
 
   .article-container {
     // max-width: 800px;
@@ -846,18 +959,11 @@ watch(
     width: calc(30% - 40px);
     user-select: none;
     margin-left: 40px;
+    margin-right: 60px;
     max-width: 300px;
-    float: right;
 
     .sticky-layout {
-      position: sticky;
-      top: 20px;
-      margin-top: 20px;
-      -webkit-transition: top 0.3s;
-      -moz-transition: top 0.3s;
-      -o-transition: top 0.3s;
-      -ms-transition: top 0.3s;
-      transition: top 0.3s;
+      transition: none; /* 固定定位时不需要过渡动画 */
     }
 
     .aside-card {
@@ -865,6 +971,87 @@ watch(
     }
     .aside-card:first-child {
       margin-top: 0;
+    }
+    
+    // 作者信息卡片
+    .author-card {
+      text-align: center;
+      padding: 30px 20px;
+      
+      .author-avatar {
+        margin-bottom: 15px;
+        
+        .el-avatar {
+          border: 3px solid var(--themeBackground);
+          box-shadow: 0 4px 15px rgba(57, 197, 187, 0.3);
+        }
+      }
+      
+      .author-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--fontColor);
+        margin-bottom: 8px;
+      }
+      
+      .author-desc {
+        font-size: 13px;
+        color: var(--greyFont);
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+      
+      .author-stats {
+        display: flex;
+        justify-content: space-around;
+        padding-top: 15px;
+        border-top: 1px solid var(--borderColor);
+        
+        .stat-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          
+          .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--themeBackground);
+          }
+          
+          .stat-label {
+            font-size: 12px;
+            color: var(--greyFont);
+            margin-top: 4px;
+          }
+        }
+      }
+    }
+    
+    // 目录卡片
+    .card-toc {
+      .toc-header {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        background: linear-gradient(135deg, var(--themeBackground) 0%, #5dd5cb 100%);
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        border-radius: 12px 12px 0 0;
+        
+        .el-icon {
+          font-size: 18px;
+          margin-right: 8px;
+        }
+        
+        .toc-count {
+          margin-left: auto;
+          background: rgba(255, 255, 255, 0.2);
+          padding: 2px 10px;
+          border-radius: 12px;
+          font-size: 12px;
+        }
+      }
     }
   }
 }
@@ -977,13 +1164,8 @@ watch(
   transform: rotate(360deg);
 }
 
-.page-container-scroll > .aside-content > .sticky-layout {
-  top: 70px;
-  //   -webkit-transition: top 0.3s;
-  //   -moz-transition: top 0.3s;
-  //   -o-transition: top 0.3s;
-  //   -ms-transition: top 0.3s;
-  //   transition: top 0.3s;
+.page-container-scroll > .aside-content > .sticky-layout.toc-fixed {
+  top: 80px; /* 导航栏显示时的位置 */
 }
 
 @media screen and (max-width: 700px) {
@@ -1032,14 +1214,24 @@ watch(
       max-width: 100%;
       margin: 0 auto;
       margin-top: 50px;
+      
+      // 移动端隐藏作者卡片
+      .author-card {
+        display: none;
+      }
 
       .sticky-layout {
         position: relative;
 
         .card-toc {
           position: fixed;
-          top: 60px;
-          right: 60px;
+          top: 70px; /* 从顶部定位，避免与底部浮动按钮重叠 */
+          bottom: auto;
+          right: 20px;
+          width: 260px;
+          max-height: calc(100vh - 200px); /* 留出顶部和底部空间 */
+          z-index: 90; /* 低于浮动按钮(1000)和工具栏(100) */
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
       }
     }

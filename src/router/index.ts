@@ -86,6 +86,12 @@ const routes = [
         component: () => import("@/views/friend/Friend.vue"),
         meta: { title: "友人帐" },
       },
+      {
+        path: "/:pathMatch(.*)*",
+        name: "NotFound",
+        component: () => import("@/views/error/NotFound.vue"),
+        meta: { title: "页面未找到" },
+      },
     ],
   },
 ];

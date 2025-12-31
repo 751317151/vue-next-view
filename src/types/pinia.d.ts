@@ -36,8 +36,10 @@ declare interface Article {
   articleTitle: string;
   articleContent: string;
   articleCover: string;
-  createTime: date;
+  createTime: string;
   viewCount: number;
   commentCount: number;
   likeCount: number;
+  category?: string;
+  tags?: string[];
 }

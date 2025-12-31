@@ -30,7 +30,16 @@
           "
           fit="cover"
         >
+          <template #placeholder>
+            <div class="image-placeholder">
+              <el-icon class="loading-icon"><Loading /></el-icon>
+            </div>
+          </template>
         </el-image>
+        <!-- 分类标签 -->
+        <div class="category-badge">
+          {{ article.category || '未分类' }}
+        </div>
       </div>
       <!-- 内容 -->
       <div
@@ -40,52 +49,62 @@
           rightImage: index % 2 !== 0,
         }"
       >
-        <!-- 时间 -->
+        <!-- 时间和阅读时间 -->
         <div class="post-meta">
-          <SvgIcon style="vertical-align: -2px" icon-name="time"></SvgIcon>
-          发布于 {{ article.createTime }}
+          <span class="meta-item">
+            <SvgIcon style="vertical-align: -2px" icon-name="time"></SvgIcon>
+            {{ article.createTime }}
+          </span>
+          <span class="meta-item reading-time">
+            <el-icon style="vertical-align: -2px"><Clock /></el-icon>
+            {{ estimateReadingTime(article.articleContent) }} 分钟阅读
+          </span>
         </div>
         <!-- 标题 -->
-        <h3>{{ article.articleTitle }}</h3>
+        <h3 class="article-title">{{ article.articleTitle }}</h3>
 
-        <!-- 信息 -->
-        <div class="post-meta" style="margin-bottom: 15px">
-          <span>
-            <SvgIcon style="vertical-align: -2px" icon-name="hot"></SvgIcon>
-            {{ article.viewCount }} 热度
+        <!-- 统计信息 -->
+        <div class="post-stats">
+          <span class="stat-item">
+            <el-icon><View /></el-icon>
+            {{ formatNumber(article.viewCount) }}
           </span>
-          <span>
-            <SvgIcon style="vertical-align: -2px" icon-name="comment"></SvgIcon>
-            {{ article.commentCount }} 条评论
+          <span class="stat-item">
+            <el-icon><ChatDotRound /></el-icon>
+            {{ article.commentCount }}
           </span>
-          <span>
-            <SvgIcon style="vertical-align: -2px" icon-name="like"></SvgIcon>
-            {{ article.likeCount }} 点赞
+          <span class="stat-item">
+            <el-icon><Star /></el-icon>
+            {{ article.likeCount }}
           </span>
         </div>
-        <!-- 内容 -->
+        <!-- 内容摘要 -->
         <div class="recent-post-desc">
           {{ article.articleContent }}
         </div>
-        <!-- 分类 标签 -->
-        <div class="sort-label">
-          <span style="margin-right: 12px">
-            <SvgIcon
-              style="vertical-align: -2px"
-              icon-name="folder"
-              size="15"
-            ></SvgIcon>
-            分类
-          </span>
-          <span>
-            <SvgIcon
-              style="vertical-align: -2px"
-              icon-name="tag"
-              size="15"
-            ></SvgIcon>
-            标签2
+        <!-- 标签 -->
+        <div class="tag-list">
+          <span 
+            v-for="tag in (article.tags || ['Vue', 'TypeScript']).slice(0, 3)" 
+            :key="tag" 
+            class="tag-item"
+          >
+            #{{ tag }}
           </span>
         </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 骨架屏 -->
+  <div v-else class="skeleton-container">
+    <div v-for="i in 3" :key="i" class="skeleton-item">
+      <div class="skeleton-image"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-line title"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
       </div>
     </div>
   </div>
@@ -94,6 +113,7 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from "vue-router";
 import { ref, reactive, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { Loading, Clock, View, ChatDotRound, Star } from "@element-plus/icons-vue";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 
@@ -104,6 +124,22 @@ const props = defineProps({
   ArticleList: Array<Article>,
   ArticleList2: Array<Article>,
 });
+
+// 估算阅读时间（假设每分钟阅读300字）
+const estimateReadingTime = (content: string) => {
+  if (!content) return 1;
+  const wordCount = content.length;
+  const minutes = Math.ceil(wordCount / 300);
+  return Math.max(1, minutes);
+};
+
+// 格式化数字
+const formatNumber = (num: number) => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'k';
+  }
+  return num;
+};
 
 // 记录每个文章是否可见
 const visibleItems = reactive<Record<number, boolean>>({});
@@ -204,14 +240,50 @@ onUnmounted(() => {
 .recent-post-item-image {
   width: 50%;
   height: 100%;
+  position: relative;
+  overflow: hidden;
+  
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--maxLightGray);
+    
+    .loading-icon {
+      font-size: 32px;
+      color: var(--greyFont);
+      animation: spin 1s linear infinite;
+    }
+  }
+  
+  .category-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: var(--themeBackground);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .recent-post-item-image :deep(.el-image__inner) {
-  transition: all 1s;
+  transition: all 0.5s ease;
 }
 
 .recent-post-item:hover :deep(.el-image__inner) {
-  transform: scale(1.2);
+  transform: scale(1.08);
 }
 
 .leftImage {
@@ -223,6 +295,11 @@ onUnmounted(() => {
   position: absolute;
   right: 0;
   text-align: right;
+  
+  .category-badge {
+    left: auto;
+    right: 15px;
+  }
 }
 
 .recent-post-item-post {
@@ -230,76 +307,152 @@ onUnmounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20px 35px;
+  padding: 20px 30px;
 }
 
-.recent-post-item-post h3 {
+.article-title {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  margin: 8px 0 12px;
+  font-size: 20px;
+  color: var(--fontColor);
+  transition: color 0.3s ease;
+}
+
+.recent-post-item:hover .article-title {
+  color: var(--themeBackground);
 }
 
 .post-meta {
   font-size: 12px;
   color: var(--greyFont);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .reading-time {
+    background: var(--maxMaxLightGray);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
 }
 
-.post-meta i {
-  font-size: 15px;
-}
-
-.post-meta span:not(:last-child) {
-  margin-right: 10px;
+.post-stats {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 12px;
+  
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--greyFont);
+    
+    .el-icon {
+      font-size: 14px;
+    }
+  }
 }
 
 .recent-post-desc {
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.8;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
+  color: var(--articleGreyFontColor);
+  flex: 1;
 }
 
-.leftImage .sort-label {
-  position: absolute;
-  bottom: 20px;
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  
+  .tag-item {
+    font-size: 12px;
+    color: var(--themeBackground);
+    background: rgba(255, 165, 0, 0.1);
+    padding: 3px 10px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    
+    &:hover {
+      background: var(--themeBackground);
+      color: #fff;
+    }
+  }
 }
 
-.rightImage .sort-label {
-  position: absolute;
-  bottom: 20px;
-  right: 35px;
+/* 骨架屏样式 */
+.skeleton-container {
+  max-width: 1200px;
+  margin: 50px auto 0;
 }
 
-.sort-label span {
-  padding: 3px 10px;
-  background-color: var(--maxLightGray);
-  border-radius: 3px;
-  font-size: 14px;
-  color: var(--greyFont);
-  transition: all 0.3s;
-  cursor: pointer;
-  user-select: none;
+.skeleton-item {
+  display: flex;
+  height: 280px;
+  margin-bottom: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--card-background);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.sort-label span:hover {
-  background-color: var(--themeBackground);
-  color: var(--white);
+.skeleton-image {
+  width: 50%;
+  background: linear-gradient(90deg, var(--maxLightGray) 25%, var(--maxMaxLightGray) 50%, var(--maxLightGray) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-.error-text {
-  font-size: 20px;
-  line-height: 1.8;
-  letter-spacing: 8px;
-  color: var(--white);
+.skeleton-content {
+  width: 50%;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: linear-gradient(90deg, var(--maxLightGray) 25%, var(--maxMaxLightGray) 50%, var(--maxLightGray) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  
+  &.title {
+    height: 24px;
+    width: 70%;
+  }
+  
+  &.short {
+    width: 40%;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @media screen and (max-width: 700px) {
   .recent-post-item {
-    height: 450px;
+    height: 420px;
     position: unset;
     display: block;
     flex-direction: unset;
@@ -307,7 +460,7 @@ onUnmounted(() => {
 
   .recent-post-item-image {
     width: 100%;
-    height: 200px;
+    height: 180px;
   }
 
   .leftImage {
@@ -319,28 +472,37 @@ onUnmounted(() => {
     position: unset;
     right: unset;
     text-align: unset;
+    
+    .category-badge {
+      left: 15px;
+      right: auto;
+    }
   }
 
   .recent-post-item-post {
     width: 100%;
-    height: 250px;
+    height: 240px;
     position: relative;
+    padding: 15px 20px;
   }
 
   .recent-post-desc {
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
-
-  .leftImage .sort-label {
-    position: absolute;
-    bottom: 20px;
+  
+  .skeleton-item {
+    flex-direction: column;
+    height: 400px;
   }
-
-  .rightImage .sort-label {
-    position: absolute;
-    bottom: 20px;
-    right: unset;
+  
+  .skeleton-image,
+  .skeleton-content {
+    width: 100%;
+  }
+  
+  .skeleton-image {
+    height: 180px;
   }
 }
 </style>

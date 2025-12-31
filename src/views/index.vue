@@ -1,5 +1,14 @@
 <template>
   <div class="main-index">
+    <!-- 页面加载进度条 -->
+    <LoadingBar />
+    
+    <!-- 网络状态检测 -->
+    <NetworkStatus />
+    
+    <!-- 图片预览 -->
+    <ImagePreview />
+    
     <!-- 阅读进度条 -->
     <ReadingProgress />
     
@@ -103,6 +112,9 @@ import PageTransition from "@/components/common/PageTransition.vue";
 import FloatingActions from "@/components/common/FloatingActions.vue";
 import PerformanceMonitor from "@/components/common/PerformanceMonitor.vue";
 import SettingsModal from "@/components/common/SettingsModal.vue";
+import LoadingBar from "@/components/common/LoadingBar.vue";
+import NetworkStatus from "@/components/common/NetworkStatus.vue";
+import ImagePreview from "@/components/common/ImagePreview.vue";
 import { useConfig } from "@/stores/config";
 import { useThemeStore } from "@/stores/theme";
 import { storeToRefs } from "pinia";
@@ -417,11 +429,11 @@ watch(
 .rightside {
   display: block;
   opacity: 0;
-  transform: translateX(-58px);
   position: fixed;
-  right: -100px;
+  right: 10px; /* 最终显示位置 */
   bottom: 40px;
   z-index: 100;
+  transform: translateX(100px); /* 初始隐藏在右侧 */
   -moz-transition: all 0.5s;
   -o-transition: all 0.5s;
   -ms-transition: all 0.5s;
@@ -518,10 +530,9 @@ watch(
 }
 
 .rightside.show {
-  // max-height: 500px; /* 使用较大的 max-height 值来代替 auto */
   opacity: 1;
-  transform: translateX(-120px); /* 平移200px */
-  transition: transform 0.5s ease; /* 上移过渡 0.4s 完成 */
+  transform: translateX(0); /* 显示时回到原位 right: 10px */
+  transition: transform 0.5s ease;
 }
 
 .cd-top {

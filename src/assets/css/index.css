@@ -14,7 +14,7 @@ html {
 }
 body {
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden; /* 只隐藏水平滚动，允许垂直滚动，让 sticky 正常工作 */
   color: var(--fontColor); /*主题配色切换，使用elemtnt-plus需要注释掉 */
   font-family: var(--globalFont), cursive;
   font-weight: 700 !important;

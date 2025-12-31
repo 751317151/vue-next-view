@@ -389,3 +389,162 @@ html.dark {
     background: rgba(255, 255, 255, 0.15);
   }
 }
+
+
+/* 代码块增强样式 */
+pre {
+  position: relative;
+  margin: 1em 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.code-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.code-lang {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.code-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.code-copy-btn.copied {
+  background: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.code-copy-btn svg {
+  flex-shrink: 0;
+}
+
+/* 图片点击放大 */
+.image-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  animation: fadeIn 0.3s ease;
+}
+
+.image-preview-overlay img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 网络状态提示 */
+.network-status {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+.network-status.offline {
+  background: #ef4444;
+  color: #fff;
+}
+
+.network-status.online {
+  background: #22c55e;
+  color: #fff;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 文章内容图片样式 - 可点击预览 */
+.entry-content img,
+.v-md-preview img,
+.markdown-body img,
+.github-markdown-body img {
+  cursor: zoom-in;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.entry-content img:hover,
+.v-md-preview img:hover,
+.markdown-body img:hover,
+.github-markdown-body img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 深色模式下的图片样式 */
+[theme="dark"] .entry-content img,
+[theme="dark"] .v-md-preview img,
+[theme="dark"] .markdown-body img,
+[theme="dark"] .github-markdown-body img {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[theme="dark"] .entry-content img:hover,
+[theme="dark"] .v-md-preview img:hover,
+[theme="dark"] .markdown-body img:hover,
+[theme="dark"] .github-markdown-body img:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}

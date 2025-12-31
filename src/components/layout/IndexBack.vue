@@ -1,13 +1,15 @@
 <template>
   <header ref="header">
+    <!-- 移动端背景 -->
     <el-image
       v-show="isMobile"
       style="animation: header-effect 2s"
       class="background-image"
       src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
       fit="cover"
-    >
-    </el-image>
+    />
+    
+    <!-- 桌面端视差背景 -->
     <div v-show="!isMobile" class="view">
       <div>
         <img
@@ -17,52 +19,96 @@
         />
         <div
           class="bg1"
-          style="
-            background-image: url('https://cdn.naccl.top/blog/img/bg1.jpg');
-          "
+          style="background-image: url('https://cdn.naccl.top/blog/img/bg1.jpg');"
         ></div>
         <div
           class="bg2"
-          style="
-            background-image: url('https://cdn.naccl.top/blog/img/bg2.jpg');
-          "
+          style="background-image: url('https://cdn.naccl.top/blog/img/bg2.jpg');"
         ></div>
         <div
           class="bg3"
-          style="
-            background-image: url('https://cdn.naccl.top/blog/img/bg3.jpg');
-          "
+          style="background-image: url('https://cdn.naccl.top/blog/img/bg3.jpg');"
           v-show="state.loaded"
         ></div>
       </div>
     </div>
-    <!-- <div class="text-malfunction" data-word="Elden Ring">
-      <div class="line"></div>
-    </div> -->
-    <!-- 首页文字 -->
-    <div class="signature-wall myCenter my-animation-hideToShow">
-      <h1 class="playful">
-        <span
-          style="
-            animation: 10s linear 0s infinite normal none running light_15px;
-          "
-          >BlackStar</span
-        >
+
+    <!-- 首页内容区 -->
+    <div class="hero-content myCenter my-animation-hideToShow">
+      <!-- 头像 -->
+      <div class="hero-avatar">
+        <el-avatar :size="100" :src="webInfo.avatar" />
+      </div>
+      
+      <!-- 标题 -->
+      <h1 class="hero-title">
+        <span class="title-text">{{ webInfo.webName || 'BlackStar' }}</span>
       </h1>
-      <div class="printer" @click="getGuShi()">
-        <printer :printerInfo="state.printerInfo">
-          <template #paper="scope">
-            <h3>{{ scope.content }}<span class="cursor">|</span></h3>
-          </template>
-        </printer>
+      
+      <!-- 打字机签名 -->
+      <div class="hero-subtitle">
+        <span class="typing-text">{{ displayText }}</span>
+        <span class="typing-cursor">|</span>
+      </div>
+      
+      <!-- 诗词展示 -->
+      <div class="hero-poem" @click="getGuShi()">
+        <span class="poem-icon">📜</span>
+        <span class="poem-text">{{ state.printerInfo }}</span>
+        <span class="poem-refresh">
+          <el-icon><Refresh /></el-icon>
+        </span>
+      </div>
+      
+      <!-- 社交媒体链接 -->
+      <div class="social-links">
+        <a href="https://github.com" target="_blank" class="social-link" title="GitHub">
+          <i class="fa fa-github"></i>
+        </a>
+        <a href="mailto:example@email.com" class="social-link" title="邮箱">
+          <i class="fa fa-envelope"></i>
+        </a>
+        <a href="#" class="social-link" title="微信">
+          <i class="fa fa-weixin"></i>
+        </a>
+        <a href="#" class="social-link" title="QQ">
+          <i class="fa fa-qq"></i>
+        </a>
+        <a href="#" class="social-link" title="微博">
+          <i class="fa fa-weibo"></i>
+        </a>
+      </div>
+      
+      <!-- 统计信息 -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num">{{ stats.articles }}</span>
+          <span class="stat-label">文章</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">{{ stats.categories }}</span>
+          <span class="stat-label">分类</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">{{ stats.tags }}</span>
+          <span class="stat-label">标签</span>
+        </div>
       </div>
     </div>
-    <div class="wrapper">
-      <i
-        class="ali-iconfont icon-down"
-        @click="scrollToNavigation('.page-container-wrap')"
-      ></i>
+
+    <!-- 滚动指示器 -->
+    <div class="scroll-indicator" @click="scrollToNavigation('.page-container-wrap')">
+      <div class="scroll-text">向下滚动</div>
+      <div class="scroll-arrow">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </div>
+
+    <!-- 波浪效果 -->
     <div v-show="!isMobile" class="wave">
       <div class="wave1"></div>
       <div class="wave2"></div>
@@ -71,14 +117,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch, reactive, ref } from "vue";
+import { onMounted, onUnmounted, reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
-import printer from "@/components/common/printer.vue";
+import { Refresh } from "@element-plus/icons-vue";
 import constant from "@/utils/constant";
 
 const storesConfig = useConfig();
-const { clientSize, isMobile } = storeToRefs(storesConfig);
+const { isMobile, webInfo } = storeToRefs(storesConfig);
 
 const state = reactive({
   loaded: false,
@@ -90,22 +136,66 @@ const state = reactive({
     category: "",
   },
 });
-const header = ref(null);
-const imgbg1 = ref(null);
 
-//平滑滚动至正文部分
-const scrollToMain = () => {
-  window.scrollTo({
-    top: document.documentElement.clientHeight,
-    behavior: "smooth",
-  });
+// 统计数据
+const stats = reactive({
+  articles: 22,
+  categories: 12,
+  tags: 13
+});
+
+// 打字机效果
+const signatures = [
+  "全栈开发者 | 技术分享者 | 终身学习者",
+  "用代码书写生活，用技术改变世界",
+  "Stay hungry, Stay foolish",
+  "生活不止眼前的代码，还有诗和远方"
+];
+const currentSignatureIndex = ref(0);
+const displayText = ref("");
+const isDeleting = ref(false);
+let typingTimer: number | null = null;
+
+const typeWriter = () => {
+  const currentText = signatures[currentSignatureIndex.value];
+  
+  if (!isDeleting.value) {
+    // 打字
+    if (displayText.value.length < currentText.length) {
+      displayText.value = currentText.substring(0, displayText.value.length + 1);
+      typingTimer = window.setTimeout(typeWriter, 100);
+    } else {
+      // 打完后等待一段时间再删除
+      typingTimer = window.setTimeout(() => {
+        isDeleting.value = true;
+        typeWriter();
+      }, 2000);
+    }
+  } else {
+    // 删除
+    if (displayText.value.length > 0) {
+      displayText.value = displayText.value.substring(0, displayText.value.length - 1);
+      typingTimer = window.setTimeout(typeWriter, 50);
+    } else {
+      // 删完后切换到下一个签名
+      isDeleting.value = false;
+      currentSignatureIndex.value = (currentSignatureIndex.value + 1) % signatures.length;
+      typingTimer = window.setTimeout(typeWriter, 500);
+    }
+  }
 };
-const scrollToNavigation = (selector) => {
+
+const header = ref<HTMLElement | null>(null);
+const imgbg1 = ref<HTMLImageElement | null>(null);
+
+const scrollToNavigation = (selector: string) => {
   let pageId = document.querySelector(selector);
-  window.scrollTo({
-    top: pageId.offsetTop,
-    behavior: "smooth",
-  });
+  if (pageId) {
+    window.scrollTo({
+      top: (pageId as HTMLElement).offsetTop,
+      behavior: "smooth",
+    });
+  }
 };
 
 const getGuShi = () => {
@@ -121,29 +211,43 @@ const getGuShi = () => {
 };
 
 onMounted(() => {
-  /**
-   * 因为bg3.jpg比较小，通常会比bg1.jpg先加载，显示出来会有一瞬间bg1显示一半，bg3显示一半，为了解决这个问题，增加这个判断，让bg1加载完毕后再显示bg3
-   * HTML中使用img标签的原因：我个人想用div作为图片的载体，而只有img标签有图片加载完毕的onload回调，所以用一个display: none的img人柱力来加载图片
-   * 当img中的src加载完毕后，会把图片缓存到浏览器，后续在div中用background url的形式将直接从浏览器中取出图片，不会下载两次图片
-   */
-  imgbg1.value.onload = () => {
-    state.loaded = true;
-  };
+  // 背景图加载
+  if (imgbg1.value) {
+    imgbg1.value.onload = () => {
+      state.loaded = true;
+    };
+  }
 
-  let startingPoint = 0;
-  header.value.addEventListener("mouseenter", (e) => {
-    startingPoint = e.clientX;
-  });
-  header.value.addEventListener("mouseout", () => {
-    header.value.classList.remove("moving");
-    header.value.style.setProperty("--percentage", 0.5);
-  });
-  header.value.addEventListener("mousemove", (e) => {
-    let percentage = (e.clientX - startingPoint) / window.outerWidth + 0.5;
-    header.value.style.setProperty("--percentage", percentage);
-    header.value.classList.add("moving");
-  });
+  // 视差效果
+  if (header.value) {
+    let startingPoint = 0;
+    const headerEl = header.value;
+    
+    headerEl.addEventListener("mouseenter", (e: MouseEvent) => {
+      startingPoint = e.clientX;
+    });
+    headerEl.addEventListener("mouseout", () => {
+      headerEl.classList.remove("moving");
+      headerEl.style.setProperty("--percentage", "0.5");
+    });
+    headerEl.addEventListener("mousemove", (e: MouseEvent) => {
+      let percentage = (e.clientX - startingPoint) / window.outerWidth + 0.5;
+      headerEl.style.setProperty("--percentage", String(percentage));
+      headerEl.classList.add("moving");
+    });
+  }
+
+  // 启动打字机效果
+  typeWriter();
+  
+  // 获取诗词
   getGuShi();
+});
+
+onUnmounted(() => {
+  if (typingTimer) {
+    clearTimeout(typingTimer);
+  }
 });
 </script>
 
@@ -207,185 +311,252 @@ header.moving .bg3 {
   transition: none;
 }
 
-.text-malfunction {
-  position: absolute;
-  top: 40%;
-  left: 51.5%;
-  transform: translate(-50%, -50%) scale(2.5);
-  width: 220px;
-  font-size: 34px;
-  font-family: sans-serif;
-  color: transparent;
-}
-
-.line {
-  position: absolute;
-  width: 200px;
-  left: -1px;
-  height: 1px;
-  background: black;
-  z-index: 50;
-  animation: lineMove 5s ease-out infinite;
-}
-
-.text-malfunction:before,
-.text-malfunction:after {
-  content: attr(data-word);
-  position: absolute;
-  top: 0;
-  line-height: 50px;
-  overflow: hidden;
-  filter: contrast(200%);
-}
-
-.text-malfunction:before {
-  left: 0;
-  color: red;
-  text-shadow: 1px 0 0 red;
-  z-index: 30;
-  animation: malfunctionAni 0.95s infinite;
-}
-
-.text-malfunction:after {
-  left: -1px;
-  color: cyan;
-  text-shadow: -1px 0 0 cyan;
-  z-index: 40;
-  mix-blend-mode: lighten;
-  animation: malfunctionAni 1.1s infinite 0.2s;
-}
-
-.signature-wall {
+/* 主内容区 */
+.hero-content {
   position: absolute;
   flex-direction: column;
   left: 0;
   right: 0;
   margin: auto;
-  font-size: 26px;
-  top: 30%;
-  z-index: 1;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  text-align: center;
+  padding: 0 20px;
 }
 
-.playful {
-  color: var(--blue);
-  font-size: 40px;
+.hero-avatar {
+  margin-bottom: 20px;
+  
+  :deep(.el-avatar) {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
 }
 
-.printer {
+.hero-title {
+  margin: 0 0 15px 0;
+  
+  .title-text {
+    font-size: 48px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: 10s linear 0s infinite normal none running light_15px;
+  }
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
+  min-height: 28px;
+  
+  .typing-text {
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .typing-cursor {
+    animation: blink 1s infinite;
+    color: var(--themeBackground);
+    font-weight: bold;
+  }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.hero-poem {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 12px 20px;
+  border-radius: 30px;
   cursor: pointer;
-  color: var(--blue);
-  background: var(--translucent);
-  border-radius: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-}
-
-@keyframes lineMove {
-  9% {
-    top: 38px;
+  transition: all 0.3s ease;
+  margin-bottom: 25px;
+  max-width: 90%;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    
+    .poem-refresh {
+      opacity: 1;
+      transform: rotate(180deg);
+    }
   }
-  14% {
-    top: 8px;
+  
+  .poem-icon {
+    font-size: 20px;
   }
-  18% {
-    top: 42px;
+  
+  .poem-text {
+    color: #fff;
+    font-size: 15px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   }
-  22% {
-    top: 1px;
-  }
-  32% {
-    top: 32px;
-  }
-  34% {
-    top: 12px;
-  }
-  40% {
-    top: 26px;
-  }
-  43% {
-    top: 7px;
-  }
-  99% {
-    top: 30px;
+  
+  .poem-refresh {
+    opacity: 0;
+    transition: all 0.3s ease;
+    color: #fff;
   }
 }
 
-@keyframes malfunctionAni {
-  10% {
-    top: -0.4px;
-    left: -1.1px;
+/* 社交链接 */
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.social-link {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  
+  &:hover {
+    background: var(--themeBackground);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
-  20% {
-    top: 0.4px;
-    left: -0.2px;
+}
+
+/* 统计信息 */
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 15px 30px;
+  border-radius: 50px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .stat-num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
-  30% {
-    left: 0.5px;
+  
+  .stat-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 2px;
   }
-  40% {
-    top: -0.3px;
-    left: -0.7px;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 滚动指示器 */
+.scroll-indicator {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  cursor: pointer;
+  text-align: center;
+  
+  .scroll-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+  }
+  
+  .scroll-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    span {
+      display: block;
+      width: 20px;
+      height: 20px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+      border-right: 2px solid rgba(255, 255, 255, 0.6);
+      transform: rotate(45deg);
+      margin: -8px 0;
+      animation: scrollArrow 2s infinite;
+      
+      &:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      
+      &:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+    }
+  }
+  
+  &:hover {
+    .scroll-text {
+      color: #fff;
+    }
+    
+    .scroll-arrow span {
+      border-color: #fff;
+    }
+  }
+}
+
+@keyframes scrollArrow {
+  0% {
+    opacity: 0;
+    transform: rotate(45deg) translate(-5px, -5px);
   }
   50% {
-    left: 0.2px;
-  }
-  60% {
-    top: 1.8px;
-    left: -1.2px;
-  }
-  70% {
-    top: -1px;
-    left: 0.1px;
-  }
-  80% {
-    top: -0.4px;
-    left: -0.9px;
-  }
-  90% {
-    left: 1.2px;
+    opacity: 1;
   }
   100% {
-    left: -1.2px;
+    opacity: 0;
+    transform: rotate(45deg) translate(5px, 5px);
   }
 }
 
-.wrapper {
-  position: absolute;
-  width: 100px;
-  bottom: 200px;
-  left: 0;
-  right: 0;
-  margin: auto;
-  font-size: 26px;
-  z-index: 90;
-}
-
-.wrapper i {
-  font-size: 60px;
-  opacity: 0.5;
-  cursor: pointer;
-  position: absolute;
-  top: 55px;
-  left: 20px;
-  animation: opener 0.5s ease-in-out alternate infinite;
-  transition: opacity 0.2s ease-in-out, transform 0.5s ease-in-out 0.2s;
-}
-
-.wrapper i:hover {
-  opacity: 1;
-}
-
-@keyframes opener {
-  100% {
-    top: 65px;
-  }
-}
+/* 波浪效果 */
 .wave {
   position: absolute;
   bottom: 0;
   height: 90px;
   width: 100%;
 }
+
 .wave1,
 .wave2 {
   position: absolute;
@@ -405,5 +576,65 @@ header.moving .bg3 {
   height: 90px;
   width: 400%;
   background: url("https://cdn.naccl.top/blog/img/wave2.png") repeat-x;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .hero-content {
+    top: 45%;
+  }
+  
+  .hero-avatar {
+    margin-bottom: 15px;
+    
+    :deep(.el-avatar) {
+      width: 80px !important;
+      height: 80px !important;
+    }
+  }
+  
+  .hero-title .title-text {
+    font-size: 32px;
+  }
+  
+  .hero-subtitle {
+    font-size: 14px;
+    padding: 0 20px;
+  }
+  
+  .hero-poem {
+    padding: 10px 15px;
+    
+    .poem-text {
+      font-size: 13px;
+    }
+  }
+  
+  .social-links {
+    gap: 10px;
+  }
+  
+  .social-link {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .hero-stats {
+    padding: 12px 20px;
+    gap: 15px;
+    
+    .stat-num {
+      font-size: 20px;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+    }
+  }
+  
+  .scroll-indicator {
+    bottom: 100px;
+  }
 }
 </style>

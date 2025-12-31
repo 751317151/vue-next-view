@@ -5,7 +5,6 @@
         v-for="(photo, index) in resourcePathList"
         :key="index"
         class="photo-item"
-        @click="openPreview(index)"
       >
         <el-image
           :src="photo"
@@ -14,7 +13,7 @@
           lazy
           :preview-src-list="resourcePathList"
           :initial-index="index"
-          hide-on-click-modal
+          :preview-teleported="true"
         >
           <template #error>
             <div class="image-error">
@@ -45,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { Picture, Loading, ZoomIn } from '@element-plus/icons-vue';
 
 interface Props {
   resourcePathList?: string[];
@@ -54,14 +53,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   resourcePathList: () => []
 });
-
-const previewVisible = ref(false);
-const currentIndex = ref(0);
-
-const openPreview = (index: number) => {
-  currentIndex.value = index;
-  previewVisible.value = true;
-};
 </script>
 
 <style lang="scss" scoped>
@@ -124,6 +115,7 @@ const openPreview = (index: number) => {
   justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none; /* 让点击事件穿透到下面的 el-image */
 }
 
 .photo-actions {
