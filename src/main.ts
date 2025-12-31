@@ -11,8 +11,36 @@ import "@kangc/v-md-editor/lib/style/preview.css";
 import githubTheme from "@kangc/v-md-editor/lib/theme/github.js";
 import "@kangc/v-md-editor/lib/theme/style/github.css";
 
-// highlightjs
-import hljs from "highlight.js";
+// highlightjs - 按需加载常用语言
+import hljs from "highlight.js/lib/core";
+import javascript from "highlight.js/lib/languages/javascript";
+import typescript from "highlight.js/lib/languages/typescript";
+import python from "highlight.js/lib/languages/python";
+import java from "highlight.js/lib/languages/java";
+import css from "highlight.js/lib/languages/css";
+import xml from "highlight.js/lib/languages/xml";
+import json from "highlight.js/lib/languages/json";
+import bash from "highlight.js/lib/languages/bash";
+import sql from "highlight.js/lib/languages/sql";
+import markdown from "highlight.js/lib/languages/markdown";
+
+// 注册常用语言
+hljs.registerLanguage("javascript", javascript);
+hljs.registerLanguage("js", javascript);
+hljs.registerLanguage("typescript", typescript);
+hljs.registerLanguage("ts", typescript);
+hljs.registerLanguage("python", python);
+hljs.registerLanguage("java", java);
+hljs.registerLanguage("css", css);
+hljs.registerLanguage("html", xml);
+hljs.registerLanguage("xml", xml);
+hljs.registerLanguage("json", json);
+hljs.registerLanguage("bash", bash);
+hljs.registerLanguage("shell", bash);
+hljs.registerLanguage("sql", sql);
+hljs.registerLanguage("markdown", markdown);
+hljs.registerLanguage("md", markdown);
+
 VMdPreview.use(githubTheme, {
   Hljs: hljs,
 });

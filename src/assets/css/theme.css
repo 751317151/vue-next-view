@@ -172,8 +172,8 @@
   }
 }
 
-/* 全局主题过渡效果 */
-* {
+/* 全局主题过渡效果 - 排除文章动画 */
+*:not(.recent-post-item) {
   transition: background-color 0.3s ease, 
               color 0.3s ease, 
               border-color 0.3s ease, 
@@ -217,9 +217,6 @@
   --btn-hover-color: #787878;
   --btn-bg: var(--theme-color) !important;
 
-  .aa {
-  }
-
   .web-bg::before {
     position: absolute;
     width: 100%;
@@ -256,9 +253,6 @@
   --btn-color: rgba(255, 255, 255, 0.7);
   --btn-hover-color: #787878;
   --btn-bg: var(--theme-color) !important;
-
-  .aa {
-  }
   .page-footer::before {
     content: "";
     position: absolute;
@@ -268,50 +262,20 @@
     left: 0;
   }
 }
-/* 修复页面切换时的文章显示问题 */
+/* 基础可见性保障 */
 .recent-post-container {
   transform: translateZ(0); /* 强制硬件加速 */
 }
 
-/* 确保文章在所有主题下都可见 */
+/* 文章卡片主题样式 - 只设置颜色相关，不设置动画相关 */
 .recent-post-item {
-  background: var(--card-background) !important;
-  color: var(--text-color) !important;
-  border: 1px solid var(--border-color-light) !important;
-  position: relative;
-  z-index: 2;
+  background: var(--card-background);
+  color: var(--text-color);
+  border: 1px solid var(--border-color-light);
 }
 
 .recent-post-item:hover {
-  z-index: 3;
-  box-shadow: var(--shadow-medium) !important;
-}
-
-/* 强制确保文章始终可见 - 最高优先级 */
-.recent-post-container .recent-post-item {
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: flex !important;
-}
-
-/* 防止AOS动画导致的隐藏 */
-.recent-post-item[data-aos] {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-.recent-post-item.aos-animate {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* 防止页面过渡动画导致的隐藏 */
-.fade-enter-active .recent-post-item,
-.fade-enter-to .recent-post-item,
-.fade-leave-active .recent-post-item {
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: flex !important;
+  box-shadow: var(--shadow-medium);
 }
 
 /* 修复浮动按钮在所有页面的显示问题 */
@@ -351,48 +315,4 @@
     border: 2px solid var(--border-color) !important;
     box-shadow: var(--shadow-medium) !important;
   }
-}
-
-/* 页面过渡时确保内容可见 */
-.fade-enter-active .recent-post-container,
-.fade-leave-active .recent-post-container {
-  transition: opacity 0.3s ease !important;
-}
-
-.fade-enter-from .recent-post-container {
-  opacity: 0 !important;
-}
-
-.fade-enter-to .recent-post-container,
-.fade-leave-from .recent-post-container {
-  opacity: 1 !important;
-}
-
-/* 强制显示文章内容 */
-.page-container .recent-posts {
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
-}
-
-.page-container .recent-posts .recent-post-container {
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
-}
-
-/* 修复可能的层级问题 */
-.page-container-wrap {
-  position: relative;
-  z-index: 1;
-}
-
-.page-container {
-  position: relative;
-  z-index: 2;
-}
-
-.recent-posts {
-  position: relative;
-  z-index: 3;
 }

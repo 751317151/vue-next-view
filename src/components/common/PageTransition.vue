@@ -72,24 +72,10 @@ const onEnter = () => {
 const onAfterEnter = () => {
   isTransitioning.value = false;
   
-  // 确保页面内容正确显示
+  // 简化处理，只做必要的操作
   setTimeout(() => {
-    // 触发重新渲染以修复可能的显示问题
+    // 触发重新渲染
     window.dispatchEvent(new Event('resize'));
-    
-    // 强制确保所有文章可见
-    const articles = document.querySelectorAll('.recent-post-item');
-    articles.forEach(article => {
-      const element = article as HTMLElement;
-      element.style.opacity = '1';
-      element.style.visibility = 'visible';
-      element.style.display = 'flex';
-    });
-    
-    // 重新初始化AOS动画
-    if (typeof window !== 'undefined' && (window as any).AOS) {
-      (window as any).AOS.refreshHard();
-    }
     
     // 确保浮动按钮正确显示
     const floatingActions = document.querySelector('.floating-actions') as HTMLElement;
@@ -98,7 +84,7 @@ const onAfterEnter = () => {
       floatingActions.style.opacity = '1';
       floatingActions.style.visibility = 'visible';
     }
-  }, 100);
+  }, 50);
   
   // 滚动到顶部
   window.scrollTo({ top: 0, behavior: 'smooth' });

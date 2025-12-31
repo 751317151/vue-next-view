@@ -24,7 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from "vue";
+import { reactive, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 const state = reactive({
   articleList: [

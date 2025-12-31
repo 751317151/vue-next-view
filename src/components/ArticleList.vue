@@ -1,15 +1,13 @@
 <template>
   <div v-if="!common.isEmpty(ArticleList)" class="recent-post-container">
     <div
-      data-aos="fade-right"
-      class="recent-post-item shadow-box background-opacity"
       v-for="(article, index) in ArticleList"
+      :key="article.id"
+      :ref="el => setArticleRef(el, index)"
+      class="recent-post-item shadow-box background-opacity"
+      :class="{ 'article-visible': visibleItems[index] }"
+      :style="{ transitionDelay: `${(index % 3) * 0.15}s` }"
       @click="router.push({ path: '/article/' + article.id })"
-      :key="index"
-      :class="{
-        'my-animation-slide-top': index % 2 !== 0,
-        'my-animation-slide-bottom': index % 2 === 0,
-      }"
     >
       <!-- 封面 -->
       <div
@@ -94,16 +92,99 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { ref, reactive, onMounted, onUnmounted, watch, nextTick } from "vue";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 
 const router = useRouter();
+const route = useRoute();
 
-// 使用 <script setup> 时，props 可以直接在模板中使用
 const props = defineProps({
   ArticleList: Array<Article>,
   ArticleList2: Array<Article>,
+});
+
+// 记录每个文章是否可见
+const visibleItems = reactive<Record<number, boolean>>({});
+const articleRefs = ref<(HTMLElement | null)[]>([]);
+let observer: IntersectionObserver | null = null;
+
+const setArticleRef = (el: any, index: number) => {
+  if (el) {
+    articleRefs.value[index] = el;
+  }
+};
+
+// 初始化 Intersection Observer
+const initObserver = () => {
+  // 先清理旧的 observer
+  if (observer) {
+    observer.disconnect();
+  }
+  
+  // 重置所有可见状态
+  Object.keys(visibleItems).forEach(key => {
+    visibleItems[Number(key)] = false;
+  });
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const index = articleRefs.value.indexOf(entry.target as HTMLElement);
+        if (index !== -1) {
+          if (entry.isIntersecting) {
+            visibleItems[index] = true;
+          } else {
+            // 滚动出视口时隐藏，实现双向动画
+            visibleItems[index] = false;
+          }
+        }
+      });
+    },
+    {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    }
+  );
+
+  // 观察所有文章元素
+  nextTick(() => {
+    articleRefs.value.forEach((el) => {
+      if (el && observer) {
+        observer.observe(el);
+      }
+    });
+  });
+};
+
+// 监听路由变化
+watch(() => route.path, (newPath, oldPath) => {
+  if (newPath === '/' && oldPath && oldPath !== '/') {
+    // 从其他页面回到首页，重新初始化动画
+    nextTick(() => {
+      initObserver();
+    });
+  }
+});
+
+// 监听文章列表变化
+watch(() => props.ArticleList, () => {
+  nextTick(() => {
+    initObserver();
+  });
+}, { deep: true });
+
+onMounted(() => {
+  nextTick(() => {
+    initObserver();
+  });
+});
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+  }
 });
 </script>
 
@@ -112,43 +193,12 @@ const props = defineProps({
   max-width: 1200px;
   margin: auto;
   margin-top: 50px;
-  opacity: 1;
-  visibility: visible;
   position: relative;
   z-index: 1;
-  
-  /* 确保在页面切换时正确显示 */
-  &.fade-enter-active,
-  &.fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-  
-  &.fade-enter-from,
-  &.fade-leave-to {
-    opacity: 0;
-  }
 }
 
 .recent-post-container .recent-post-item:not(:last-child) {
   margin-bottom: 40px;
-}
-
-.recent-post-item {
-  height: 300px;
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  user-select: none;
-  cursor: pointer;
-  overflow: hidden;
-  border-radius: 10px;
-  animation: hideToShow 1s ease-in-out;
-  z-index: 2;
-  
-  /* 确保文章项目正确显示 */
-  &:hover {
-    z-index: 3;
-  }
 }
 
 .recent-post-item-image {
@@ -205,11 +255,11 @@ const props = defineProps({
 .recent-post-desc {
   font-size: 15px;
   line-height: 1.7;
-  /* 超出4行就... */
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
 }
 
@@ -279,6 +329,7 @@ const props = defineProps({
 
   .recent-post-desc {
     -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
   .leftImage .sort-label {
@@ -291,5 +342,35 @@ const props = defineProps({
     bottom: 20px;
     right: unset;
   }
+}
+</style>
+
+<!-- 非scoped样式，确保动画优先级 -->
+<style lang="scss">
+.recent-post-item {
+  height: 300px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  user-select: none;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 10px;
+  z-index: 2;
+  
+  /* 初始状态：隐藏在左侧 */
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.recent-post-item:hover {
+  z-index: 3;
+}
+
+/* 可见状态：显示在正常位置 */
+.recent-post-item.article-visible {
+  opacity: 1;
+  transform: translateX(0);
 }
 </style>

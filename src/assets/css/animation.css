@@ -7,10 +7,12 @@
 
 .my-animation-slide-top {
   animation-name: slide-top;
+  animation-fill-mode: forwards;
 }
 
 .my-animation-slide-bottom {
   animation-name: slide-bottom;
+  animation-fill-mode: forwards;
 }
 
 .my-animation-hideToShow {
@@ -21,11 +23,11 @@
 @keyframes slide-top {
   0% {
     opacity: 0;
-    transform: translateY(-20%);
+    transform: translateX(50px) translateY(-20px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0) translateY(0);
   }
 }
 
@@ -33,11 +35,11 @@
 @keyframes slide-bottom {
   0% {
     opacity: 0;
-    transform: translateY(20%);
+    transform: translateX(50px) translateY(20px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0) translateY(0);
   }
 }
 

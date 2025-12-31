@@ -62,9 +62,58 @@ export default defineConfig({
       symbolId: "icon-[dir]-[name]",
     }),
   ],
+  // 优化依赖预构建
+  optimizeDeps: {
+    include: [
+      'vue',
+      'vue-router',
+      'pinia',
+      'element-plus',
+      'element-plus/es',
+      'element-plus/es/components/button/style/css',
+      'element-plus/es/components/message/style/css',
+      'element-plus/es/components/image/style/css',
+      'element-plus/es/components/pagination/style/css',
+      '@element-plus/icons-vue',
+      'highlight.js/lib/core',
+      'jquery',
+      'aos',
+      '@kangc/v-md-editor/lib/preview',
+      '@kangc/v-md-editor/lib/theme/github.js',
+    ],
+    // 排除不需要预构建的
+    exclude: [],
+  },
+  // 构建优化
+  build: {
+    // 分包策略
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'highlight': ['highlight.js'],
+          'element-plus': ['element-plus', '@element-plus/icons-vue'],
+          'vendor': ['vue', 'vue-router', 'pinia'],
+          'md-editor': ['@kangc/v-md-editor'],
+        },
+      },
+    },
+    // 启用 CSS 代码分割
+    cssCodeSplit: true,
+    // chunk 大小警告限制
+    chunkSizeWarningLimit: 1500,
+  },
   server: {
     port: 8080,
     host: "0.0.0.0",
+    // 预热常用文件
+    warmup: {
+      clientFiles: [
+        './src/main.ts',
+        './src/App.vue',
+        './src/views/home/Home.vue',
+        './src/components/ArticleList.vue',
+      ],
+    },
   },
   base: "./",
 });
