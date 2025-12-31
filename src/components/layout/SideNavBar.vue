@@ -35,10 +35,10 @@
       <el-row class="tac">
         <el-col>
           <el-menu
-            active-text-color="#ffd04b"
+            :active-text-color="'var(--themeBackground)'"
             background-color="transparent"
             class="el-menu-vertical-demo"
-            text-color="#fff"
+            :text-color="'var(--text-color)'"
           >
             <el-menu-item index="/" @click="smallMenu({ path: '/' })">
               <div>🏡 <span>首页</span></div>
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
 
@@ -101,11 +101,8 @@ const router = useRouter();
 const storesConfig = useConfig();
 const { webInfo, sideNavBarShow } = storeToRefs(storesConfig);
 
-const smallMenu = (path) => {
+const smallMenu = (path: { path: string }) => {
   router.push(path);
-  sideNavBarShow.value = false;
-};
-const smallMenuLogout = () => {
   sideNavBarShow.value = false;
 };
 </script>

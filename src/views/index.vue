@@ -1,5 +1,8 @@
 <template>
   <div class="main-index">
+    <!-- 阅读进度条 -->
+    <ReadingProgress />
+    
     <!-- el过渡动画 -->
     <!-- <transition name="el-fade-in-linear"> -->
     <!-- 导航栏 -->
@@ -9,47 +12,30 @@
     <div id="main-container">
       <div class="web-bg"></div>
       <canvas id="universe"></canvas>
-      <router-view></router-view>
+      <PageTransition type="fade">
+        <router-view></router-view>
+      </PageTransition>
     </div>
 
     <!-- 回到顶部按钮 -->
-    <div href="#" class="cd-top" v-show="!isMobile" @click="toTop()"></div>
+    <!-- <div href="#" class="cd-top" v-show="!isMobile" @click="toTop()"></div> -->
 
     <div class="rightside" :class="{ show: state.showToolButton }">
       <div
         class="rightside-config-hide"
-        :class="{ show: state.showSettingStatus }"
+        :class="{ show: showSettingPanel }"
       >
-        <button class="readmode" type="button" title="阅读模式">
-          <i class="fa fa-book-open"></i>
-        </button>
-        <button @click="changeColor()">
-          <!-- 太阳按钮 -->
-          <el-icon v-if="state.isDark">
-            <Sunny />
-          </el-icon>
-          <!-- 月亮按钮 -->
-          <el-icon v-else aria-hidden="true">
-            <Moon />
-          </el-icon>
-        </button>
-        <button
-          class="share"
-          type="button"
-          title="点击动画s"
-          @click="changeMouseAnimation()"
-        >
-          <el-icon>
-            <SwitchFilled />
-          </el-icon>
-        </button>
+        <!-- 这些设置项现在移到了设置弹框中 -->
+        <div class="config-tip">
+          <span>点击设置按钮打开设置面板</span>
+        </div>
       </div>
       <div class="rightside-config-show">
         <button
           class="rightside_config"
           type="button"
           title="设置"
-          @click="changeSettingStatus()"
+          @click="openSettingsModal"
         >
           <i class="fa fa-cog right_side iconRotate"></i>
         </button>
@@ -63,7 +49,7 @@
         >
           <i class="fa fa-list-ul"></i>
         </button>
-        <button class="share" type="button" title="分享链接" onclick="share()">
+        <button class="share" type="button" title="分享链接" @click="handleShare">
           <i class="fa fa-share-alt"></i>
         </button>
         <button class="go-up" type="button" title="回到顶部" @click="toTop()">
@@ -81,7 +67,7 @@
       </div>
       <!-- 点击动画 -->
       <canvas
-        v-if="state.mouseAnimation"
+        v-if="mouseAnimation"
         id="mousedown"
         style="
           position: fixed;
@@ -96,6 +82,15 @@
     <SideNavBar></SideNavBar>
 
     <Footer2></Footer2>
+    
+    <!-- 移动端浮动按钮 -->
+    <FloatingActions />
+    
+    <!-- 性能监控 (开发环境) -->
+    <PerformanceMonitor />
+    
+    <!-- 设置弹框 -->
+    <SettingsModal v-model:visible="settingsModalVisible" />
   </div>
 </template>
 
@@ -103,68 +98,74 @@
 import TopNavBar from "@/components/layout/TopNavBar.vue";
 import SideNavBar from "@/components/layout/SideNavBar.vue";
 import Footer2 from "@/components/layout/Footer2.vue";
+import ReadingProgress from "@/components/common/ReadingProgress.vue";
+import PageTransition from "@/components/common/PageTransition.vue";
+import FloatingActions from "@/components/common/FloatingActions.vue";
+import PerformanceMonitor from "@/components/common/PerformanceMonitor.vue";
+import SettingsModal from "@/components/common/SettingsModal.vue";
 import { useConfig } from "@/stores/config";
+import { useThemeStore } from "@/stores/theme";
 import { storeToRefs } from "pinia";
-import { onMounted, onBeforeUnmount, watch, reactive } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { onMounted, onBeforeUnmount, watch, reactive, ref } from "vue";
+import { useRoute } from "vue-router";
 import mousedown from "@/utils/mousedown";
 import blackstar from "@/utils/blackstar";
 
-const router = useRouter();
 const route = useRoute();
 const storesConfig = useConfig();
+const themeStore = useThemeStore();
 const { isMobile } = storeToRefs(storesConfig);
+const { mouseAnimation, showSettingPanel } = storeToRefs(themeStore);
 
 const state = reactive({
-  mouseAnimation: false,
-  isDark: true,
   showToolButton: false,
-  showSettingStatus: false,
   percent: 0,
 });
 
-// methods
-const changeColor = () => {
-  state.isDark = !state.isDark;
-  if (state.isDark) {
-    document.documentElement.setAttribute("theme", "dark");
-  } else {
-    document.documentElement.setAttribute("theme", "light");
-  }
+// 设置弹框状态
+const settingsModalVisible = ref(false);
+
+// 监听设置弹框打开事件的处理函数
+const handleOpenSettingsModal = () => {
+  settingsModalVisible.value = true;
 };
 
+// methods
 const toTop = () => {
   window.scrollTo({
     top: 0,
     behavior: "smooth",
   });
 };
+
 const toBottom = () => {
   window.scrollTo({
     top: document.body.scrollHeight,
     behavior: "smooth",
   });
 };
-const changeSettingStatus = () => {
-  state.showSettingStatus = !state.showSettingStatus;
-};
+
 const changeTocStatus = () => {
   storesConfig.changeTocStatus();
 };
-const isDaylight = () => {
-  let currDate = new Date();
-  if (currDate.getHours() > 22 || currDate.getHours() < 7) {
-    return false;
-  } else {
-    return true;
-  }
+
+// 打开设置弹框
+const openSettingsModal = () => {
+  settingsModalVisible.value = true;
 };
-const changeMouseAnimation = () => {
-  state.mouseAnimation = !state.mouseAnimation;
-  if (state.mouseAnimation) {
-    nextTick(() => {
-      mousedown();
+
+// 分享功能
+const handleShare = () => {
+  if (navigator.share) {
+    navigator.share({
+      title: '生活倒影',
+      text: '一个优雅的个人博客',
+      url: window.location.href
     });
+  } else {
+    navigator.clipboard.writeText(window.location.href);
+    // 这里可以添加提示消息
+    console.log('链接已复制到剪贴板');
   }
 };
 const getCategories = () => {
@@ -297,22 +298,29 @@ const createdMethod = () => {
 };
 createdMethod();
 onMounted(() => {
-  if (state.mouseAnimation) {
+  // 初始化主题系统 - 确保在组件渲染前完成
+  themeStore.initTheme();
+  
+  // 监听鼠标动画事件
+  document.addEventListener('mouse-animation-toggle', (e: any) => {
+    if (e.detail.enabled) {
+      mousedown();
+    }
+  });
+  
+  document.addEventListener('open-settings-modal', handleOpenSettingsModal);
+  
+  if (mouseAnimation.value) {
     mousedown();
   }
+  
   window.addEventListener("scroll", storesConfig.onScrollPage);
-  if (isDaylight()) {
-    state.isDark = true;
-  }
-  if (state.isDark) {
-    document.documentElement.setAttribute("theme", "dark");
-  } else {
-    document.documentElement.setAttribute("theme", "light");
-  }
   blackstar.dark();
 });
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", storesConfig.onScrollPage);
+  document.removeEventListener('mouse-animation-toggle', () => {});
+  document.removeEventListener('open-settings-modal', handleOpenSettingsModal);
 });
 watch(
   () => storesConfig.scrollTop,
@@ -383,9 +391,22 @@ watch(
   background-color: var(--background);
   display: flex;
   flex-direction: column;
+  
+  // 移动端优化
+  @media screen and (max-width: 768px) {
+    // 确保在移动端有足够的底部空间
+    padding-bottom: 80px;
+    
+    // 优化触摸滚动
+    -webkit-overflow-scrolling: touch;
+    
+    // 防止水平滚动
+    overflow-x: hidden;
+  }
 }
 
 #main-container {
+  flex: 1 auto;
   -webkit-flex: 1 auto;
 }
 
@@ -412,6 +433,29 @@ watch(
     opacity: 0;
     transition: max-height 0.6s ease, opacity 0.6s ease, transform 0.6s ease;
     transform: translateX(70px); /* 初始位置在右侧 */
+    
+    .config-tip {
+      padding: 12px 16px;
+      background: var(--card-background);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-light);
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+      
+      span {
+        font-size: 12px;
+        color: var(--text-color-secondary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        &::before {
+          content: '⚙️';
+          font-size: 14px;
+        }
+      }
+    }
   }
   .show {
     max-height: 500px; /* 使用较大的 max-height 值来代替 auto */
@@ -437,6 +481,8 @@ watch(
   div > a:hover,
   div > button:hover {
     background-color: var(--btn-hover-color);
+    color: var(--white);
+    transform: translateY(-2px);
   }
   div > a,
   div > button {
@@ -489,5 +535,52 @@ watch(
   background-size: contain;
   transition: all 0.5s ease-in-out;
   cursor: pointer;
+}
+
+// 移动端优化
+@media screen and (max-width: 768px) {
+  .rightside {
+    right: -80px;
+    bottom: 80px; // 避免与浮动按钮冲突
+    
+    &.show {
+      transform: translateX(-100px);
+    }
+    
+    div > a,
+    div > button {
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      margin-bottom: 8px;
+      
+      // 增加触摸反馈
+      &:active {
+        transform: scale(0.95);
+        background-color: var(--btn-hover-color);
+        color: var(--white);
+      }
+    }
+    
+    .rightside-config-hide {
+      .config-tip {
+        padding: 10px 12px;
+        border-radius: 6px;
+        
+        span {
+          font-size: 11px;
+          
+          &::before {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+  
+  // 隐藏右侧工具栏在移动端，使用浮动按钮代替
+  .rightside {
+    display: none;
+  }
 }
 </style>

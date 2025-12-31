@@ -28,7 +28,12 @@
         <el-icon><Operation /></el-icon>
       </div>
       <!-- 导航列表 -->
-      <div v-else>
+      <div v-else class="nav-content">
+        <!-- 搜索框 -->
+        <div class="search-section">
+          <GlobalSearch />
+        </div>
+        
         <ul class="scroll-menu">
           <li @click="router.push({ path: '/' })">
             <div class="my-menu">🏡 <span>首页</span></div>
@@ -126,6 +131,8 @@
               </template>
             </el-dropdown>
           </li>
+          
+
         </ul>
       </div>
     </div>
@@ -134,12 +141,12 @@
 
 <script setup lang="ts">
 import { reactive } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
+import GlobalSearch from "@/components/common/GlobalSearch.vue";
 
 const router = useRouter();
-const route = useRoute();
 const storesConfig = useConfig();
 const { toolbar, webInfo, sideNavBarShow, isMobile } =
   storeToRefs(storesConfig);
@@ -148,6 +155,18 @@ const state = reactive({
   hoverEnter: false,
   toolbar: { visible: true, enter: false },
 });
+
+// 跳转聊天室
+const goIm = () => {
+  // 这里可以添加跳转到聊天室的逻辑
+  console.log('跳转到聊天室');
+};
+
+// 退出登录
+const logout = () => {
+  // 这里可以添加退出登录的逻辑
+  console.log('退出登录');
+};
 </script>
 
 <style lang="scss" scoped>
@@ -183,6 +202,17 @@ const state = reactive({
 .toolbar-title {
   margin-left: 30px;
   cursor: pointer;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.search-section {
+  max-width: 300px;
+  min-width: 200px;
 }
 
 .toolbar-mobile-menu {

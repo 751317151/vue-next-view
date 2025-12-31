@@ -99,6 +99,7 @@ import common from "@/utils/common";
 import constant from "@/utils/constant";
 
 const router = useRouter();
+
 // 使用 <script setup> 时，props 可以直接在模板中使用
 const props = defineProps({
   ArticleList: Array<Article>,
@@ -106,11 +107,26 @@ const props = defineProps({
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .recent-post-container {
   max-width: 1200px;
   margin: auto;
   margin-top: 50px;
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+  z-index: 1;
+  
+  /* 确保在页面切换时正确显示 */
+  &.fade-enter-active,
+  &.fade-leave-active {
+    transition: opacity 0.3s ease;
+  }
+  
+  &.fade-enter-from,
+  &.fade-leave-to {
+    opacity: 0;
+  }
 }
 
 .recent-post-container .recent-post-item:not(:last-child) {
@@ -127,6 +143,12 @@ const props = defineProps({
   overflow: hidden;
   border-radius: 10px;
   animation: hideToShow 1s ease-in-out;
+  z-index: 2;
+  
+  /* 确保文章项目正确显示 */
+  &:hover {
+    z-index: 3;
+  }
 }
 
 .recent-post-item-image {

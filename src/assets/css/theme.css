@@ -1,3 +1,198 @@
+/* Element Plus 消息提示主题适配 */
+.el-message {
+  background-color: var(--message-bg) !important;
+  color: var(--message-text) !important;
+  border: 1px solid var(--message-border) !important;
+  box-shadow: var(--shadow-medium) !important;
+  font-weight: 500 !important;
+}
+
+.el-message--success {
+  background-color: var(--message-success-bg) !important;
+  color: var(--message-success-text) !important;
+  border-color: var(--message-success-border) !important;
+}
+
+.el-message--info {
+  background-color: var(--message-info-bg) !important;
+  color: var(--message-info-text) !important;
+  border-color: var(--message-info-border) !important;
+}
+
+.el-message--warning {
+  background-color: var(--message-warning-bg) !important;
+  color: var(--message-warning-text) !important;
+  border-color: var(--message-warning-border) !important;
+}
+
+.el-message--error {
+  background-color: var(--message-error-bg) !important;
+  color: var(--message-error-text) !important;
+  border-color: var(--message-error-border) !important;
+}
+
+/* 消息图标颜色 */
+.el-message__icon {
+  color: inherit !important;
+}
+
+/* 消息关闭按钮 */
+.el-message__closeBtn {
+  color: var(--message-text) !important;
+  opacity: 0.7;
+}
+
+.el-message__closeBtn:hover {
+  opacity: 1;
+}
+
+/* Element Plus 分页组件全局样式修复 */
+.el-pagination {
+  background: transparent !important;
+}
+
+.el-pagination .el-select .el-select__wrapper {
+  background-color: var(--pagination-bg) !important;
+  border-color: var(--pagination-border) !important;
+  color: var(--pagination-text) !important;
+}
+
+.el-pagination .el-select .el-select__wrapper:hover {
+  border-color: var(--pagination-hover-border) !important;
+}
+
+.el-pagination .el-select .el-select__wrapper.is-focused {
+  border-color: var(--pagination-active-bg) !important;
+}
+
+.el-pagination .el-input__wrapper {
+  background-color: var(--pagination-bg) !important;
+  border-color: var(--pagination-border) !important;
+  box-shadow: none !important;
+}
+
+.el-pagination .el-input__wrapper:hover {
+  border-color: var(--pagination-hover-border) !important;
+}
+
+.el-pagination .el-input__wrapper.is-focus {
+  border-color: var(--pagination-active-bg) !important;
+}
+
+.el-pagination .el-input__inner {
+  color: var(--pagination-text) !important;
+  background: transparent !important;
+}
+
+/* 下拉菜单样式 */
+.el-select-dropdown {
+  background-color: var(--card-background) !important;
+  border-color: var(--border-color) !important;
+}
+
+.el-select-dropdown .el-select-dropdown__item {
+  color: var(--text-color) !important;
+  background-color: transparent !important;
+}
+
+.el-select-dropdown .el-select-dropdown__item:hover {
+  background-color: var(--btn-bg) !important;
+}
+
+.el-select-dropdown .el-select-dropdown__item.is-selected {
+  background-color: var(--themeBackground) !important;
+  color: var(--white) !important;
+}
+
+/* 移动端布局优化 */
+@media screen and (max-width: 768px) {
+  /* 简化复杂组件 */
+  .complex-component {
+    display: none;
+  }
+  
+  /* 优化弹框显示 */
+  .el-dialog,
+  .el-drawer {
+    margin: 0 !important;
+    max-height: 90vh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+  
+  /* 优化表单元素 */
+  .el-input,
+  .el-select,
+  .el-textarea {
+    font-size: 16px !important; /* 防止iOS缩放 */
+  }
+  
+  /* 优化导航 */
+  .scroll-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .scroll-menu > li {
+    margin: 0 8px 8px 0;
+  }
+}
+
+/* 移动端触摸优化 */
+@media screen and (max-width: 768px) {
+  /* 增大触摸区域 */
+  button, 
+  .el-button,
+  .fab-main,
+  .fab-item,
+  .theme-option,
+  .setting-item.clickable {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* 触摸反馈 */
+  button:active,
+  .el-button:active,
+  .fab-main:active,
+  .fab-item:active,
+  .theme-option:active,
+  .setting-item.clickable:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
+  }
+  
+  /* 优化滚动 */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* 防止双击缩放 */
+  * {
+    touch-action: manipulation;
+  }
+}
+
+/* 全局主题过渡效果 */
+* {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease, 
+              box-shadow 0.3s ease;
+}
+
+/* 针对特定元素的过渡优化 */
+.el-button,
+.el-input,
+.el-pagination,
+.el-menu,
+.el-dropdown,
+.fab-main,
+.fab-item,
+.theme-option,
+.setting-item {
+  transition: all 0.3s ease !important;
+}
+
 /* 默认dark主题 */
 [theme="dark"] {
   --bg-color: #0d1117;
@@ -72,4 +267,132 @@
     height: 100%;
     left: 0;
   }
+}
+/* 修复页面切换时的文章显示问题 */
+.recent-post-container {
+  transform: translateZ(0); /* 强制硬件加速 */
+}
+
+/* 确保文章在所有主题下都可见 */
+.recent-post-item {
+  background: var(--card-background) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color-light) !important;
+  position: relative;
+  z-index: 2;
+}
+
+.recent-post-item:hover {
+  z-index: 3;
+  box-shadow: var(--shadow-medium) !important;
+}
+
+/* 强制确保文章始终可见 - 最高优先级 */
+.recent-post-container .recent-post-item {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+
+/* 防止AOS动画导致的隐藏 */
+.recent-post-item[data-aos] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.recent-post-item.aos-animate {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* 防止页面过渡动画导致的隐藏 */
+.fade-enter-active .recent-post-item,
+.fade-enter-to .recent-post-item,
+.fade-leave-active .recent-post-item {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+
+/* 修复浮动按钮在所有页面的显示问题 */
+.floating-actions {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* 确保浮动按钮在移动端正确显示 */
+@media screen and (max-width: 768px) {
+  .floating-actions {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1000 !important;
+  }
+  
+  .fab-main {
+    background: var(--themeBackground) !important;
+    color: var(--white) !important;
+    border: 2px solid var(--border-color-light) !important;
+    box-shadow: var(--shadow-heavy) !important;
+  }
+  
+  .fab-item .fab-item-icon {
+    background: var(--card-background) !important;
+    color: var(--text-color) !important;
+    border: 2px solid var(--border-color) !important;
+    box-shadow: var(--shadow-heavy) !important;
+  }
+  
+  .fab-item .fab-item-label {
+    background: var(--card-background) !important;
+    color: var(--text-color) !important;
+    border: 2px solid var(--border-color) !important;
+    box-shadow: var(--shadow-medium) !important;
+  }
+}
+
+/* 页面过渡时确保内容可见 */
+.fade-enter-active .recent-post-container,
+.fade-leave-active .recent-post-container {
+  transition: opacity 0.3s ease !important;
+}
+
+.fade-enter-from .recent-post-container {
+  opacity: 0 !important;
+}
+
+.fade-enter-to .recent-post-container,
+.fade-leave-from .recent-post-container {
+  opacity: 1 !important;
+}
+
+/* 强制显示文章内容 */
+.page-container .recent-posts {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+.page-container .recent-posts .recent-post-container {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* 修复可能的层级问题 */
+.page-container-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.page-container {
+  position: relative;
+  z-index: 2;
+}
+
+.recent-posts {
+  position: relative;
+  z-index: 3;
 }

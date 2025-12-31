@@ -25,17 +25,6 @@
 
 <script setup lang="ts">
 import { reactive, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { storeToRefs } from "pinia";
-import { useConfig } from "@/stores/config";
-import common from "@/utils/common";
-import constant from "@/utils/constant";
-
-const router = useRouter();
-const route = useRoute();
-const storesConfig = useConfig();
-const { toolbar, webInfo, sideNavBarShow, isMobile } =
-  storeToRefs(storesConfig);
 
 const state = reactive({
   articleList: [
@@ -184,6 +173,15 @@ onMounted(() => {
 .recent-posts {
   width: 70%;
   min-height: 600px;
+  position: relative;
+  z-index: 1;
+  
+  // 确保文章内容正确显示
+  .recent-post-container {
+    opacity: 1;
+    visibility: visible;
+    transform: translateZ(0); // 强制硬件加速
+  }
 }
 
 @media screen and (max-width: 1100px) {
