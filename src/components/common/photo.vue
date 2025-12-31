@@ -1,144 +1,225 @@
 <template>
-  <div class="card-container" v-if="!common.isEmpty(resourcePathList)">
-    <div
-      v-for="(resourcePath, index) in resourcePathList"
-      :key="index"
-      class="card-item wow shadow-box-mini"
-    >
-      <div class="card-image">
+  <div class="photo-gallery">
+    <div class="photo-grid">
+      <div
+        v-for="(photo, index) in resourcePathList"
+        :key="index"
+        class="photo-item"
+        @click="openPreview(index)"
+      >
         <el-image
-          class="my-el-image"
-          v-once
-          lazy
-          :preview-src-list="[resourcePath.cover]"
-          :src="resourcePath.cover"
+          :src="photo"
           fit="cover"
+          class="photo-image"
+          lazy
+          :preview-src-list="resourcePathList"
+          :initial-index="index"
+          hide-on-click-modal
         >
-          <!-- <div slot="error" class="image-slot"></div> -->
           <template #error>
-            <div class="image-slot">
-              <el-icon><icon-picture /></el-icon>
+            <div class="image-error">
+              <el-icon><Picture /></el-icon>
+              <span>加载失败</span>
+            </div>
+          </template>
+          <template #placeholder>
+            <div class="image-loading">
+              <el-icon class="is-loading"><Loading /></el-icon>
             </div>
           </template>
         </el-image>
-      </div>
-      <div class="card-body">
-        <el-tooltip placement="bottom-start" effect="light">
-          <div slot="content">{{ resourcePath.title }}</div>
-          <div class="card-desc">
-            {{ resourcePath.title }}
+        <div class="photo-overlay">
+          <div class="photo-actions">
+            <el-icon class="action-icon"><ZoomIn /></el-icon>
           </div>
-        </el-tooltip>
-        <div class="card-time">
-          Date: {{ common.getDateDiff(resourcePath.createTime) }}
         </div>
       </div>
+    </div>
+    
+    <!-- 空状态 -->
+    <div v-if="!resourcePathList || resourcePathList.length === 0" class="empty-state">
+      <el-icon class="empty-icon"><Picture /></el-icon>
+      <p>暂无照片</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import common from "@/utils/common";
+import { ref } from 'vue';
 
-const props = defineProps({
-  resourcePathList: {
-    type: Array,
-  },
+interface Props {
+  resourcePathList?: string[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  resourcePathList: () => []
 });
+
+const previewVisible = ref(false);
+const currentIndex = ref(0);
+
+const openPreview = (index: number) => {
+  currentIndex.value = index;
+  previewVisible.value = true;
+};
 </script>
 
 <style lang="scss" scoped>
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.card-item {
-  position: relative;
-  overflow: hidden;
-  margin: 15px;
-  height: 550px;
-  flex-shrink: 0;
-  width: calc(100% / 3 - 30px);
-  cursor: pointer;
-  animation: zoomIn 0.8s ease-in-out;
-  padding: 1.3rem 1.3rem 1.5rem;
-  background: var(--background);
-  border-radius: 1.5rem;
-  transition: all 0.2s;
-}
-
-.card-image {
+.photo-gallery {
   width: 100%;
-  height: 400px;
-  border-radius: 1rem;
+  padding: 20px 0;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 0 10px;
+}
+
+.photo-item {
+  position: relative;
+  aspect-ratio: 4/3;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(147, 147, 147, 0.61);
-  margin-bottom: 1rem;
-}
-
-.card-image :deep(.el-image__inner) {
-  transition: all 1s;
-}
-
-.card-image :deep(.el-image__inner:hover) {
-  transform: scale(1.2);
-}
-
-.card-body {
-  padding: 10px 5px;
-}
-
-.card-desc {
-  font-weight: 600;
-  font-size: 1.05rem;
-  color: var(--fontColor);
-  letter-spacing: 1px;
-  line-height: 1.5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.card-time {
-  position: absolute;
-  bottom: 15px;
-  color: #999999;
-  font-weight: 500;
-}
-
-@media screen and (max-width: 1300px) {
-  .card-item {
-    width: calc(100% / 2 - 30px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    
+    .photo-overlay {
+      opacity: 1;
+    }
+    
+    .photo-image {
+      transform: scale(1.05);
+    }
   }
 }
 
-@media screen and (max-width: 1000px) {
-  .card-item {
-    height: 450px;
-  }
-
-  .card-image {
-    height: 300px;
-  }
-}
-
-@media screen and (max-width: 750px) {
-  .card-item {
+.photo-image {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease;
+  
+  :deep(.el-image__inner) {
     width: 100%;
-    margin: 15px 0;
+    height: 100%;
+    object-fit: cover;
   }
 }
 
-@media screen and (max-width: 450px) {
-  .card-item {
-    height: 400px;
-  }
+.photo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
-  .card-image {
-    height: 250px;
+.photo-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon {
+  font-size: 24px;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
+}
+
+.image-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-color-secondary);
+  background: var(--fill-color-light);
+  
+  .el-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  
+  span {
+    font-size: 14px;
+  }
+}
+
+.image-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: var(--fill-color-lighter);
+  
+  .el-icon {
+    font-size: 24px;
+    color: var(--text-color-secondary);
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-color-secondary);
+  
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  p {
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+// 响应式设计
+@media screen and (max-width: 768px) {
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    padding: 0 5px;
+  }
+  
+  .photo-item {
+    border-radius: 8px;
+  }
+  
+  .action-icon {
+    font-size: 20px;
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

@@ -15,7 +15,7 @@ export default {
   shehui: "https://api.oick.cn/yulu/api.php",
   tocbot: "https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js",
   jinrishici: "https://v1.jinrishici.com/all.json",
-  random_image: "https://s1.ax1x.com/2022/12/04/zsKgDs.jpg?",
+  random_image: "https://picsum.photos/800/400?random=",
   //前后端定义的密钥，AES使用16位
   cryptojs_key: "aoligeimeimaobin",
   qiniuUrl: "https://upload.qiniup.com",
@@ -56,7 +56,13 @@ export default {
     "#23d5ab",
   ],
 
-  two_poem_image: ["https://bu.dusays.com/2023/03/20/6418531adb843.jpg"],
+  two_poem_image: [
+    "https://picsum.photos/1920/600?random=1",
+    "https://picsum.photos/1920/600?random=2", 
+    "https://picsum.photos/1920/600?random=3",
+    "https://picsum.photos/1920/600?random=4",
+    "https://picsum.photos/1920/600?random=5"
+  ],
 
   before_color_1: "black",
   after_color_1: "linear-gradient(45deg, #f43f3b, #ec008c)",

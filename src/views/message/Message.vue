@@ -65,10 +65,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, reactive } from "vue";
+import { onMounted, onBeforeUnmount, ref, reactive, nextTick } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
+import { ElMessage } from 'element-plus';
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 import vueDanmaku from "vue3-danmaku";
@@ -172,15 +173,44 @@ const submitMessage = () => {
     ElMessage.error("你还没写呢~");
     return;
   }
-  state.danmus.push(state.messageContent.trim());
+  
+  // 添加新消息到弹幕列表
+  const newDanmu = {
+    name: Date.now(),
+    avatar: "https://haiyong.site/img/favicon.png",
+    text: state.messageContent.trim(),
+    time: Math.floor(Math.random() * 10 + 5),
+  };
+  
+  state.danmus.push(newDanmu);
   state.messageContent = "";
   state.show = false;
+  
+  ElMessage.success("消息发送成功！");
 };
 
 getTreeHole();
 
-window.addEventListener("resize", () => {
-  danmakuRef.value.resize();
+// 使用组合式API的生命周期钩子
+let resizeHandler;
+
+onMounted(() => {
+  // 等待DOM完全渲染后再添加事件监听器
+  nextTick(() => {
+    resizeHandler = () => {
+      if (danmakuRef.value && typeof danmakuRef.value.resize === 'function') {
+        danmakuRef.value.resize();
+      }
+    };
+    window.addEventListener("resize", resizeHandler);
+  });
+});
+
+onBeforeUnmount(() => {
+  // 清理事件监听器
+  if (resizeHandler) {
+    window.removeEventListener("resize", resizeHandler);
+  }
 });
 </script>
 

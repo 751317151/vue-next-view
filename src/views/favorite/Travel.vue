@@ -36,7 +36,7 @@
         <!-- 标签 -->
         <div
           class="photo-title-warp"
-          v-if="common.isEmpty(state.photoTitleList)"
+          v-if="!common.isEmpty(state.photoTitleList)"
         >
           <div
             v-for="(item, index) in state.photoTitleList"
@@ -46,12 +46,12 @@
             }"
             @click="changePhotoTitle(item.classify)"
           >
-            <proTag
+            <ProTag
               :info="item.classify + ' ' + item.count"
               :color="constant.before_color_list[Math.floor(Math.random() * 6)]"
               style="margin: 12px"
             >
-            </proTag>
+            </ProTag>
           </div>
         </div>
 
@@ -59,7 +59,7 @@
           {{ state.photoPagination.classify }}
         </div>
 
-        <photo :resourcePathList="state.photoList"></photo>
+        <Photo :resourcePathList="state.photoList"></Photo>
         <div class="pagination-wrap">
           <div
             @click="pagePhotos()"
@@ -83,21 +83,44 @@ import constant from "@/utils/constant";
 const state = reactive({
   photoPagination: {
     current: 1,
-    size: 10,
+    size: 12,
     total: 0,
     resourceType: "lovePhoto",
-    classify: "",
+    classify: "全部",
   },
-  photoTitleList: [],
-  photoList: [],
+  photoTitleList: [
+    { classify: "全部", count: 24 },
+    { classify: "风景", count: 8 },
+    { classify: "人物", count: 6 },
+    { classify: "建筑", count: 5 },
+    { classify: "美食", count: 3 },
+    { classify: "动物", count: 2 },
+  ],
+  photoList: [
+    "https://picsum.photos/400/300?random=1",
+    "https://picsum.photos/400/300?random=2",
+    "https://picsum.photos/400/300?random=3",
+    "https://picsum.photos/400/300?random=4",
+    "https://picsum.photos/400/300?random=5",
+    "https://picsum.photos/400/300?random=6",
+    "https://picsum.photos/400/300?random=7",
+    "https://picsum.photos/400/300?random=8",
+    "https://picsum.photos/400/300?random=9",
+    "https://picsum.photos/400/300?random=10",
+    "https://picsum.photos/400/300?random=11",
+    "https://picsum.photos/400/300?random=12",
+  ],
 });
 
-const getPhotoTitles = () => {};
+const getPhotoTitles = () => {
+  // 已在state中初始化
+};
+
 const changePhotoTitle = (classify) => {
   if (classify !== state.photoPagination.classify) {
     state.photoPagination = {
       current: 1,
-      size: 10,
+      size: 12,
       total: 0,
       resourceType: "lovePhoto",
       classify: classify,
@@ -106,13 +129,37 @@ const changePhotoTitle = (classify) => {
     changePhoto();
   }
 };
+
 const pagePhotos = () => {
   state.photoPagination.current = state.photoPagination.current + 1;
   changePhoto();
 };
-const changePhoto = () => {};
+
+const changePhoto = () => {
+  // 模拟根据分类加载不同的照片
+  const allPhotos = Array.from({ length: 24 }, (_, i) => 
+    `https://picsum.photos/400/300?random=${i + 1}`
+  );
+  
+  const categoryPhotos = {
+    "全部": allPhotos,
+    "风景": allPhotos.slice(0, 8),
+    "人物": allPhotos.slice(8, 14),
+    "建筑": allPhotos.slice(14, 19),
+    "美食": allPhotos.slice(19, 22),
+    "动物": allPhotos.slice(22, 24),
+  };
+  
+  const photos = categoryPhotos[state.photoPagination.classify] || allPhotos;
+  const startIndex = (state.photoPagination.current - 1) * state.photoPagination.size;
+  const endIndex = startIndex + state.photoPagination.size;
+  
+  state.photoList = [...state.photoList, ...photos.slice(startIndex, endIndex)];
+  state.photoPagination.total = photos.length;
+};
 
 getPhotoTitles();
+changePhoto();
 </script>
 
 <style lang="scss" scoped>

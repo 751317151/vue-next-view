@@ -74,6 +74,18 @@ const routes = [
         component: () => import("@/views/message/Message.vue"),
         meta: { title: "留言" },
       },
+      {
+        path: "/about",
+        name: "about",
+        component: () => import("@/views/about/About.vue"),
+        meta: { title: "关于" },
+      },
+      {
+        path: "/friend",
+        name: "friend",
+        component: () => import("@/views/friend/Friend.vue"),
+        meta: { title: "友人帐" },
+      },
     ],
   },
 ];

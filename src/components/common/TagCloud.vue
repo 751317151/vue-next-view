@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount, reactive, nextTick } from "vue";
 import constant from "@/utils/constant";
 
 const state = reactive({
@@ -37,26 +37,29 @@ let lastb = 1;
 const tspeed = 5;
 let isMouseDown = false;
 let lastMouseX, lastMouseY;
+let animationTimer = null; // 存储定时器引用
 
 const tags = [
-  { text: "前端", color: "yellow" },
-  { text: "前端2", color: "yellow" },
-  { text: "前端3", color: "yellow" },
-  { text: "前端4", color: "yellow" },
-  { text: "前端5", color: "yellow" },
-  { text: "前端6", color: "yellow" },
-  { text: "前端7", color: "yellow" },
-  { text: "前端8", color: "yellow" },
-  { text: "前端9", color: "yellow" },
-  { text: "前端0", color: "yellow" },
-  { text: "前端", color: "yellow" },
-  { text: "Vue", color: "blue" },
-  { text: "ajax", color: "red" },
-
-  { text: "Jquery" },
-  { text: "脚手架" },
-  { text: "CSS", color: "blue" },
-  // ... 添加更多标签
+  { text: "Vue.js", color: "blue" },
+  { text: "TypeScript", color: "blue" },
+  { text: "JavaScript", color: "yellow" },
+  { text: "React", color: "blue" },
+  { text: "Node.js", color: "green" },
+  { text: "CSS3", color: "blue" },
+  { text: "HTML5", color: "orange" },
+  { text: "Webpack", color: "blue" },
+  { text: "Vite", color: "purple" },
+  { text: "Element Plus", color: "blue" },
+  { text: "Sass", color: "pink" },
+  { text: "Git", color: "red" },
+  { text: "Docker", color: "blue" },
+  { text: "Linux", color: "black" },
+  { text: "MySQL", color: "blue" },
+  { text: "MongoDB", color: "green" },
+  { text: "Redis", color: "red" },
+  { text: "Python", color: "blue" },
+  { text: "Java", color: "red" },
+  { text: "Spring Boot", color: "green" },
 ];
 
 const sineCosine = (a, b, c) => {
@@ -68,6 +71,9 @@ const sineCosine = (a, b, c) => {
 };
 
 const positionAll = () => {
+  // 检查DOM元素是否存在
+  if (!tagbox.value || !tagRefs.value.length) return;
+  
   let phi = 0;
   let theta = 0;
   const max = mcList.value.length;
@@ -81,6 +87,9 @@ const positionAll = () => {
     tag.cz = radius * Math.cos(phi);
 
     const tagElem = tagRefs.value[i - 1];
+    // 确保tagElem存在
+    if (!tagElem) continue;
+    
     tagElem.style.left =
       tag.cx + tagbox.value.offsetWidth / 2 - tagElem.offsetWidth / 2 + "px";
     tagElem.style.top =
@@ -90,6 +99,7 @@ const positionAll = () => {
 
 const update = () => {
   if (!active && !isMouseDown) return;
+  if (!tagbox.value || !mcList.value.length) return;
 
   let { sa, ca, sb, cb } = sineCosine(lasta, lastb, 0);
   for (let i = 0; i < mcList.value.length; i++) {
@@ -119,13 +129,19 @@ const update = () => {
 };
 
 const doPosition = () => {
-  console.log(tagbox);
-  console.log(tagbox.value);
+  // 检查DOM元素是否存在
+  if (!tagbox.value || !tagRefs.value.length) return;
+  
   const l = tagbox.value.offsetWidth / 2;
   const t = tagbox.value.offsetHeight / 2;
+  
   for (let i = 0; i < mcList.value.length; i++) {
     const tagElem = tagRefs.value[i];
     const tag = mcList.value[i];
+    
+    // 确保tagElem存在
+    if (!tagElem) continue;
+    
     tagElem.style.left = tag.cx + l - tag.offsetWidth / 2 + "px";
     tagElem.style.top = tag.cy + t - tag.offsetHeight / 2 + "px";
     tagElem.style.fontSize = Math.ceil((12 * tag.scale) / 2) + 8 + "px";
@@ -174,17 +190,33 @@ const getColor = () => {
 };
 
 onMounted(() => {
-  const aA = tagbox.value.getElementsByClassName("tag");
-  for (let i = 0; i < aA.length; i++) {
-    const oTag = {
-      offsetWidth: aA[i].offsetWidth,
-      offsetHeight: aA[i].offsetHeight,
-    };
-    mcList.value.push(oTag);
-  }
+  // 使用nextTick确保DOM完全渲染
+  nextTick(() => {
+    if (!tagbox.value) return;
+    
+    const aA = tagbox.value.getElementsByClassName("tag");
+    if (!aA.length) return;
+    
+    for (let i = 0; i < aA.length; i++) {
+      const oTag = {
+        offsetWidth: aA[i].offsetWidth,
+        offsetHeight: aA[i].offsetHeight,
+      };
+      mcList.value.push(oTag);
+    }
 
-  positionAll();
-  setInterval(update, 30);
+    positionAll();
+    // 存储定时器引用以便清理
+    animationTimer = setInterval(update, 30);
+  });
+});
+
+onBeforeUnmount(() => {
+  // 清理定时器
+  if (animationTimer) {
+    clearInterval(animationTimer);
+    animationTimer = null;
+  }
 });
 </script>
 
