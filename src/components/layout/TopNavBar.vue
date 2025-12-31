@@ -25,7 +25,11 @@
         @click="sideNavBarShow = !sideNavBarShow"
         :class="{ enter: toolbar.enter }"
       >
-        <el-icon><Operation /></el-icon>
+        <div class="menu-icon" :class="{ open: sideNavBarShow }">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
       <!-- 导航列表 -->
       <div v-else class="nav-content">
@@ -216,9 +220,41 @@ const logout = () => {
 }
 
 .toolbar-mobile-menu {
-  font-size: 30px;
   margin-right: 15px;
   cursor: pointer;
+  padding: 8px;
+  
+  .menu-icon {
+    width: 24px;
+    height: 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    
+    span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: var(--toolbarFont);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+    
+    &.open {
+      span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+      }
+      span:nth-child(2) {
+        opacity: 0;
+        transform: scaleX(0);
+      }
+      span:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+      }
+    }
+  }
 }
 
 .scroll-menu {

@@ -1,34 +1,48 @@
 /* Element Plus 消息提示主题适配 */
 .el-message {
-  background-color: var(--message-bg) !important;
-  color: var(--message-text) !important;
-  border: 1px solid var(--message-border) !important;
-  box-shadow: var(--shadow-medium) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   font-weight: 500 !important;
+  border-radius: 8px !important;
 }
 
 .el-message--success {
-  background-color: var(--message-success-bg) !important;
-  color: var(--message-success-text) !important;
-  border-color: var(--message-success-border) !important;
+  background-color: var(--themeBackground) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.el-message--success .el-message__icon {
+  color: #fff !important;
 }
 
 .el-message--info {
-  background-color: var(--message-info-bg) !important;
-  color: var(--message-info-text) !important;
-  border-color: var(--message-info-border) !important;
+  background-color: var(--card-background) !important;
+  color: var(--fontColor) !important;
+  border: 1px solid var(--borderColor) !important;
+}
+
+.el-message--info .el-message__icon {
+  color: var(--fontColor) !important;
 }
 
 .el-message--warning {
-  background-color: var(--message-warning-bg) !important;
-  color: var(--message-warning-text) !important;
-  border-color: var(--message-warning-border) !important;
+  background: var(--gradientBG) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.el-message--warning .el-message__icon {
+  color: #fff !important;
 }
 
 .el-message--error {
-  background-color: var(--message-error-bg) !important;
-  color: var(--message-error-text) !important;
-  border-color: var(--message-error-border) !important;
+  background: var(--gradualRed) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.el-message--error .el-message__icon {
+  color: #fff !important;
 }
 
 /* 消息图标颜色 */
@@ -38,7 +52,7 @@
 
 /* 消息关闭按钮 */
 .el-message__closeBtn {
-  color: var(--message-text) !important;
+  color: inherit !important;
   opacity: 0.7;
 }
 
@@ -314,5 +328,64 @@
     color: var(--text-color) !important;
     border: 2px solid var(--border-color) !important;
     box-shadow: var(--shadow-medium) !important;
+  }
+}
+
+
+/* 移动端导航栏优化 */
+@media screen and (max-width: 768px) {
+  /* 顶部导航栏移动端样式 */
+  .toolbar-content {
+    height: 56px !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  .toolbar-content.enter {
+    background: var(--translucent) !important;
+  }
+  
+  .toolbar-title h2 {
+    font-size: 18px !important;
+  }
+  
+  /* 侧边抽屉样式 */
+  .el-drawer {
+    border-radius: 0 16px 16px 0 !important;
+    overflow: hidden;
+  }
+  
+  .el-drawer__body {
+    padding: 0 !important;
+  }
+  
+  /* 抽屉遮罩层 */
+  .el-overlay {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* 深色模式下的移动端导航优化 */
+html.dark {
+  .mobile-drawer .drawer-content {
+    background: var(--card-background);
+  }
+  
+  .mobile-drawer .user-section {
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+  }
+  
+  .mobile-drawer .sub-menu {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .mobile-drawer .action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .mobile-drawer .action-btn:active {
+    background: rgba(255, 255, 255, 0.15);
   }
 }

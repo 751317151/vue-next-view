@@ -3,11 +3,14 @@
     <transition name="modal" appear>
       <div v-if="visible" class="settings-modal-overlay" @click="handleOverlayClick">
         <div class="settings-modal" @click.stop>
+          <!-- 移动端拖拽指示器 -->
+          <div class="drag-indicator"></div>
+          
           <!-- 头部 -->
           <div class="modal-header">
             <h3 class="modal-title">
               <el-icon class="title-icon"><Setting /></el-icon>
-              设置中心
+              设置
             </h3>
             <button class="close-btn" @click="closeModal">
               <el-icon><Close /></el-icon>
@@ -20,7 +23,7 @@
             <div class="setting-section">
               <div class="section-header">
                 <el-icon class="section-icon"><Sunny /></el-icon>
-                <h4>主题设置</h4>
+                <h4>主题</h4>
               </div>
               <div class="theme-options">
                 <div 
@@ -47,24 +50,13 @@
             <div class="setting-section">
               <div class="section-header">
                 <el-icon class="section-icon"><View /></el-icon>
-                <h4>显示设置</h4>
+                <h4>显示</h4>
               </div>
               <div class="setting-items">
                 <div class="setting-item">
                   <div class="item-info">
-                    <span class="item-label">阅读模式</span>
-                    <span class="item-desc">专注阅读体验</span>
-                  </div>
-                  <el-switch 
-                    v-model="readingMode" 
-                    @change="handleReadingModeChange"
-                  />
-                </div>
-                
-                <div class="setting-item">
-                  <div class="item-info">
-                    <span class="item-label">鼠标点击动画</span>
-                    <span class="item-desc">点击时显示动画效果</span>
+                    <span class="item-label">鼠标点击特效</span>
+                    <span class="item-desc">点击时显示动画</span>
                   </div>
                   <el-switch 
                     v-model="mouseAnimation" 
@@ -74,46 +66,39 @@
                 
                 <div class="setting-item">
                   <div class="item-info">
-                    <span class="item-label">阅读进度</span>
-                    <span class="item-desc">显示页面阅读进度</span>
+                    <span class="item-label">页面动画</span>
+                    <span class="item-desc">页面切换动画效果</span>
                   </div>
                   <el-switch 
-                    v-model="showReadingProgress" 
-                    @change="handleReadingProgressChange"
+                    v-model="pageAnimation" 
+                    @change="handlePageAnimationChange"
                   />
                 </div>
               </div>
             </div>
             
-            <!-- 其他设置 -->
+            <!-- 快捷操作 -->
             <div class="setting-section">
               <div class="section-header">
                 <el-icon class="section-icon"><Tools /></el-icon>
-                <h4>其他设置</h4>
+                <h4>快捷操作</h4>
               </div>
-              <div class="setting-items">
-                <div class="setting-item clickable" @click="handleShare">
-                  <div class="item-info">
-                    <span class="item-label">分享网站</span>
-                    <span class="item-desc">分享给朋友</span>
-                  </div>
-                  <el-icon class="item-arrow"><ArrowRight /></el-icon>
+              <div class="quick-actions">
+                <div class="action-btn" @click="handleScrollTop">
+                  <el-icon><ArrowUp /></el-icon>
+                  <span>回到顶部</span>
                 </div>
-                
-                <div class="setting-item clickable" @click="handleFeedback">
-                  <div class="item-info">
-                    <span class="item-label">意见反馈</span>
-                    <span class="item-desc">帮助我们改进</span>
-                  </div>
-                  <el-icon class="item-arrow"><ArrowRight /></el-icon>
+                <div class="action-btn" @click="handleShare">
+                  <el-icon><Share /></el-icon>
+                  <span>分享</span>
                 </div>
-                
-                <div class="setting-item clickable" @click="handleAbout">
-                  <div class="item-info">
-                    <span class="item-label">关于网站</span>
-                    <span class="item-desc">了解更多信息</span>
-                  </div>
-                  <el-icon class="item-arrow"><ArrowRight /></el-icon>
+                <div class="action-btn" @click="handleRefresh">
+                  <el-icon><Refresh /></el-icon>
+                  <span>刷新</span>
+                </div>
+                <div class="action-btn" @click="handleAbout">
+                  <el-icon><InfoFilled /></el-icon>
+                  <span>关于</span>
                 </div>
               </div>
             </div>
@@ -121,10 +106,7 @@
           
           <!-- 底部 -->
           <div class="modal-footer">
-            <div class="footer-info">
-              <span class="version">v1.0.0</span>
-              <span class="copyright">© 2024 生活倒影</span>
-            </div>
+            <span class="copyright">© 2024 BlackStar's Blog</span>
           </div>
         </div>
       </div>
@@ -133,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useThemeStore } from '@/stores/theme';
@@ -146,7 +128,10 @@ import {
   Check, 
   View, 
   Tools, 
-  ArrowRight 
+  ArrowUp,
+  Share,
+  Refresh,
+  InfoFilled
 } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 
@@ -164,28 +149,27 @@ const themeStore = useThemeStore();
 const { currentTheme, mouseAnimation } = storeToRefs(themeStore);
 
 // 本地状态
-const readingMode = ref(false);
-const showReadingProgress = ref(true);
+const pageAnimation = ref(true);
 
 // 主题选项
 const themeOptions = [
   {
     name: 'light',
-    label: '浅色模式',
+    label: '浅色',
     icon: Sunny,
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    gradient: 'linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%)'
   },
   {
     name: 'dark',
-    label: '深色模式',
+    label: '深色',
     icon: Moon,
-    gradient: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)'
+    gradient: 'linear-gradient(135deg, #2d3436 0%, #636e72 100%)'
   },
   {
     name: 'auto',
-    label: '跟随系统',
+    label: '自动',
     icon: Monitor,
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #2c3e50 100%)'
+    gradient: 'linear-gradient(135deg, #74b9ff 0%, #636e72 100%)'
   }
 ];
 
@@ -202,49 +186,45 @@ const handleOverlayClick = () => {
 // 主题切换
 const handleThemeChange = (themeName: string) => {
   themeStore.setTheme(themeName as any);
-  ElMessage.success(`已切换到${themeOptions.find(t => t.name === themeName)?.label}`);
-};
-
-// 阅读模式切换
-const handleReadingModeChange = (value: boolean) => {
-  if (value) {
-    document.body.classList.add('reading-mode');
-    ElMessage.success('已开启阅读模式');
-  } else {
-    document.body.classList.remove('reading-mode');
-    ElMessage.success('已关闭阅读模式');
-  }
+  ElMessage.success(`已切换到${themeOptions.find(t => t.name === themeName)?.label}模式`);
 };
 
 // 鼠标动画切换
-const handleMouseAnimationChange = (value: boolean) => {
+const handleMouseAnimationChange = () => {
   themeStore.toggleMouseAnimation();
-  ElMessage.success(value ? '已开启鼠标动画' : '已关闭鼠标动画');
 };
 
-// 阅读进度切换
-const handleReadingProgressChange = (value: boolean) => {
-  // 这里可以添加控制阅读进度显示的逻辑
-  ElMessage.success(value ? '已显示阅读进度' : '已隐藏阅读进度');
+// 页面动画切换
+const handlePageAnimationChange = () => {
+  ElMessage.success(pageAnimation.value ? '已开启页面动画' : '已关闭页面动画');
+};
+
+// 回到顶部
+const handleScrollTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  closeModal();
 };
 
 // 分享
 const handleShare = () => {
   if (navigator.share) {
     navigator.share({
-      title: '生活倒影',
-      text: '一个优雅的个人博客',
+      title: document.title,
       url: window.location.href
     });
   } else {
     navigator.clipboard.writeText(window.location.href);
-    ElMessage.success('链接已复制到剪贴板');
+    ElMessage.success('链接已复制');
   }
+  closeModal();
 };
 
-// 意见反馈
-const handleFeedback = () => {
-  ElMessage.info('感谢您的反馈！');
+// 刷新页面
+const handleRefresh = () => {
+  closeModal();
+  setTimeout(() => {
+    window.location.reload();
+  }, 300);
 };
 
 // 关于网站
@@ -261,8 +241,8 @@ const handleAbout = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--translucent);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -272,35 +252,39 @@ const handleAbout = () => {
 
 .settings-modal {
   background: var(--card-background);
-  border-radius: 20px;
+  border-radius: 24px;
   width: 100%;
-  max-width: 500px;
+  max-width: 420px;
   max-height: 80vh;
   overflow: hidden;
-  box-shadow: var(--shadow-heavy);
-  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color-light);
   display: flex;
   flex-direction: column;
+}
+
+.drag-indicator {
+  display: none;
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 24px 0;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color-light);
   
   .modal-title {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     margin: 0;
     color: var(--text-color);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
     
     .title-icon {
-      font-size: 24px;
+      font-size: 22px;
       color: var(--themeBackground);
     }
   }
@@ -309,19 +293,22 @@ const handleAbout = () => {
     width: 36px;
     height: 36px;
     border: none;
-    background: var(--btn-bg);
+    background: var(--background);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--btn-color);
+    transition: all 0.2s ease;
+    color: var(--text-color);
     
     &:hover {
-      background: var(--btn-hover-color);
-      color: var(--white);
-      transform: scale(1.1);
+      background: var(--themeBackground);
+      color: white;
+    }
+    
+    &:active {
+      transform: scale(0.9);
     }
   }
 }
@@ -329,29 +316,20 @@ const handleAbout = () => {
 .modal-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 20px 24px;
   
   &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: var(--background);
-    border-radius: 3px;
+    width: 4px;
   }
   
   &::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 3px;
-    
-    &:hover {
-      background: var(--text-color-secondary);
-    }
+    border-radius: 2px;
   }
 }
 
 .setting-section {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   
   &:last-child {
     margin-bottom: 0;
@@ -360,18 +338,18 @@ const handleAbout = () => {
   .section-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 12px;
     
     .section-icon {
-      font-size: 20px;
+      font-size: 18px;
       color: var(--themeBackground);
     }
     
     h4 {
       margin: 0;
       color: var(--text-color);
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
     }
   }
@@ -379,76 +357,78 @@ const handleAbout = () => {
 
 .theme-options {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
 .theme-option {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 12px;
+  gap: 8px;
+  padding: 14px 10px;
+  border-radius: 16px;
   background: var(--background);
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   position: relative;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: scale(0.96);
   }
   
   &.active {
     border-color: var(--themeBackground);
-    background: var(--themeBackground);
-    color: var(--white);
+    background: rgba(var(--themeBackground-rgb), 0.1);
     
     .theme-label {
-      color: var(--white);
+      color: var(--themeBackground);
+      font-weight: 600;
     }
   }
   
   .theme-preview {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     
     .theme-icon {
-      font-size: 24px;
-      color: var(--white);
-      z-index: 1;
+      font-size: 20px;
+      color: white;
     }
   }
   
   .theme-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--text-color);
-    text-align: center;
   }
   
   .theme-check {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 20px;
-    height: 20px;
-    background: var(--white);
+    top: 6px;
+    right: 6px;
+    width: 18px;
+    height: 18px;
+    background: var(--themeBackground);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     
     .el-icon {
-      font-size: 12px;
-      color: var(--themeBackground);
+      font-size: 10px;
+      color: white;
     }
   }
 }
@@ -456,31 +436,22 @@ const handleAbout = () => {
 .setting-items {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .setting-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  border-radius: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
   background: var(--background);
-  transition: all 0.3s ease;
-  
-  &.clickable {
-    cursor: pointer;
-    
-    &:hover {
-      background: var(--btn-bg);
-      transform: translateX(2px);
-    }
-  }
+  transition: all 0.2s ease;
   
   .item-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     
     .item-label {
       font-size: 14px;
@@ -491,170 +462,182 @@ const handleAbout = () => {
     .item-desc {
       font-size: 12px;
       color: var(--text-color-secondary);
+      opacity: 0.7;
+    }
+  }
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: 14px;
+  background: var(--background);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  .el-icon {
+    font-size: 22px;
+    color: var(--themeBackground);
+  }
+  
+  span {
+    font-size: 11px;
+    color: var(--text-color);
+    font-weight: 500;
+  }
+  
+  &:hover {
+    background: var(--themeBackground);
+    transform: translateY(-2px);
+    
+    .el-icon, span {
+      color: white;
     }
   }
   
-  .item-arrow {
-    font-size: 16px;
-    color: var(--text-color-secondary);
+  &:active {
+    transform: scale(0.95);
   }
 }
 
 .modal-footer {
-  padding: 0 24px 24px;
-  border-top: 1px solid var(--border-color);
-  margin-top: 8px;
-  padding-top: 16px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color-light);
+  text-align: center;
   
-  .footer-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .copyright {
     font-size: 12px;
     color: var(--text-color-secondary);
-    
-    .version {
-      background: var(--background);
-      padding: 4px 8px;
-      border-radius: 6px;
-    }
+    opacity: 0.6;
   }
 }
 
 // 动画
 .modal-enter-active,
 .modal-leave-active {
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
+  
+  .settings-modal {
+    transition: transform 0.3s ease;
+  }
 }
 
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
-  transform: scale(0.9);
+  
+  .settings-modal {
+    transform: scale(0.9) translateY(20px);
+  }
 }
 
-.modal-enter-active .settings-modal,
-.modal-leave-active .settings-modal {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from .settings-modal,
-.modal-leave-to .settings-modal {
-  transform: scale(0.9) translateY(20px);
-}
-
-// 响应式
+// 移动端样式
 @media screen and (max-width: 768px) {
   .settings-modal-overlay {
-    padding: 10px;
+    padding: 0;
     align-items: flex-end;
   }
   
   .settings-modal {
-    max-height: 85vh;
-    border-radius: 20px 20px 0 0;
-    margin-bottom: 0;
-    animation: slideUp 0.3s ease-out;
+    max-width: 100%;
+    max-height: 75vh;
+    border-radius: 24px 24px 0 0;
   }
   
-  @keyframes slideUp {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-  
-  .modal-header,
-  .modal-content,
-  .modal-footer {
-    padding-left: 20px;
-    padding-right: 20px;
+  .drag-indicator {
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    margin: 10px auto 0;
   }
   
   .modal-header {
-    padding-top: 20px;
+    padding: 16px 20px;
+    
+    .modal-title {
+      font-size: 17px;
+    }
     
     .close-btn {
       width: 40px;
       height: 40px;
-      
-      &:active {
-        transform: scale(0.95);
-      }
     }
+  }
+  
+  .modal-content {
+    padding: 16px 20px;
   }
   
   .theme-options {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 10px;
   }
   
   .theme-option {
-    padding: 16px 12px;
-    
-    &:active {
-      transform: scale(0.95);
-    }
+    padding: 12px 8px;
     
     .theme-preview {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       
       .theme-icon {
-        font-size: 22px;
+        font-size: 18px;
       }
     }
     
     .theme-label {
-      font-size: 13px;
+      font-size: 12px;
     }
   }
   
   .setting-item {
-    padding: 18px 16px;
-    border-radius: 16px;
+    padding: 16px;
     
-    &.clickable:active {
-      transform: scale(0.98);
-      background: var(--btn-hover-color);
-      
-      .item-info .item-label {
-        color: var(--white);
-      }
-    }
-    
-    .item-info {
-      .item-label {
-        font-size: 15px;
-      }
-      
-      .item-desc {
-        font-size: 13px;
-      }
+    .item-info .item-label {
+      font-size: 15px;
     }
   }
   
-  // 增大开关的触摸区域
-  :deep(.el-switch) {
-    .el-switch__core {
-      min-width: 50px;
-      height: 24px;
-      
-      &::after {
-        width: 20px;
-        height: 20px;
-      }
+  .quick-actions {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  
+  .action-btn {
+    padding: 12px 6px;
+    
+    .el-icon {
+      font-size: 20px;
+    }
+    
+    span {
+      font-size: 10px;
     }
   }
-}
-
-// 阅读模式样式
-:global(.reading-mode) {
-  .settings-modal {
-    background: #f8f9fa;
-    color: #2c3e50;
+  
+  // 增大开关触摸区域
+  :deep(.el-switch) {
+    transform: scale(1.1);
+  }
+  
+  .modal-footer {
+    padding: 14px 20px 24px;
+  }
+  
+  // 移动端进入动画
+  .modal-enter-from .settings-modal,
+  .modal-leave-to .settings-modal {
+    transform: translateY(100%);
   }
 }
 </style>

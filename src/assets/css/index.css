@@ -162,10 +162,11 @@ a {
 .el-message {
   top: 80px !important;
   border: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .el-message * {
-  color: var(--white) !important;
   font-weight: 600;
 }
 
@@ -173,12 +174,32 @@ a {
   background: var(--themeBackground);
 }
 
+.el-message--success * {
+  color: #fff !important;
+}
+
 .el-message--warning {
   background: var(--gradientBG);
 }
 
+.el-message--warning * {
+  color: #fff !important;
+}
+
 .el-message--error {
   background: var(--gradualRed);
+}
+
+.el-message--error * {
+  color: #fff !important;
+}
+
+.el-message--info {
+  background: var(--card-background);
+}
+
+.el-message--info * {
+  color: var(--fontColor) !important;
 }
 
 /* 看板娘 */

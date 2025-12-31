@@ -445,7 +445,7 @@ watch(
       
       span {
         font-size: 12px;
-        color: var(--text-color-secondary);
+        color: var(--fontColor);
         display: flex;
         align-items: center;
         gap: 8px;
@@ -539,48 +539,9 @@ watch(
 
 // 移动端优化
 @media screen and (max-width: 768px) {
+  // 移动端隐藏右侧工具栏，使用浮动按钮代替
   .rightside {
-    right: -80px;
-    bottom: 80px; // 避免与浮动按钮冲突
-    
-    &.show {
-      transform: translateX(-100px);
-    }
-    
-    div > a,
-    div > button {
-      width: 40px;
-      height: 40px;
-      font-size: 18px;
-      margin-bottom: 8px;
-      
-      // 增加触摸反馈
-      &:active {
-        transform: scale(0.95);
-        background-color: var(--btn-hover-color);
-        color: var(--white);
-      }
-    }
-    
-    .rightside-config-hide {
-      .config-tip {
-        padding: 10px 12px;
-        border-radius: 6px;
-        
-        span {
-          font-size: 11px;
-          
-          &::before {
-            font-size: 12px;
-          }
-        }
-      }
-    }
-  }
-  
-  // 隐藏右侧工具栏在移动端，使用浮动按钮代替
-  .rightside {
-    display: none;
+    display: none !important;
   }
 }
 </style>
