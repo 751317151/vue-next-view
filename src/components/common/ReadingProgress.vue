@@ -1,5 +1,5 @@
 <template>
-  <div class="reading-progress-container" v-if="showProgress" :class="{ 'nav-hidden': !navVisible }">
+  <div class="reading-progress-container" v-if="showProgress && isArticlePage" :class="{ 'nav-hidden': !navVisible }">
     <div 
       class="reading-progress-bar"
       :style="{ width: progress + '%' }"
@@ -13,6 +13,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useConfig } from '@/stores/config';
 
@@ -26,11 +27,15 @@ const props = withDefaults(defineProps<Props>(), {
   wordsPerMinute: 200
 });
 
+const route = useRoute();
 const storesConfig = useConfig();
 const { toolbar } = storeToRefs(storesConfig);
 
 const progress = ref(0);
 const showProgress = ref(false);
+
+// 判断是否在文章详情页
+const isArticlePage = computed(() => route.path.startsWith('/article'));
 
 // 监听导航栏可见性
 const navVisible = computed(() => toolbar.value.visible);

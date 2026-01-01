@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useThemeStore } from '@/stores/theme';
 import { useConfig } from '@/stores/config';
 import { ElMessage } from 'element-plus';
@@ -51,6 +52,7 @@ import {
   List
 } from '@element-plus/icons-vue';
 
+const route = useRoute();
 const themeStore = useThemeStore();
 const configStore = useConfig();
 
@@ -58,6 +60,9 @@ const isOpen = ref(false);
 const windowWidth = ref(window.innerWidth);
 
 const shouldShow = computed(() => windowWidth.value <= 1050);
+
+// 判断是否在文章详情页
+const isArticlePage = computed(() => route.path.startsWith('/article'));
 
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
@@ -96,54 +101,65 @@ const getThemeIcon = () => {
   return Sunny;
 };
 
-const actions = computed<Action[]>(() => [
-  {
-    name: 'top',
-    icon: ArrowUp,
-    handler: () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  },
-  {
-    name: 'toc',
-    icon: List,
-    isActive: configStore.showToc,
-    handler: () => {
-      configStore.changeTocStatus();
-      ElMessage.success(configStore.showToc ? '目录已显示' : '目录已隐藏');
-    }
-  },
-  {
-    name: 'theme',
-    icon: getThemeIcon(),
-    handler: () => {
-      themeStore.toggleTheme();
-      ElMessage.success(`已切换到${getThemeLabel(themeStore.currentTheme)}模式`);
-    }
-  },
-  {
-    name: 'settings',
-    icon: Setting,
-    handler: () => {
-      document.dispatchEvent(new CustomEvent('open-settings-modal'));
-    }
-  },
-  {
-    name: 'share',
-    icon: Share,
-    handler: () => {
-      if (navigator.share) {
-        navigator.share({
-          title: document.title,
-          url: window.location.href
-        });
-      } else {
-        navigator.clipboard.writeText(window.location.href);
-        ElMessage.success('链接已复制');
+const actions = computed<Action[]>(() => {
+  const baseActions: Action[] = [
+    {
+      name: 'top',
+      icon: ArrowUp,
+      handler: () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
+  ];
+  
+  // 只在文章详情页显示目录按钮
+  if (isArticlePage.value) {
+    baseActions.push({
+      name: 'toc',
+      icon: List,
+      isActive: configStore.showToc,
+      handler: () => {
+        configStore.changeTocStatus();
+        ElMessage.success(configStore.showToc ? '目录已显示' : '目录已隐藏');
+      }
+    });
   }
-]);
+  
+  baseActions.push(
+    {
+      name: 'theme',
+      icon: getThemeIcon(),
+      handler: () => {
+        themeStore.toggleTheme();
+        ElMessage.success(`已切换到${getThemeLabel(themeStore.currentTheme)}模式`);
+      }
+    },
+    {
+      name: 'settings',
+      icon: Setting,
+      handler: () => {
+        document.dispatchEvent(new CustomEvent('open-settings-modal'));
+      }
+    },
+    {
+      name: 'share',
+      icon: Share,
+      handler: () => {
+        if (navigator.share) {
+          navigator.share({
+            title: document.title,
+            url: window.location.href
+          });
+        } else {
+          navigator.clipboard.writeText(window.location.href);
+          ElMessage.success('链接已复制');
+        }
+      }
+    }
+  );
+  
+  return baseActions;
+});
 
 const toggleMenu = () => {
   isOpen.value = !isOpen.value;
