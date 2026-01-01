@@ -30,15 +30,6 @@
     <!-- <div href="#" class="cd-top" v-show="!isMobile" @click="toTop()"></div> -->
 
     <div class="rightside" :class="{ show: state.showToolButton }">
-      <div
-        class="rightside-config-hide"
-        :class="{ show: showSettingPanel }"
-      >
-        <!-- 这些设置项现在移到了设置弹框中 -->
-        <div class="config-tip">
-          <span>点击设置按钮打开设置面板</span>
-        </div>
-      </div>
       <div class="rightside-config-show">
         <button
           class="rightside_config"
@@ -431,21 +422,20 @@ watch(
   display: block;
   opacity: 0;
   position: fixed;
-  right: 10px; /* 最终显示位置 */
+  right: 15px; /* 距离右边缘 15px */
   bottom: 40px;
   z-index: 100;
-  transform: translateX(100px); /* 初始隐藏在右侧 */
+  transform: translateX(60px); /* 初始隐藏在右侧 */
   -moz-transition: all 0.5s;
   -o-transition: all 0.5s;
   -ms-transition: all 0.5s;
   transition: transform 0.5s ease, opacity 0.5s ease;
-  // transform: translateX(70px); /* 初始位置在右侧 */
 
   .rightside-config-hide {
     max-height: 0px;
     opacity: 0;
     transition: max-height 0.6s ease, opacity 0.6s ease, transform 0.6s ease;
-    transform: translateX(70px); /* 初始位置在右侧 */
+    transform: translateX(60px); /* 初始位置在右侧 */
     
     .config-tip {
       padding: 12px 16px;
@@ -532,14 +522,14 @@ watch(
 
 .rightside.show {
   opacity: 1;
-  transform: translateX(0); /* 显示时回到原位 right: 10px */
+  transform: translateX(0); /* 显示时回到原位 right: 15px */
   transition: transform 0.5s ease;
 }
 
 .cd-top {
   background: var(--toTop) no-repeat center;
   position: fixed;
-  right: 5vh;
+  right: 15px;
   top: -900px;
   z-index: 99;
   width: 70px;
