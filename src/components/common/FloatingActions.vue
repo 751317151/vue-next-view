@@ -21,10 +21,9 @@
         :style="{ '--delay': `${index * 0.05}s` }"
         @click="handleAction(action)"
       >
-        <div class="fab-item-btn">
+        <div class="fab-item-btn" :class="{ active: action.isActive }">
           <el-icon><component :is="action.icon" /></el-icon>
         </div>
-        <span class="fab-item-label">{{ action.label }}</span>
       </div>
     </transition-group>
     
@@ -38,6 +37,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useThemeStore } from '@/stores/theme';
+import { useConfig } from '@/stores/config';
 import { ElMessage } from 'element-plus';
 import { 
   Menu,
@@ -47,10 +47,12 @@ import {
   Setting,
   Sunny,
   Moon,
-  Monitor
+  Monitor,
+  List
 } from '@element-plus/icons-vue';
 
 const themeStore = useThemeStore();
+const configStore = useConfig();
 
 const isOpen = ref(false);
 const windowWidth = ref(window.innerWidth);
@@ -71,8 +73,8 @@ onUnmounted(() => {
 
 interface Action {
   name: string;
-  label: string;
   icon: any;
+  isActive?: boolean;
   handler: () => void;
 }
 
@@ -86,43 +88,41 @@ const getThemeLabel = (theme: string) => {
   return labels[theme] || theme;
 };
 
-// 获取下一个主题
-const getNextTheme = () => {
-  const themeOrder = ['light', 'dark', 'auto'];
-  const currentIndex = themeOrder.indexOf(themeStore.currentTheme);
-  const nextIndex = (currentIndex + 1) % themeOrder.length;
-  return themeOrder[nextIndex];
-};
-
 // 获取当前主题图标
 const getThemeIcon = () => {
+  // 显示当前主题的图标
   if (themeStore.currentTheme === 'auto') return Monitor;
-  if (themeStore.currentTheme === 'dark') return Sunny;
-  return Moon;
+  if (themeStore.currentTheme === 'dark') return Moon;
+  return Sunny;
 };
 
 const actions = computed<Action[]>(() => [
   {
     name: 'top',
-    label: '顶部',
     icon: ArrowUp,
     handler: () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   },
   {
+    name: 'toc',
+    icon: List,
+    isActive: configStore.showToc,
+    handler: () => {
+      configStore.changeTocStatus();
+      ElMessage.success(configStore.showToc ? '目录已显示' : '目录已隐藏');
+    }
+  },
+  {
     name: 'theme',
-    label: getThemeLabel(getNextTheme()),
     icon: getThemeIcon(),
     handler: () => {
-      const nextTheme = getNextTheme();
       themeStore.toggleTheme();
-      ElMessage.success(`已切换到${getThemeLabel(nextTheme)}模式`);
+      ElMessage.success(`已切换到${getThemeLabel(themeStore.currentTheme)}模式`);
     }
   },
   {
     name: 'settings',
-    label: '设置',
     icon: Setting,
     handler: () => {
       document.dispatchEvent(new CustomEvent('open-settings-modal'));
@@ -130,7 +130,6 @@ const actions = computed<Action[]>(() => [
   },
   {
     name: 'share',
-    label: '分享',
     icon: Share,
     handler: () => {
       if (navigator.share) {
@@ -167,8 +166,8 @@ const handleAction = (action: Action) => {
   right: 20px;
   z-index: 1000;
   
-  // 桌面端隐藏
-  @media screen and (min-width: 769px) {
+  // 桌面端隐藏（与 shouldShow 的 1050px 断点一致）
+  @media screen and (min-width: 1051px) {
     display: none !important;
   }
 }
@@ -205,9 +204,10 @@ const handleAction = (action: Action) => {
 .fab-menu {
   position: absolute;
   bottom: 64px;
-  right: 0;
+  right: 4px; /* 调整位置使子按钮与主按钮中心对齐 */
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
   z-index: 1003;
 }
@@ -215,8 +215,7 @@ const handleAction = (action: Action) => {
 .fab-item {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
   
   .fab-item-btn {
     width: 44px;
@@ -238,18 +237,12 @@ const handleAction = (action: Action) => {
       background: var(--themeBackground);
       color: white;
     }
-  }
-  
-  .fab-item-label {
-    background: var(--card-background);
-    color: var(--text-color);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--border-color-light);
+    
+    &.active {
+      background: var(--themeBackground);
+      color: white;
+      border-color: var(--themeBackground);
+    }
   }
 }
 
@@ -319,11 +312,6 @@ const handleAction = (action: Action) => {
       width: 40px;
       height: 40px;
       font-size: 16px;
-    }
-    
-    .fab-item-label {
-      padding: 5px 10px;
-      font-size: 11px;
     }
   }
 }

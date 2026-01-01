@@ -88,14 +88,6 @@ export default defineConfig({
   build: {
     // 分包策略
     rollupOptions: {
-      output: {
-        manualChunks: {
-          'highlight': ['highlight.js'],
-          'element-plus': ['element-plus', '@element-plus/icons-vue'],
-          'vendor': ['vue', 'vue-router', 'pinia'],
-          'md-editor': ['@kangc/v-md-editor'],
-        },
-      },
     },
     // 启用 CSS 代码分割
     cssCodeSplit: true,
@@ -115,5 +107,5 @@ export default defineConfig({
       ],
     },
   },
-  base: "./",
+  base: "/",
 });

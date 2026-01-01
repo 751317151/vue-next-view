@@ -568,14 +568,20 @@ const highlight = () => {
 onMounted(() => {
   getArticle();
   
-  // 粘性定位逻辑
+  // 粘性定位逻辑 - 使用固定宽度避免滚动时的宽度变化
   let initialTop = 0;
+  let fixedLeft = 0;
+  let fixedWidth = 300; // 固定宽度，与 CSS 中 .aside-content 的宽度一致
   let initialized = false;
+  let isFixed = false;
   
   const initPosition = () => {
     if (tocCardRef.value && !initialized) {
       const rect = tocCardRef.value.getBoundingClientRect();
       initialTop = rect.top + window.scrollY;
+      fixedLeft = rect.left;
+      // 使用固定宽度而不是动态计算
+      fixedWidth = 300;
       initialized = true;
     }
   };
@@ -589,42 +595,46 @@ onMounted(() => {
     
     const scrollY = window.scrollY;
     const threshold = initialTop - 80;
-    const stickyLayout = tocCardRef.value.parentElement;
     
     if (scrollY > threshold) {
-      // 获取父容器位置来定位
-      if (stickyLayout) {
-        const parentRect = stickyLayout.getBoundingClientRect();
-        // 使用 requestAnimationFrame 确保在下一帧渲染时更新位置
-        requestAnimationFrame(() => {
-          if (tocCardRef.value) {
-            const updatedRect = stickyLayout.getBoundingClientRect();
-            tocCardRef.value.style.position = 'fixed';
-            tocCardRef.value.style.top = '80px';
-            tocCardRef.value.style.left = `${updatedRect.left}px`;
-            tocCardRef.value.style.width = `${updatedRect.width}px`;
-            tocCardRef.value.style.zIndex = '90';
-          }
-        });
+      if (!isFixed) {
+        // 只在状态切换时更新样式，避免频繁重绘
+        const stickyLayout = tocCardRef.value.parentElement;
+        if (stickyLayout) {
+          const parentRect = stickyLayout.getBoundingClientRect();
+          fixedLeft = parentRect.left;
+        }
+        tocCardRef.value.style.position = 'fixed';
+        tocCardRef.value.style.top = '80px';
+        tocCardRef.value.style.left = `${fixedLeft}px`;
+        tocCardRef.value.style.width = `${fixedWidth}px`;
+        tocCardRef.value.style.zIndex = '90';
+        isFixed = true;
       }
     } else {
-      tocCardRef.value.style.position = '';
-      tocCardRef.value.style.top = '';
-      tocCardRef.value.style.left = '';
-      tocCardRef.value.style.width = '';
-      tocCardRef.value.style.zIndex = '';
+      if (isFixed) {
+        tocCardRef.value.style.position = '';
+        tocCardRef.value.style.top = '';
+        tocCardRef.value.style.left = '';
+        tocCardRef.value.style.width = '';
+        tocCardRef.value.style.zIndex = '';
+        isFixed = false;
+      }
     }
   };
   
   window.addEventListener('scroll', handleScroll);
   window.addEventListener('resize', () => {
     initialized = false;
+    isFixed = false;
     if (tocCardRef.value) {
       tocCardRef.value.style.position = '';
       tocCardRef.value.style.top = '';
       tocCardRef.value.style.left = '';
       tocCardRef.value.style.width = '';
     }
+    // 重新初始化位置
+    setTimeout(initPosition, 100);
   });
 });
 onUnmounted(() => {
@@ -668,8 +678,9 @@ watch(
   align-items: flex-start; /* 让子元素从顶部开始，使 sticky 生效 */
 
   .article-container {
-    // max-width: 800px;
-    width: 70%;
+    flex: 1; /* 使用 flex 自动填充剩余空间 */
+    min-width: 0; /* 防止 flex 子元素溢出 */
+    max-width: 800px;
     padding: 40px 50px;
     border: var(--border-style);
 
@@ -937,11 +948,10 @@ watch(
   }
 
   .aside-content {
-    width: calc(30% - 40px);
+    width: 300px; /* 固定宽度 */
+    flex-shrink: 0; /* 不允许收缩 */
     user-select: none;
     margin-left: 40px;
-    margin-right: 60px;
-    max-width: 300px;
 
     .sticky-layout {
       position: sticky;

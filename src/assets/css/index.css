@@ -23,11 +23,13 @@ body,
 }
 html {
   overflow-y: scroll; /* 始终显示滚动条，避免布局抖动 */
+  scrollbar-gutter: stable; /* 预留滚动条空间 */
 }
 body {
   margin: 0;
   width: 100%;
   min-width: 100%;
+  overflow-x: hidden;
   color: var(--fontColor); /*主题配色切换，使用elemtnt-plus需要注释掉 */
   font-family: var(--globalFont), cursive;
   font-weight: 700 !important;

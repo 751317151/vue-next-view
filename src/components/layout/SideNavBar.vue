@@ -149,8 +149,8 @@
       <div class="drawer-footer">
         <div class="footer-actions">
           <button class="action-btn" @click="toggleTheme">
-            <el-icon><component :is="isAuto ? Monitor : (isDark ? Sunny : Moon)" /></el-icon>
-            <span>{{ nextThemeLabel }}</span>
+            <el-icon><component :is="currentThemeIcon" /></el-icon>
+            <span>{{ currentThemeLabel }}</span>
           </button>
           <button class="action-btn" @click="openSettings">
             <el-icon><Setting /></el-icon>
@@ -180,20 +180,22 @@ const { webInfo, sideNavBarShow } = storeToRefs(storesConfig);
 
 const expandedMenu = ref<string | null>(null);
 const currentPath = computed(() => route.path);
-const isDark = computed(() => themeStore.currentTheme === 'dark');
-const isAuto = computed(() => themeStore.currentTheme === 'auto');
 
-// 获取下一个主题的标签
-const nextThemeLabel = computed(() => {
-  const themeOrder = ['light', 'dark', 'auto'];
-  const currentIndex = themeOrder.indexOf(themeStore.currentTheme);
-  const nextIndex = (currentIndex + 1) % themeOrder.length;
+// 获取当前主题的图标
+const currentThemeIcon = computed(() => {
+  if (themeStore.currentTheme === 'auto') return Monitor;
+  if (themeStore.currentTheme === 'dark') return Moon;
+  return Sunny;
+});
+
+// 获取当前主题的标签
+const currentThemeLabel = computed(() => {
   const labels: Record<string, string> = {
     'light': '浅色',
     'dark': '深色',
     'auto': '自动'
   };
-  return labels[themeOrder[nextIndex]];
+  return labels[themeStore.currentTheme];
 });
 
 // 监听路由变化，自动展开对应的子菜单
@@ -225,14 +227,8 @@ const getThemeLabel = (theme: string) => {
 };
 
 const toggleTheme = () => {
-  // 获取下一个主题名称
-  const themeOrder = ['light', 'dark', 'auto'];
-  const currentIndex = themeOrder.indexOf(themeStore.currentTheme);
-  const nextIndex = (currentIndex + 1) % themeOrder.length;
-  const nextTheme = themeOrder[nextIndex];
-  
   themeStore.toggleTheme();
-  ElMessage.success(`已切换到${getThemeLabel(nextTheme)}模式`);
+  ElMessage.success(`已切换到${getThemeLabel(themeStore.currentTheme)}模式`);
 };
 
 const openSettings = () => {
