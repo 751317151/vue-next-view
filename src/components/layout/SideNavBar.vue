@@ -5,7 +5,7 @@
     size="280px"
     class="mobile-drawer"
     :with-header="false"
-    :lock-scroll="true"
+    :lock-scroll="false"
     direction="ltr"
     style="height: 100vh;"
   >

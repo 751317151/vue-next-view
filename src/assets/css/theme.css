@@ -300,8 +300,8 @@
   pointer-events: auto !important;
 }
 
-/* 确保浮动按钮在移动端正确显示 */
-@media screen and (max-width: 768px) {
+/* 确保浮动按钮在移动端正确显示 - 与 isMobile 断点一致 */
+@media screen and (max-width: 1050px) {
   .floating-actions {
     display: block !important;
     opacity: 1 !important;

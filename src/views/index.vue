@@ -298,11 +298,12 @@ const createdMethod = () => {
   };
   storesConfig.changeToolbarStatus(toolbarStatus);
 
-  isMobile.value = document.body.clientWidth <= 1000;
+  // 1050px 以下切换到移动端布局（与导航栏 CSS 断点一致）
+  isMobile.value = document.body.clientWidth <= 1050;
 
   window.addEventListener("resize", () => {
     let docWidth = document.body.clientWidth;
-    isMobile.value = docWidth <= 1000;
+    isMobile.value = docWidth <= 1050;
   });
 
   getCategories();
@@ -548,8 +549,8 @@ watch(
   cursor: pointer;
 }
 
-// 移动端优化
-@media screen and (max-width: 768px) {
+// 移动端优化 - 与 isMobile 断点一致
+@media screen and (max-width: 1050px) {
   // 移动端隐藏右侧工具栏，使用浮动按钮代替
   .rightside {
     display: none !important;

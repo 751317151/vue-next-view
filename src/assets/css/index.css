@@ -1,4 +1,16 @@
 /* 通用css */
+/*
+ * 响应式断点说明：
+ * - 1345px: 导航栏开始缩小间距
+ * - 1280px: 导航栏进一步缩小
+ * - 1200px: 隐藏导航栏搜索框
+ * - 1100px: 导航栏最小间距
+ * - 1050px: 移动端分界点（isMobile = true），切换到汉堡菜单，显示浮动按钮
+ * - 768px: 小屏手机优化断点
+ * - 600px: 超小屏断点
+ * - 480px: 极小屏断点
+ * - 400px: 最小屏断点
+ */
 * {
   box-sizing: border-box;
 }
@@ -10,11 +22,12 @@ body,
   width: 100%;
 }
 html {
-  overflow-x: hidden;
+  overflow-y: scroll; /* 始终显示滚动条，避免布局抖动 */
 }
 body {
   margin: 0;
-  overflow-x: hidden; /* 只隐藏水平滚动，允许垂直滚动，让 sticky 正常工作 */
+  width: 100%;
+  min-width: 100%;
   color: var(--fontColor); /*主题配色切换，使用elemtnt-plus需要注释掉 */
   font-family: var(--globalFont), cursive;
   font-weight: 700 !important;

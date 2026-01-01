@@ -341,4 +341,86 @@ const logout = () => {
   background-color: var(--white);
   color: var(--themeBackground);
 }
+
+/* 响应式优化 */
+/* 1345px 以下：开始缩小间距 */
+@media screen and (max-width: 1345px) {
+  .scroll-menu > li {
+    margin: 0 8px;
+  }
+  
+  .scroll-menu {
+    margin: 0 15px 0 0;
+  }
+  
+  .nav-content {
+    gap: 15px;
+  }
+  
+  .search-section {
+    min-width: 180px;
+    max-width: 220px;
+  }
+}
+
+/* 1280px 以下：进一步缩小 */
+@media screen and (max-width: 1280px) {
+  .scroll-menu > li {
+    margin: 0 6px;
+    font-size: 15px;
+  }
+  
+  .scroll-menu > li > div {
+    font-size: 15px;
+  }
+  
+  .search-section {
+    min-width: 150px;
+    max-width: 180px;
+  }
+  
+  .toolbar-title {
+    margin-left: 20px;
+  }
+}
+
+/* 1200px 以下：隐藏搜索框，继续缩小 */
+@media screen and (max-width: 1200px) {
+  .scroll-menu > li {
+    margin: 0 5px;
+    font-size: 14px;
+  }
+  
+  .scroll-menu > li > div {
+    font-size: 14px;
+  }
+  
+  .search-section {
+    display: none;
+  }
+  
+  .toolbar-title {
+    margin-left: 15px;
+    
+    h2 {
+      font-size: 18px;
+    }
+  }
+}
+
+/* 1100px 以下：最小间距 */
+@media screen and (max-width: 1100px) {
+  .scroll-menu > li {
+    margin: 0 3px;
+    font-size: 13px;
+  }
+  
+  .scroll-menu > li > div {
+    font-size: 13px;
+  }
+  
+  .scroll-menu {
+    margin: 0 10px 0 0;
+  }
+}
 </style>

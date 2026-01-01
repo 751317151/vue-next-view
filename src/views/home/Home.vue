@@ -187,18 +187,14 @@ onMounted(() => {
   }
 }
 
-@media screen and (max-width: 1100px) {
+/* 平板/移动端布局切换 - 与 isMobile 断点一致 */
+@media screen and (max-width: 1050px) {
   .recent-posts {
     width: 100%;
   }
 
   .page-container {
     width: 100%;
-  }
-}
-
-@media screen and (max-width: 1000px) {
-  .page-container {
     /* 文章栏与侧标栏垂直排列 */
     flex-direction: column;
   }
@@ -211,6 +207,7 @@ onMounted(() => {
   }
 }
 
+/* 小屏手机优化 */
 @media screen and (max-width: 768px) {
   h1 {
     font-size: 35px;

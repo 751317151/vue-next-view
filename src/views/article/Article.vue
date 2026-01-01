@@ -450,9 +450,6 @@ TypeScript cannot handle type information for '.vue' imports by default, so we r
 const articleRef = ref();
 const tocCount = ref(0);
 const tocCardRef = ref<HTMLElement | null>(null);
-const tocFixed = ref(false);
-const stickyRight = ref(0);
-const stickyWidth = ref(0);
 
 const isLike = computed(() => {
   return state.tagList.length > 1 ? "like-btn-active" : "like-btn";
@@ -571,80 +568,64 @@ const highlight = () => {
 onMounted(() => {
   getArticle();
   
-  // 初始化粘性定位
-  const stickyState = {
-    initialTop: 0,
-    initialized: false
-  };
+  // 粘性定位逻辑
+  let initialTop = 0;
+  let initialized = false;
   
-  const initStickyPosition = () => {
-    if (tocCardRef.value && !stickyState.initialized) {
+  const initPosition = () => {
+    if (tocCardRef.value && !initialized) {
       const rect = tocCardRef.value.getBoundingClientRect();
-      stickyState.initialTop = rect.top + window.scrollY;
-      stickyRight.value = window.innerWidth - rect.right;
-      stickyWidth.value = rect.width;
-      stickyState.initialized = true;
-      console.log('Sticky initialized:', stickyState.initialTop, stickyRight.value, stickyWidth.value);
+      initialTop = rect.top + window.scrollY;
+      initialized = true;
     }
   };
   
-  nextTick(() => {
-    setTimeout(initStickyPosition, 300);
-  });
+  // 延迟初始化
+  setTimeout(initPosition, 500);
   
-  // 监听滚动
   const handleScroll = () => {
     if (!tocCardRef.value || isMobile.value) return;
-    
-    // 如果还没初始化，先初始化
-    if (!stickyState.initialized) {
-      initStickyPosition();
-    }
+    if (!initialized) initPosition();
     
     const scrollY = window.scrollY;
-    const threshold = stickyState.initialTop - 80;
+    const threshold = initialTop - 80;
+    const stickyLayout = tocCardRef.value.parentElement;
     
-    if (scrollY > threshold && !tocFixed.value) {
-      // 记录当前位置
-      const rect = tocCardRef.value.getBoundingClientRect();
-      stickyRight.value = window.innerWidth - rect.right;
-      stickyWidth.value = rect.width;
-      tocFixed.value = true;
-      
-      // 直接设置 .card-toc 的样式
-      tocCardRef.value.style.position = 'fixed';
-      tocCardRef.value.style.top = '80px';
-      tocCardRef.value.style.right = `${stickyRight.value}px`;
-      tocCardRef.value.style.width = `${stickyWidth.value}px`;
-      tocCardRef.value.style.zIndex = '90';
-      
-      console.log('Fixed!', scrollY, threshold, stickyRight.value, stickyWidth.value);
-    } else if (scrollY <= threshold && tocFixed.value) {
-      tocFixed.value = false;
-      
-      // 移除固定样式
+    if (scrollY > threshold) {
+      // 获取父容器位置来定位
+      if (stickyLayout) {
+        const parentRect = stickyLayout.getBoundingClientRect();
+        // 使用 requestAnimationFrame 确保在下一帧渲染时更新位置
+        requestAnimationFrame(() => {
+          if (tocCardRef.value) {
+            const updatedRect = stickyLayout.getBoundingClientRect();
+            tocCardRef.value.style.position = 'fixed';
+            tocCardRef.value.style.top = '80px';
+            tocCardRef.value.style.left = `${updatedRect.left}px`;
+            tocCardRef.value.style.width = `${updatedRect.width}px`;
+            tocCardRef.value.style.zIndex = '90';
+          }
+        });
+      }
+    } else {
       tocCardRef.value.style.position = '';
       tocCardRef.value.style.top = '';
-      tocCardRef.value.style.right = '';
+      tocCardRef.value.style.left = '';
       tocCardRef.value.style.width = '';
       tocCardRef.value.style.zIndex = '';
-      
-      console.log('Unfixed!', scrollY, threshold);
     }
   };
   
   window.addEventListener('scroll', handleScroll);
-  
-  // 监听窗口大小变化
-  const handleResize = () => {
-    if (tocCardRef.value && !tocFixed.value) {
-      const rect = tocCardRef.value.getBoundingClientRect();
-      stickyRight.value = window.innerWidth - rect.right;
-      stickyWidth.value = rect.width;
+  window.addEventListener('resize', () => {
+    initialized = false;
+    if (tocCardRef.value) {
+      tocCardRef.value.style.position = '';
+      tocCardRef.value.style.top = '';
+      tocCardRef.value.style.left = '';
+      tocCardRef.value.style.width = '';
     }
-  };
-  
-  window.addEventListener('resize', handleResize);
+  });
 });
 onUnmounted(() => {
   tocbot.destroy();
@@ -684,7 +665,7 @@ watch(
   padding: 40px 15px;
   margin: 0 auto;
   justify-content: center;
-  align-items: stretch; /* 让子元素拉伸到相同高度，使 sticky 生效 */
+  align-items: flex-start; /* 让子元素从顶部开始，使 sticky 生效 */
 
   .article-container {
     // max-width: 800px;
@@ -963,7 +944,9 @@ watch(
     max-width: 300px;
 
     .sticky-layout {
-      transition: none; /* 固定定位时不需要过渡动画 */
+      position: sticky;
+      top: 80px;
+      margin-top: 20px;
     }
 
     .aside-card {
@@ -1168,7 +1151,8 @@ watch(
   top: 80px; /* 导航栏显示时的位置 */
 }
 
-@media screen and (max-width: 700px) {
+/* 小屏手机优化 */
+@media screen and (max-width: 768px) {
   .article-head {
     .article-info-container {
       bottom: 22px;
@@ -1199,7 +1183,8 @@ watch(
   }
 }
 
-@media screen and (max-width: 1000px) {
+/* 平板/移动端布局切换 - 与 isMobile 断点一致 */
+@media screen and (max-width: 1050px) {
   .page-container {
     width: 100%;
     /* 文章栏与侧标栏垂直排列 */
@@ -1207,7 +1192,7 @@ watch(
 
     .article-container {
       width: 100%;
-      padding: 0;
+      padding: 20px;
     }
     .aside-content {
       width: 100%;

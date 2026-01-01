@@ -55,7 +55,7 @@ const themeStore = useThemeStore();
 const isOpen = ref(false);
 const windowWidth = ref(window.innerWidth);
 
-const shouldShow = computed(() => windowWidth.value <= 768);
+const shouldShow = computed(() => windowWidth.value <= 1050);
 
 const handleResize = () => {
   windowWidth.value = window.innerWidth;

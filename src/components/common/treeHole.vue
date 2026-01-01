@@ -240,7 +240,7 @@
     cursor: pointer;
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1050px) {
     .tree-hole-box {
       width: calc(100% - 90px);
     }
