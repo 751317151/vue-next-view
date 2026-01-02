@@ -122,6 +122,7 @@ import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
 import { Refresh } from "@element-plus/icons-vue";
 import constant from "@/utils/constant";
+import { getBlogStats } from "@/api/stats";
 
 const storesConfig = useConfig();
 const { isMobile, webInfo } = storeToRefs(storesConfig);
@@ -139,10 +140,21 @@ const state = reactive({
 
 // 统计数据
 const stats = reactive({
-  articles: 22,
-  categories: 12,
-  tags: 13
+  articles: 0,
+  categories: 0,
+  tags: 0
 });
+
+const loadStats = async () => {
+  try {
+    const data = await getBlogStats();
+    stats.articles = data.articleCount;
+    stats.categories = data.categoryCount;
+    stats.tags = data.tagCount;
+  } catch (error) {
+    console.error('Failed to load stats:', error);
+  }
+};
 
 // 打字机效果
 const signatures = [
@@ -242,6 +254,9 @@ onMounted(() => {
   
   // 获取诗词
   getGuShi();
+  
+  // 加载统计数据
+  loadStats();
 });
 
 onUnmounted(() => {

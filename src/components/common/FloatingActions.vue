@@ -180,8 +180,8 @@ const handleAction = (action: Action) => {
   position: fixed;
   bottom: 24px;
   right: 20px;
-  z-index: 1000;
-  
+  z-index: var(--z-fab);
+
   // 桌面端隐藏（与 shouldShow 的 1050px 断点一致）
   @media screen and (min-width: 1051px) {
     display: none !important;
@@ -201,14 +201,14 @@ const handleAction = (action: Action) => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  z-index: 1002;
+  z-index: var(--z-fab-main);
   
   &:active {
     transform: scale(0.92);
   }
   
   &.active {
-    background: #ff6b6b;
+    background: var(--red);
     transform: rotate(90deg);
   }
   
@@ -225,7 +225,7 @@ const handleAction = (action: Action) => {
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  z-index: 1003;
+  z-index: var(--z-fab-menu);
 }
 
 .fab-item {
@@ -269,7 +269,7 @@ const handleAction = (action: Action) => {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.3);
-  z-index: 1001;
+  z-index: var(--z-fab-overlay);
 }
 
 // 动画

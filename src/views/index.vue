@@ -22,8 +22,10 @@
       <div class="web-bg"></div>
       <canvas id="universe"></canvas>
       <PageTransition type="slideUp">
-        <router-view></router-view>
-      </PageTransition>
+          <ErrorBoundary>
+            <router-view></router-view>
+          </ErrorBoundary>
+        </PageTransition>
     </div>
 
     <!-- 回到顶部按钮 -->
@@ -106,6 +108,7 @@ import SettingsModal from "@/components/common/SettingsModal.vue";
 import LoadingBar from "@/components/common/LoadingBar.vue";
 import NetworkStatus from "@/components/common/NetworkStatus.vue";
 import ImagePreview from "@/components/common/ImagePreview.vue";
+import ErrorBoundary from "@/components/common/ErrorBoundary.vue";
 import { useConfig } from "@/stores/config";
 import { useThemeStore } from "@/stores/theme";
 import { storeToRefs } from "pinia";

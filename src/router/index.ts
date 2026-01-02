@@ -95,9 +95,19 @@ const router = createRouter({
   routes: routes,
 });
 
+import NProgress from "@/utils/nprogress";
+
 //挂载路由守卫
 router.beforeEach((to, from, next) => {
+  NProgress.start();
+  if (to.meta.title) {
+    document.title = to.meta.title as string;
+  }
   next();
+});
+
+router.afterEach(() => {
+  NProgress.done();
 });
 
 export default router;

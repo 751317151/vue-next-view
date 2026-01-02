@@ -1,0 +1,43 @@
+/**
+ * Z-Index 层级管理系统
+ * 统一管理所有组件的 z-index，避免层级冲突
+ */
+
+:root {
+  /* 基础层级 (0-9) */
+  --z-base: 0;
+  --z-background: -1;
+
+  /* 内容层级 (10-99) */
+  --z-content: 10;
+  --z-card: 20;
+  --z-dropdown: 50;
+  --z-sticky: 80;
+  --z-header: 90;
+
+  /* 覆盖层级 (100-999) */
+  --z-overlay: 100;
+  --z-navbar: 100;
+  --z-sidebar: 200;
+  --z-drawer: 300;
+  --z-tooltip: 400;
+
+  /* 浮动层级 (1000-1999) */
+  --z-floating: 1000;
+  --z-fab: 1000;
+  --z-fab-menu: 1001;
+  --z-fab-main: 1002;
+  --z-fab-overlay: 999;
+
+  /* 弹窗层级 (2000-8999) */
+  --z-modal: 2000;
+  --z-dialog: 2000;
+  --z-search-modal: 2001;
+  --z-settings-modal: 2000;
+
+  /* 最高层级 (9000+) */
+  --z-notification: 9000;
+  --z-toast: 9500;
+  --z-loading: 9998;
+  --z-preview: 9999;
+}

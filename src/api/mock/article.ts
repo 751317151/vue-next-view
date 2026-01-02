@@ -13,6 +13,7 @@ export const mockArticles: Article[] = [
     likeCount: 89,
     category: "前端开发",
     tags: ["Vue3", "TypeScript", "前端"],
+    isTop: true,
   },
   {
     id: 2,

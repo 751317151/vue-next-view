@@ -120,11 +120,12 @@
 
 /* 移动端布局优化 */
 @media screen and (max-width: 768px) {
+
   /* 简化复杂组件 */
   .complex-component {
     display: none;
   }
-  
+
   /* 优化弹框显示 */
   .el-dialog,
   .el-drawer {
@@ -132,29 +133,31 @@
     max-height: 90vh !important;
     border-radius: 16px 16px 0 0 !important;
   }
-  
+
   /* 优化表单元素 */
   .el-input,
   .el-select,
   .el-textarea {
-    font-size: 16px !important; /* 防止iOS缩放 */
+    font-size: 16px !important;
+    /* 防止iOS缩放 */
   }
-  
+
   /* 优化导航 */
   .scroll-menu {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
-  .scroll-menu > li {
+
+  .scroll-menu>li {
     margin: 0 8px 8px 0;
   }
 }
 
 /* 移动端触摸优化 */
 @media screen and (max-width: 768px) {
+
   /* 增大触摸区域 */
-  button, 
+  button,
   .el-button,
   .fab-main,
   .fab-item,
@@ -163,7 +166,7 @@
     min-height: 44px !important;
     min-width: 44px !important;
   }
-  
+
   /* 触摸反馈 */
   button:active,
   .el-button:active,
@@ -174,12 +177,12 @@
     transform: scale(0.95) !important;
     transition: transform 0.1s ease !important;
   }
-  
+
   /* 优化滚动 */
   * {
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* 防止双击缩放 */
   * {
     touch-action: manipulation;
@@ -188,10 +191,10 @@
 
 /* 全局主题过渡效果 - 排除文章动画 */
 *:not(.recent-post-item) {
-  transition: background-color 0.3s ease, 
-              color 0.3s ease, 
-              border-color 0.3s ease, 
-              box-shadow 0.3s ease;
+  transition: background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* 针对特定元素的过渡优化 */
@@ -207,22 +210,70 @@
   transition: all 0.3s ease !important;
 }
 
+/* 无障碍支持：尊重用户的动画偏好设置 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* 禁用所有动画 */
+  .my-animation-slide-top,
+  .my-animation-slide-bottom,
+  .my-animation-hideToShow,
+  .fab-enter-active,
+  .fab-leave-active,
+  .fade-enter-active,
+  .fade-leave-active {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* 保留必要的视觉反馈，但移除动画 */
+  .fab-main:active,
+  .fab-item:active,
+  button:active {
+    transform: none !important;
+  }
+
+  /* 禁用渐变背景动画 */
+  .gradientBG {
+    animation: none !important;
+  }
+}
+
 /* 默认dark主题 */
 [theme="dark"] {
   --bg-color: #0d1117;
   --text-color: #f0f6fc;
 
   --background: #272727;
-  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082642Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b2304afa40f6fc49c83cd79ba659d0fc9bddb1153f1aee77b598d3cb5c8ebda0");
-  --fontColor: white;
-  --borderColor: #4f4f4f;
-  --borderHoverColor: black;
-  --articleFontColor: #e4e4e4;
-  --articleGreyFontColor: #d4d4d4;
-  --commentContent: #d4d4d4;
-  --favoriteBg: #1e1e1e;
+  --background-image: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082642Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b2304afa40f6fc49c83cd79ba659d0fc9bddb1153f1aee77b598d3cb5c8ebda0");
+  --backgroundImage: var(--background-image);
+  --font-color: white;
+  --fontColor: var(--font-color);
+  --border-color: #4f4f4f;
+  --borderColor: var(--border-color);
+  --border-hover-color: black;
+  --borderHoverColor: var(--border-hover-color);
+  --article-font-color: #e4e4e4;
+  --articleFontColor: var(--article-font-color);
+  --article-grey-font-color: #d4d4d4;
+  --articleGreyFontColor: var(--article-grey-font-color);
+  --comment-content: #d4d4d4;
+  --commentContent: var(--comment-content);
+  --favorite-bg: #1e1e1e;
+  --favoriteBg: var(--favorite-bg);
   --translucent: rgba(0, 0, 0, 0.8);
-  --toolbarFont: white;
+  --toolbar-font: white;
+  --toolbarFont: var(--toolbar-font);
+
+  --card-background: #1e1e1e;
+  --border-color-light: rgba(255, 255, 255, 0.1);
 
   --theme-color: rgb(57, 197, 187) !important;
   --border-style: 1px solid rgba(169, 169, 169, 0.7);
@@ -230,6 +281,11 @@
   --btn-color: rgba(255, 255, 255, 0.7);
   --btn-hover-color: #787878;
   --btn-bg: var(--theme-color) !important;
+
+  /* 深色模式下的阴影 */
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.7);
 
   .web-bg::before {
     position: absolute;
@@ -250,16 +306,28 @@
   --text-color: #181818;
 
   --background: white;
-  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/home_bg.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082758Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=103daedf25e0c78d412719a7396cd6a63864ddac3e2ec2c53a67d429eaeaaf3a");
-  --fontColor: black;
-  --borderColor: rgba(0, 0, 0, 0.5);
-  --borderHoverColor: rgba(110, 110, 110, 0.4);
-  --articleFontColor: #1f1f1f;
-  --articleGreyFontColor: #616161;
-  --commentContent: #f7f9fe;
-  --favoriteBg: #f7f9fe;
+  --background-image: url("https://blackstar.s3.bitiful.net/img/home_bg.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082758Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=103daedf25e0c78d412719a7396cd6a63864ddac3e2ec2c53a67d429eaeaaf3a");
+  --backgroundImage: var(--background-image);
+  --font-color: black;
+  --fontColor: var(--font-color);
+  --border-color: rgba(0, 0, 0, 0.5);
+  --borderColor: var(--border-color);
+  --border-hover-color: rgba(110, 110, 110, 0.4);
+  --borderHoverColor: var(--border-hover-color);
+  --article-font-color: #1f1f1f;
+  --articleFontColor: var(--article-font-color);
+  --article-grey-font-color: #616161;
+  --articleGreyFontColor: var(--article-grey-font-color);
+  --comment-content: #f7f9fe;
+  --commentContent: var(--comment-content);
+  --favorite-bg: #f7f9fe;
+  --favoriteBg: var(--favorite-bg);
   --translucent: rgba(255, 255, 255, 0.8);
-  --toolbarFont: #272727;
+  --toolbar-font: #272727;
+  --toolbarFont: var(--toolbar-font);
+
+  --card-background: #ffffff;
+  --border-color-light: rgba(0, 0, 0, 0.05);
 
   --theme-color: rgb(57, 197, 187) !important;
   --border-style: 1px solid rgba(169, 169, 169, 0.7);
@@ -267,6 +335,12 @@
   --btn-color: rgba(255, 255, 255, 0.7);
   --btn-hover-color: #787878;
   --btn-bg: var(--theme-color) !important;
+
+  /* 浅色模式下的阴影 */
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.2);
+
   .page-footer::before {
     content: "";
     position: absolute;
@@ -276,9 +350,11 @@
     left: 0;
   }
 }
+
 /* 基础可见性保障 */
 .recent-post-container {
-  transform: translateZ(0); /* 强制硬件加速 */
+  transform: translateZ(0);
+  /* 强制硬件加速 */
 }
 
 /* 文章卡片主题样式 - 只设置颜色相关，不设置动画相关 */
@@ -308,21 +384,21 @@
     visibility: visible !important;
     z-index: 1000 !important;
   }
-  
+
   .fab-main {
     background: var(--themeBackground) !important;
     color: var(--white) !important;
     border: 2px solid var(--border-color-light) !important;
     box-shadow: var(--shadow-heavy) !important;
   }
-  
+
   .fab-item .fab-item-icon {
     background: var(--card-background) !important;
     color: var(--text-color) !important;
     border: 2px solid var(--border-color) !important;
     box-shadow: var(--shadow-heavy) !important;
   }
-  
+
   .fab-item .fab-item-label {
     background: var(--card-background) !important;
     color: var(--text-color) !important;
@@ -334,31 +410,32 @@
 
 /* 移动端导航栏优化 */
 @media screen and (max-width: 768px) {
+
   /* 顶部导航栏移动端样式 */
   .toolbar-content {
     height: 56px !important;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
-  
+
   .toolbar-content.enter {
     background: var(--translucent) !important;
   }
-  
+
   .toolbar-title h2 {
     font-size: 18px !important;
   }
-  
+
   /* 侧边抽屉样式 */
   .el-drawer {
     border-radius: 0 16px 16px 0 !important;
     overflow: hidden;
   }
-  
+
   .el-drawer__body {
     padding: 0 !important;
   }
-  
+
   /* 抽屉遮罩层 */
   .el-overlay {
     backdrop-filter: blur(4px);
@@ -371,20 +448,20 @@ html.dark {
   .mobile-drawer .drawer-content {
     background: var(--card-background);
   }
-  
+
   .mobile-drawer .user-section {
     background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   }
-  
+
   .mobile-drawer .sub-menu {
     background: rgba(255, 255, 255, 0.05);
   }
-  
+
   .mobile-drawer .action-btn {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.2);
   }
-  
+
   .mobile-drawer .action-btn:active {
     background: rgba(255, 255, 255, 0.15);
   }
@@ -469,8 +546,13 @@ pre {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* 网络状态提示 */
@@ -505,6 +587,7 @@ pre {
     opacity: 0;
     transform: translateX(-50%) translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
@@ -540,6 +623,7 @@ pre {
 [theme="dark"] .markdown-body img,
 [theme="dark"] .github-markdown-body img {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  filter: brightness(0.7);
 }
 
 [theme="dark"] .entry-content img:hover,

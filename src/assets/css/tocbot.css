@@ -278,3 +278,41 @@
   transition: width 0.1s ease;
   border-radius: 0 0 12px 12px;
 }
+
+/* 目录项点击反馈 */
+.toc a.toc-link:active {
+  transform: scale(0.98);
+  background: rgba(57, 197, 187, 0.15);
+}
+
+/* 当前阅读位置平滑过渡 */
+.toc .is-active-link {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 目录项数字标记 */
+.toc > .toc-list {
+  counter-reset: toc-counter;
+}
+
+.toc > .toc-list > .toc-list-item {
+  counter-increment: toc-counter;
+}
+
+.toc > .toc-list > .toc-list-item > a.toc-link::after {
+  content: counter(toc-counter);
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--greyFont, #999);
+  opacity: 0.6;
+}
+
+/* 小屏幕隐藏数字 */
+@media screen and (max-width: 1050px) {
+  .toc > .toc-list > .toc-list-item > a.toc-link::after {
+    display: none;
+  }
+}

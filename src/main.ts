@@ -46,6 +46,7 @@ VMdPreview.use(githubTheme, {
 });
 
 //引入css
+import "./assets/css/z-index.css";
 import "./assets/css/animation.css";
 import "./assets/css/color.css";
 import "./assets/css/theme.css";

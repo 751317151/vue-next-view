@@ -1,0 +1,92 @@
+/**
+ * SCSS Mixins - 响应式断点管理
+ * 统一管理所有响应式断点，避免硬编码
+ */
+
+// 响应式断点定义
+$breakpoints: (
+  'xs': 400px,      // 最小屏断点
+  'sm': 480px,      // 极小屏断点
+  'md': 600px,      // 超小屏断点
+  'tablet': 768px,  // 小屏手机优化
+  'lg': 1050px,     // 移动端分界点（isMobile = true）
+  'nav-sm': 1100px, // 导航栏最小间距
+  'nav-md': 1200px, // 隐藏导航栏搜索框
+  'nav-lg': 1280px, // 导航栏进一步缩小
+  'xl': 1345px,     // 导航栏开始缩小间距
+  'xxl': 1920px     // 超大屏
+);
+
+// 响应式 mixin - 小于等于指定断点
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media screen and (max-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "断点 `#{$breakpoint}` 未定义在 $breakpoints 中";
+  }
+}
+
+// 响应式 mixin - 大于等于指定断点
+@mixin respond-from($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media screen and (min-width: map-get($breakpoints, $breakpoint) + 1) {
+      @content;
+    }
+  } @else {
+    @warn "断点 `#{$breakpoint}` 未定义在 $breakpoints 中";
+  }
+}
+
+// 响应式 mixin - 在两个断点之间
+@mixin respond-between($min-breakpoint, $max-breakpoint) {
+  @if map-has-key($breakpoints, $min-breakpoint) and map-has-key($breakpoints, $max-breakpoint) {
+    @media screen and (min-width: map-get($breakpoints, $min-breakpoint) + 1) and (max-width: map-get($breakpoints, $max-breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "断点未定义";
+  }
+}
+
+// 移动端判断（小于等于 1050px）
+@mixin mobile {
+  @include respond-to('lg') {
+    @content;
+  }
+}
+
+// 桌面端判断（大于 1050px）
+@mixin desktop {
+  @include respond-from('lg') {
+    @content;
+  }
+}
+
+// 平板端判断（768px - 1050px）
+@mixin tablet {
+  @include respond-between('tablet', 'lg') {
+    @content;
+  }
+}
+
+/**
+ * 使用示例：
+ *
+ * .my-component {
+ *   width: 100%;
+ *
+ *   @include respond-to('lg') {
+ *     width: 50%;
+ *   }
+ *
+ *   @include mobile {
+ *     display: block;
+ *   }
+ *
+ *   @include desktop {
+ *     display: flex;
+ *   }
+ * }
+ */

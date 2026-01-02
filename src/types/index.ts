@@ -13,6 +13,8 @@ export interface Article {
   categoryId?: number;
   tags?: string[];
   commentStatus?: boolean;
+  userId?: number;
+  isTop?: boolean;
 }
 
 // 分类
@@ -20,6 +22,7 @@ export interface Category {
   id: number;
   categoryName: string;
   articleCount?: number;
+  description?: string;
 }
 
 // 标签
@@ -73,6 +76,39 @@ export interface PageParams {
 export interface PageResult<T> {
   list: T[];
   total: number;
+}
+
+// 文章详情（包含上下篇和相关文章）
+export interface ArticleDetail extends Article {
+  content: string;
+  wordCount: number;
+  readingTime: number;
+  prevArticle?: ArticleNav;
+  nextArticle?: ArticleNav;
+  recommendList: Article[];
+}
+
+// 文章导航（上一篇/下一篇）
+export interface ArticleNav {
+  id: number;
+  articleTitle: string;
+  articleCover: string;
+}
+
+// 评论
+export interface Comment {
+  id: number;
+  content: string;
+  nickname: string;
+  email?: string;
+  website?: string;
+  avatar: string;
+  createTime: string;
+  likeCount: number;
+  isLiked?: boolean;
+  parentId?: number;
+  replyTo?: string;
+  children?: Comment[];
 }
 
 // API 响应

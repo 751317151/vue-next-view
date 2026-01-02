@@ -100,7 +100,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
-import { searchArticles } from '@/api';
+import { searchArticles, searchCategories, searchTags } from '@/api';
 import type { Article } from '@/types';
 
 interface SearchResult {
@@ -143,14 +143,37 @@ const performSearch = async () => {
     return;
   }
 
-  const articles = await searchArticles(searchQuery.value);
-  searchResults.value = articles.map((article: Article) => ({
+  const [articles, categories, tags] = await Promise.all([
+    searchArticles(searchQuery.value),
+    searchCategories(searchQuery.value),
+    searchTags(searchQuery.value)
+  ]);
+
+  const articleResults = articles.map((article: Article) => ({
     id: article.id,
     type: 'article' as const,
     title: article.articleTitle,
     description: article.articleContent.slice(0, 100) + '...',
     date: article.createTime
   }));
+
+  const categoryResults = categories.map((cat: any) => ({
+    id: cat.id,
+    type: 'category' as const,
+    title: cat.categoryName,
+    description: cat.description || '分类',
+    date: ''
+  }));
+
+  const tagResults = tags.map((tag: any) => ({
+    id: tag.id,
+    type: 'tag' as const,
+    title: tag.tagName,
+    description: '标签',
+    date: ''
+  }));
+
+  searchResults.value = [...articleResults, ...categoryResults, ...tagResults];
 };
 
 const handleFocus = () => {
@@ -239,7 +262,7 @@ onBeforeUnmount(() => {
 
 .search-wrapper {
   position: relative;
-  z-index: 1001;
+  z-index: var(--z-dropdown);
   
   &.active {
     .search-input {
@@ -293,7 +316,7 @@ onBeforeUnmount(() => {
   margin-top: 8px;
   max-height: 400px;
   overflow-y: auto;
-  z-index: 1002;
+  z-index: var(--z-dropdown);
 }
 
 .search-suggestions {
@@ -482,7 +505,7 @@ onBeforeUnmount(() => {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.3);
-  z-index: 1000;
+  z-index: var(--z-fab-overlay);
   backdrop-filter: blur(4px);
 }
 

@@ -34,3 +34,28 @@ export async function getTagDetail(id: number): Promise<Tag | undefined> {
   await delay(200);
   return mockTags.find(item => item.id === id);
 }
+
+/**
+ * 搜索分类
+ */
+export async function searchCategories(keyword: string): Promise<Category[]> {
+  await delay(200);
+  if (!keyword.trim()) return [];
+  const lowerKeyword = keyword.toLowerCase();
+  return mockCategories.filter(item =>
+    item.categoryName.toLowerCase().includes(lowerKeyword) ||
+    (item.description && item.description.toLowerCase().includes(lowerKeyword))
+  );
+}
+
+/**
+ * 搜索标签
+ */
+export async function searchTags(keyword: string): Promise<Tag[]> {
+  await delay(200);
+  if (!keyword.trim()) return [];
+  const lowerKeyword = keyword.toLowerCase();
+  return mockTags.filter(item =>
+    item.tagName.toLowerCase().includes(lowerKeyword)
+  );
+}

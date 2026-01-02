@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ArticleList: typeof import('./src/components/ArticleList.vue')['default']
     Card: typeof import('./src/components/common/card.vue')['default']
+    Comment: typeof import('./src/components/comment/Comment.vue')['default']
     CommonHead: typeof import('./src/components/common/CommonHead.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -17,12 +18,16 @@ declare module 'vue' {
     ElDropdown: typeof import('element-plus/es')['ElDropdown']
     ElDropdownItem: typeof import('element-plus/es')['ElDropdownItem']
     ElDropdownMenu: typeof import('element-plus/es')['ElDropdownMenu']
+    ElForm: typeof import('element-plus/es')['ElForm']
+    ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElImage: typeof import('element-plus/es')['ElImage']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElPagination: typeof import('element-plus/es')['ElPagination']
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     Emoji: typeof import('./src/components/common/emoji.vue')['default']
+    EmptyState: typeof import('./src/components/common/EmptyState.vue')['default']
+    ErrorBoundary: typeof import('./src/components/common/ErrorBoundary.vue')['default']
     FloatingActions: typeof import('./src/components/common/FloatingActions.vue')['default']
     Footer: typeof import('./src/components/layout/Footer.vue')['default']
     Footer2: typeof import('./src/components/layout/Footer2.vue')['default']
@@ -33,6 +38,7 @@ declare module 'vue' {
     LazyImage: typeof import('./src/components/common/LazyImage.vue')['default']
     Loader: typeof import('./src/components/common/loader.vue')['default']
     LoadingBar: typeof import('./src/components/common/LoadingBar.vue')['default']
+    LoginModal: typeof import('./src/components/common/LoginModal.vue')['default']
     MyAside: typeof import('./src/components/layout/MyAside.vue')['default']
     MyFooter: typeof import('./src/components/common/myFooter.vue')['default']
     NetworkStatus: typeof import('./src/components/common/NetworkStatus.vue')['default']
@@ -58,5 +64,8 @@ declare module 'vue' {
     TwoPoem: typeof import('./src/components/common/TwoPoem.vue')['default']
     UploadPicture: typeof import('./src/components/common/uploadPicture.vue')['default']
     Zombie: typeof import('./src/components/common/zombie.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

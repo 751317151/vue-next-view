@@ -86,9 +86,6 @@ export default defineConfig({
   },
   // 构建优化
   build: {
-    // 分包策略
-    rollupOptions: {
-    },
     // 启用 CSS 代码分割
     cssCodeSplit: true,
     // chunk 大小警告限制

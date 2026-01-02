@@ -1,98 +1,146 @@
 :root {
   /* 背景 */
   --background: white;
-  --backgroundImage: url("https://blackstar.s3.bitiful.net/img/home_bg.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082758Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=103daedf25e0c78d412719a7396cd6a63864ddac3e2ec2c53a67d429eaeaaf3a");
-  --backgroundDarkImage: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082642Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b2304afa40f6fc49c83cd79ba659d0fc9bddb1153f1aee77b598d3cb5c8ebda0");
-  --backgroundPhoneImage: url("https://blackstar.s3.bitiful.net/img/snow.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082859Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=02a27fe7a0df5e36e8fb752d2b66d594478e1fb2a877c8056e3be0b632ef5e61");
-  --backgroundPhoneDarkImage: url("https://blackstar.s3.bitiful.net/img/mb8.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082910Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=24781ad366591a7b37c77c57c78963a17fe14947bdd0b64af56ae7facf87d2bb");
-  --gradualBackground: linear-gradient(
+  --background-image: url("https://blackstar.s3.bitiful.net/img/home_bg.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082758Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=103daedf25e0c78d412719a7396cd6a63864ddac3e2ec2c53a67d429eaeaaf3a");
+  --backgroundImage: var(--background-image); /* 向后兼容 */
+  --background-dark-image: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082642Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b2304afa40f6fc49c83cd79ba659d0fc9bddb1153f1aee77b598d3cb5c8ebda0");
+  --backgroundDarkImage: var(--background-dark-image); /* 向后兼容 */
+  --background-phone-image: url("https://blackstar.s3.bitiful.net/img/snow.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082859Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=02a27fe7a0df5e36e8fb752d2b66d594478e1fb2a877c8056e3be0b632ef5e61");
+  --backgroundPhoneImage: var(--background-phone-image); /* 向后兼容 */
+  --background-phone-dark-image: url("https://blackstar.s3.bitiful.net/img/mb8.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082910Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=24781ad366591a7b37c77c57c78963a17fe14947bdd0b64af56ae7facf87d2bb");
+  --backgroundPhoneDarkImage: var(--background-phone-dark-image); /* 向后兼容 */
+  --gradual-background: linear-gradient(
     to right bottom,
     #ee7752,
     #e73c7e,
     #23a6d5,
     #23d5ab
   );
-  --favoriteBg: #f7f9fe;
+  --gradualBackground: var(--gradual-background); /* 向后兼容 */
+  --favorite-bg: #f7f9fe;
+  --favoriteBg: var(--favorite-bg); /* 向后兼容 */
 
   /* 字体 */
-  --fontColor: black;
+  --font-color: black;
+  --fontColor: var(--font-color); /* 向后兼容 */
+
   /* 边框 */
-  --borderColor: rgba(0, 0, 0, 0.5);
-  /* 边框 */
-  --borderHoverColor: rgba(110, 110, 110, 0.4);
+  --border-color: rgba(0, 0, 0, 0.5);
+  --borderColor: var(--border-color); /* 向后兼容 */
+  --border-hover-color: rgba(110, 110, 110, 0.4);
+  --borderHoverColor: var(--border-hover-color); /* 向后兼容 */
+
   /* 文章字体 */
-  --articleFontColor: #1f1f1f;
-  /* 文章灰色字体 */
-  --articleGreyFontColor: #616161;
+  --article-font-color: #1f1f1f;
+  --articleFontColor: var(--article-font-color); /* 向后兼容 */
+  --article-grey-font-color: #616161;
+  --articleGreyFontColor: var(--article-grey-font-color); /* 向后兼容 */
+
   /* 评论背景颜色 */
-  --commentContent: #f7f9fe;
+  --comment-content: #f7f9fe;
+  --commentContent: var(--comment-content); /* 向后兼容 */
 
   /* 主题背景 */
-  --themeBackground: orange;
-  /* 主题悬停背景 */
-  --gradualRed: linear-gradient(to right, #ff4b2b, #ff416c);
+  --theme-background: orange;
+  --themeBackground: var(--theme-background); /* 向后兼容 */
+  --gradual-red: linear-gradient(to right, #ff4b2b, #ff416c);
+  --gradualRed: var(--gradual-red); /* 向后兼容 */
 
   /* 水波纹 */
-  --rippleColor: rgba(0, 0, 0, 0.5);
+  --ripple-color: rgba(0, 0, 0, 0.5);
+  --rippleColor: var(--ripple-color); /* 向后兼容 */
+
   /* 导航栏字体 */
-  --toolbarFont: #333333;
-  /* 导航栏背景 */
-  --toolbarBackground: rgba(255, 255, 255, 1);
+  --toolbar-font: #333333;
+  --toolbarFont: var(--toolbar-font); /* 向后兼容 */
+  --toolbar-background: rgba(255, 255, 255, 1);
+  --toolbarBackground: var(--toolbar-background); /* 向后兼容 */
+
   /* 灰色字体 */
-  --greyFont: #797979;
-  --maxGreyFont: #595a5a;
+  --grey-font: #797979;
+  --greyFont: var(--grey-font); /* 向后兼容 */
+  --max-grey-font: #595a5a;
+  --maxGreyFont: var(--max-grey-font); /* 向后兼容 */
+
   /* footer背景 */
-  --gradientBG: linear-gradient(-90deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  --gradient-bg: linear-gradient(-90deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  --gradientBG: var(--gradient-bg); /* 向后兼容 */
+
   /* 白色遮罩 */
-  --whiteMask: rgba(255, 255, 255, 0.3);
-  /* max白色遮罩 */
-  --maxWhiteMask: rgba(255, 255, 255, 0.5);
-  --maxMaxWhiteMask: rgba(255, 255, 255, 0.7);
-  /* mini白色遮罩 */
-  --miniWhiteMask: rgba(255, 255, 255, 0.15);
+  --white-mask: rgba(255, 255, 255, 0.3);
+  --whiteMask: var(--white-mask); /* 向后兼容 */
+  --max-white-mask: rgba(255, 255, 255, 0.5);
+  --maxWhiteMask: var(--max-white-mask); /* 向后兼容 */
+  --max-max-white-mask: rgba(255, 255, 255, 0.7);
+  --maxMaxWhiteMask: var(--max-max-white-mask); /* 向后兼容 */
+  --mini-white-mask: rgba(255, 255, 255, 0.15);
+  --miniWhiteMask: var(--mini-white-mask); /* 向后兼容 */
+
   /* 透明 */
   --transparent: rgba(0, 0, 0, 0);
+
   /* mini黑色遮罩 */
-  --miniMask: rgba(0, 0, 0, 0.15);
+  --mini-mask: rgba(0, 0, 0, 0.15);
+  --miniMask: var(--mini-mask); /* 向后兼容 */
   /* 黑色遮罩 */
   --mask: rgba(0, 0, 0, 0.3);
   /* 半透明 */
   --translucent: rgba(255, 255, 255, 0.8);
   /* 深黑遮罩 */
-  --maxMask: rgba(0, 0, 0, 0.7);
+  --max-mask: rgba(0, 0, 0, 0.7);
+  --maxMask: var(--max-mask); /* 向后兼容 */
 
   /* 分割线 */
   --high-trans-color: rgba(57, 197, 187, 0.5);
 
+  /* 滚动条 */
+  --scrollbar-thumb: #49b1f5;
+
   --white: white;
 
   --red: red;
-  --lightRed: #ff4b2b;
-  --maxLightRed: #ff416c;
-  --orangeRed: #ef794f;
+  --light-red: #ff4b2b;
+  --lightRed: var(--light-red); /* 向后兼容 */
+  --max-light-red: #ff416c;
+  --maxLightRed: var(--max-light-red); /* 向后兼容 */
+  --orange-red: #ef794f;
+  --orangeRed: var(--orange-red); /* 向后兼容 */
 
   --azure: #ecf7fe;
   --blue: rgb(3, 169, 244);
 
-  --lightGray: #dddddd;
-  --maxLightGray: #eeeeee;
-  --maxMaxLightGray: rgba(242, 242, 242, 0.5);
+  --light-gray: #dddddd;
+  --lightGray: var(--light-gray); /* 向后兼容 */
+  --max-light-gray: #eeeeee;
+  --maxLightGray: var(--max-light-gray); /* 向后兼容 */
+  --max-max-light-gray: rgba(242, 242, 242, 0.5);
+  --maxMaxLightGray: var(--max-max-light-gray); /* 向后兼容 */
 
-  --lightGreen: #39c5bb;
+  --light-green: #39c5bb;
+  --lightGreen: var(--light-green); /* 向后兼容 */
 
   --green: #67c23a;
   --black: black;
-  --lightYellow: #f4e1c0;
+  --light-yellow: #f4e1c0;
+  --lightYellow: var(--light-yellow); /* 向后兼容 */
 
-  --globalFont: "LXGW";
+  --global-font: "LXGW";
+  --globalFont: var(--global-font); /* 向后兼容 */
 
-  --commentURL: url(../file/comment.jpg);
-  --springBg: url(../file/bg1.jpg);
-  --admireImage: url(../file/bg1.jpg);
-  --toTop: url(../file/top.jpg);
-  --bannerWave1: url(../file/bannerwave1.png) repeat-x;
-  --bannerWave2: url(../file/bannerwave2.png) repeat-x;
-  --verifyImage: url(../file/bg1.jpg);
+  --comment-url: url(../file/comment.jpg);
+  --commentURL: var(--comment-url); /* 向后兼容 */
+  --spring-bg: url(../file/bg1.jpg);
+  --springBg: var(--spring-bg); /* 向后兼容 */
+  --admire-image: url(../file/bg1.jpg);
+  --admireImage: var(--admire-image); /* 向后兼容 */
+  --to-top: url(../file/top.jpg);
+  --toTop: var(--to-top); /* 向后兼容 */
+  --banner-wave-1: url(../file/bannerwave1.png) repeat-x;
+  --bannerWave1: var(--banner-wave-1); /* 向后兼容 */
+  --banner-wave-2: url(../file/bannerwave2.png) repeat-x;
+  --bannerWave2: var(--banner-wave-2); /* 向后兼容 */
+  --verify-image: url(../file/bg1.jpg);
+  --verifyImage: var(--verify-image); /* 向后兼容 */
   --toolbar: url(../file/bg.jpg);
   --love: url(../file/bg.jpg);
 }

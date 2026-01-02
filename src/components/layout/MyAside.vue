@@ -10,17 +10,17 @@
       <div class="web-name">BlackStar</div>
       <div class="web-desc">势必达成💪💪💪</div>
       <div class="web-info">
-        <div class="blog-info-box">
+        <div class="blog-info-box" @click="router.push('/archive')">
           <span>文章</span>
-          <span class="blog-info-num">99</span>
+          <span class="blog-info-num">{{ state.blogStats.articleCount }}</span>
         </div>
-        <div class="blog-info-box">
+        <div class="blog-info-box" @click="router.push('/categories')">
           <span>分类</span>
-          <span class="blog-info-num">99</span>
+          <span class="blog-info-num">{{ state.blogStats.categoryCount }}</span>
         </div>
-        <div class="blog-info-box">
+        <div class="blog-info-box" @click="router.push('/tags')">
           <span>标签</span>
-          <span class="blog-info-num">99</span>
+          <span class="blog-info-num">{{ state.blogStats.tagCount }}</span>
         </div>
       </div>
       <a class="collection-btn" @click="showTip()">
@@ -34,35 +34,26 @@
       v-if="!common.isEmpty(state.admires)"
     >
       <div style="font-weight: bold; margin-bottom: 20px">🧨赞赏名单</div>
-      <div>
+      <div class="admire-scroll-container">
         <vue3-seamless-scroll
           :list="state.admires"
-          style="height: 200px; overflow: hidden"
+          class="admire-scroll"
         >
           <div
             v-for="(item, i) in state.admires"
-            style="display: flex; justify-content: space-between"
+            class="admire-item"
             :key="i"
           >
-            <div style="display: flex">
+            <div class="admire-user">
               <el-avatar
-                style="margin-bottom: 10px"
                 :size="36"
                 :src="item.avatar"
               ></el-avatar>
-              <div
-                style="
-                  margin-left: 10px;
-                  height: 36px;
-                  line-height: 36px;
-                  overflow: hidden;
-                  max-width: 80px;
-                "
-              >
+              <div class="admire-username">
                 {{ item.username }}
               </div>
             </div>
-            <div style="height: 36px; line-height: 36px">
+            <div class="admire-amount">
               {{ item.admire }}元
             </div>
           </div>
@@ -117,17 +108,21 @@
         border-radius: 10px;
         animation: hideToShow 1s ease-in-out;
       "
+      v-if="state.categories.length > 0"
     >
       <div class="card-content2-title">
         <i class="el-icon-folder-opened card-content2-icon"></i>
         <span>分类</span>
       </div>
       <div
+        v-for="category in state.categories.slice(0, 5)"
+        :key="category.id"
         class="post-sort"
-        @click="router.push({ path: '/sort', query: { sortId: 1 } })"
+        @click="router.push({ path: '/categories/' + category.id })"
       >
-        <div>
-          <span>具体分类</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>{{ category.categoryName }}</span>
+          <span class="category-count">{{ category.articleCount }}</span>
         </div>
       </div>
     </div>
@@ -198,84 +193,112 @@
 
 <script setup lang="ts">
 import { Vue3SeamlessScroll } from "vue3-seamless-scroll";
-import { onMounted, watch, reactive, ref } from "vue";
+import { onMounted, reactive } from "vue";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
+import { getBlogStats, getAdmireList } from "@/api/stats";
+import { getRecommendArticles } from "@/api/article";
+import { getCategoryList } from "@/api/category";
+import type { Article, Category } from "@/types";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 import { ElMessage } from "element-plus";
 import TagCloud from "@/components/common/TagCloud.vue";
 
 const router = useRouter();
-const route = useRoute();
 const storesConfig = useConfig();
-const { webInfo, sortInfo, currentUser } = storeToRefs(storesConfig);
+const { webInfo, currentUser } = storeToRefs(storesConfig);
+
+interface BlogStats {
+  articleCount: number;
+  categoryCount: number;
+  tagCount: number;
+}
+
+interface Admire {
+  id?: number;
+  avatar: string;
+  username: string;
+  admire: number;
+}
 
 const state = reactive({
-  pagination: {
-    current: 1,
-    size: 5,
-    recommendStatus: true,
-  },
-  recommendArticles: [
-    {
-      id: 1,
-      articleTitle: "标题",
-      articleContent:
-        "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-      articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-      createTime: "2022.02.02",
-      viewCount: 99,
-      commentCount: 99,
-      likeCount: 99,
-    },
-    {
-      id: 1,
-      articleTitle: "标题",
-      articleContent:
-        "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-      articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-      createTime: "2022.02.02",
-      viewCount: 99,
-      commentCount: 99,
-      likeCount: 99,
-    },
-    {
-      id: 1,
-      articleTitle: "标题",
-      articleContent: "内容",
-      articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-      createTime: "2022.02.02",
-      viewCount: 99,
-      commentCount: 99,
-      likeCount: 99,
-    },
-  ],
-  admires: [
-    {
-      avatar:
-        "https://blackstar.s3.bitiful.net/img/userinfo/luffy.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082543Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=eb95285ee92ff18ba32b2afd546dd915ad8da106120ebfb9b45c10ee908ed7b8",
-      username: "blackstar",
-      admire: 122,
-    },
-  ],
+  blogStats: {
+    articleCount: 0,
+    categoryCount: 0,
+    tagCount: 0,
+  } as BlogStats,
+  categories: [] as Category[],
+  recommendArticles: [] as Article[],
+  admires: [] as Admire[],
   showAdmireDialog: false,
+  loading: true,
 });
+
+// 加载博客统计数据
+const loadBlogStats = async () => {
+  try {
+    const stats = await getBlogStats();
+    state.blogStats = {
+      articleCount: stats.articleCount,
+      categoryCount: stats.categoryCount,
+      tagCount: stats.tagCount,
+    };
+  } catch (error) {
+    console.error('加载统计数据失败:', error);
+  }
+};
+
+// 加载分类列表
+const loadCategories = async () => {
+  try {
+    state.categories = await getCategoryList();
+  } catch (error) {
+    console.error('加载分类失败:', error);
+  }
+};
+
+// 加载推荐文章
+const loadRecommendArticles = async () => {
+  try {
+    state.recommendArticles = await getRecommendArticles(5);
+  } catch (error) {
+    console.error('加载推荐文章失败:', error);
+  }
+};
+
+// 加载赞赏名单
+const loadAdmires = async () => {
+  try {
+    state.admires = await getAdmireList();
+  } catch (error) {
+    console.error('加载赞赏名单失败:', error);
+  }
+};
 
 const showAdmire = () => {
   if (common.isEmpty(currentUser.value)) {
-    ElMessage.error("请先登录！");
-    return;
+    ElMessage.info("感谢您的支持！");
   }
-
   state.showAdmireDialog = true;
 };
-const getAdmire = () => {};
-const getRecommendArticles = () => {};
-const showTip = () => {};
 
-getRecommendArticles();
-getAdmire();
+const showTip = () => {
+  ElMessage.info("朋友圈功能开发中...");
+};
+
+// 初始化加载
+onMounted(async () => {
+  state.loading = true;
+  await Promise.all([
+    loadBlogStats(),
+    loadCategories(),
+    loadRecommendArticles(),
+    loadAdmires(),
+  ]);
+  state.loading = false;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -484,5 +507,61 @@ getAdmire();
   color: var(--maxGreyFont);
   line-height: 1.5;
   margin: 5px;
+}
+
+.category-count {
+  background: var(--themeBackground);
+  color: var(--white);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.admire-scroll-container {
+  height: 200px;
+  overflow: hidden;
+}
+
+.admire-scroll {
+  height: 200px;
+  overflow: hidden;
+}
+
+.admire-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 5px 0;
+}
+
+.admire-user {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.admire-username {
+  margin-left: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+.admire-amount {
+  flex-shrink: 0;
+  font-weight: 500;
+  color: var(--themeBackground);
+}
+
+.blog-info-box {
+  cursor: pointer;
+  transition: transform 0.3s;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 </style>

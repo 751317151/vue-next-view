@@ -1,5 +1,18 @@
 <template>
-  <div>
+  <!-- 加载状态 -->
+  <div v-if="state.loading" class="article-loading">
+    <div class="loading-skeleton">
+      <div class="skeleton-header"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 文章内容 -->
+  <div v-else-if="state.article">
     <!-- 封面 -->
     <div class="article-head my-animation-slide-top">
       <!-- 背景图片 -->
@@ -30,35 +43,34 @@
               <span class="post-meta-label">发表于</span>
               <time
                 class="post-meta-date-created"
-                datetime="2023-04-14T16:45:14.000Z"
-                title="发表于 2023-04-15 00:45:14"
+                :datetime="state.article.createTime"
+                :title="'发表于 ' + state.article.createTime"
               >
-                2023-04-15
+                {{ state.article.createTime }}
               </time>
               <span class="post-meta-separator">|</span>
               <el-icon class="post-meta-icon"><Menu /></el-icon>
-              分类
+              {{ state.article.category || '未分类' }}
             </span>
           </div>
           <div class="meta-secondline">
             <span class="post-meta-wordcount">
               <el-icon class="post-meta-icon"><EditPen /></el-icon>
               <span class="post-meta-label">字数总计:</span>
-              <span class="word-count">558</span>
+              <span class="word-count">{{ state.article.wordCount || 0 }}</span>
               <span class="post-meta-separator">|</span>
               <el-icon class="post-meta-icon"><Clock /></el-icon>
               <span class="post-meta-label">阅读时长:</span>
-              <span>1分钟</span></span
+              <span>{{ state.article.readingTime || 1 }}分钟</span></span
             >
             <span class="post-meta-separator">|</span>
             <span
               class="post-meta-pv-cv"
-              id=""
-              data-flag-title="关于博客更新的二三事"
+              :data-flag-title="state.article.articleTitle"
             >
               <el-icon class="post-meta-icon"><View /></el-icon>
               <span class="post-meta-label">阅读量:</span>
-              <span id="busuanzi_value_page_pv">1006</span>
+              <span>{{ state.article.viewCount }}</span>
             </span>
           </div>
         </div>
@@ -73,24 +85,24 @@
             <v-md-preview
               class="font-class"
               ref="articleRef"
-              :text="state.articleContentText"
+              :text="state.article.content"
               height="400px"
             ></v-md-preview>
           </div>
 
           <!-- 最后更新时间 -->
           <div class="article-update-time">
-            <span>文章最后更新于 2022-02-02</span>
+            <span>文章最后更新于 {{ state.article.updateTime || state.article.createTime }}</span>
           </div>
           <!-- 分类 -->
-          <div class="article-sort">
+          <div class="article-sort" v-if="state.article.category">
             <span
               @click="
                 $router.push({
-                  path: '/categories/1',
+                  path: '/categories/' + (state.article.categoryId || 1),
                 })
               "
-              >{{ "aaa ▶ bbb" }}</span
+              >{{ state.article.category }}</span
             >
           </div>
           <!-- 作者信息 -->
@@ -99,12 +111,12 @@
             <div class="aritcle-copyright">
               <div>
                 <span>文章作者：</span>
-                <router-link to="/"> blackstar </router-link>
+                <router-link to="/"> {{ webInfo.author || 'blackstar' }} </router-link>
               </div>
               <div>
                 <span>文章链接：</span>
-                <a href="/article" target="_blank">
-                  http://localhost:8080/article?id=1
+                <a :href="currentUrl" target="_blank">
+                  {{ currentUrl }}
                 </a>
               </div>
               <div>
@@ -116,7 +128,7 @@
                   CC BY-NC-SA 4.0
                 </a>
                 许可协议。转载请注明文章来自
-                <a href="http://localhost:<!-- 8080 -->" target="_blank"> blackstar </a>
+                <a :href="siteUrl" target="_blank"> {{ webInfo.webName || 'blackstar' }} </a>
                 。
               </div>
             </div>
@@ -195,7 +207,7 @@
           <!-- 推荐文章 -->
           <div
             class="recommend-container"
-            v-if="state.article.recommendArticleList.length"
+            v-if="state.article.recommendList.length"
           >
             <div class="recommend-title">
               <i
@@ -207,7 +219,7 @@
             <div class="recommend-list">
               <div
                 class="recommend-item"
-                v-for="item of state.article.recommendArticleList"
+                v-for="item of state.article.recommendList"
                 :key="item.id"
               >
                 <router-link :to="'/article/' + item.id">
@@ -228,20 +240,20 @@
           <div class="fenge"></div>
 
           <!-- 点赞 -->
-          <div class="myCenter" id="article-like">
+          <div class="myCenter" id="article-like" @click="handleLikeArticle">
             <i
-              class="el-icon-thumb article-like-icon"
-              :class="{ 'article-like': 99 }"
+              class="iconfont icon-dianzan article-like-icon"
+              :class="{ 'article-like': state.isLiked }"
             ></i>
           </div>
 
           <!-- 评论 -->
-          <div v-if="state.article.commentStatus === true">
-            <comment
+          <div v-if="state.article.commentStatus === true" id="comment">
+            <Comment
               :type="'article'"
-              :source="article.id"
-              :userId="article.userId"
-            ></comment>
+              :source="state.article.id"
+              :userId="state.article.userId"
+            ></Comment>
           </div>
         </div>
         <div class="aside-content">
@@ -296,158 +308,108 @@ import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
 import { ElMessage } from "element-plus";
 import { useSwipe } from "@/composables/useSwipe";
+import { getArticleDetail, likeArticle } from "@/api/article";
+import type { ArticleDetail, ArticleNav, Tag } from "@/types";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 import tocbot from "tocbot";
 import { Share } from "vue3-social-share";
 import "vue3-social-share/lib/index.css";
+import Comment from "@/components/comment/Comment.vue";
 
 import VueMarkdownEditor, { xss } from "@kangc/v-md-editor";
 
 const storesConfig = useConfig();
-const { showToc, isMobile, scrollTop } = storeToRefs(storesConfig);
+const { showToc, isMobile, scrollTop, webInfo } = storeToRefs(storesConfig);
+
+// 动态 URL
+const currentUrl = computed(() => window.location.href);
+const siteUrl = computed(() => window.location.origin);
 
 const router = useRouter();
 const route = useRoute();
 
-const state = reactive({
-  article: {
-    id: 1,
-    articleTitle: "标题",
-    articleContent:
-      "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-    articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-    createTime: "2022.02.02",
-    viewCount: 99,
-    commentCount: 99,
-    likeCount: 99,
+// 文章详情状态
+interface ArticleState {
+  article: ArticleDetail | null;
+  loading: boolean;
+  isLiked: boolean;
+  tagList: Tag[];
+  prevArticle: ArticleNav | null;
+  nextArticle: ArticleNav | null;
+  pageContainerClass: string;
+}
 
-    recommendArticleList: [
-      {
-        id: 1,
-        articleTitle: "标题",
-        articleContent:
-          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-        createTime: "2022.02.02",
-        viewCount: 99,
-        commentCount: 99,
-        likeCount: 99,
-      },
-      {
-        id: 1,
-        articleTitle: "标题",
-        articleContent:
-          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-        createTime: "2022.02.02",
-        viewCount: 99,
-        commentCount: 99,
-        likeCount: 99,
-      },
-      {
-        id: 1,
-        articleTitle: "标题",
-        articleContent:
-          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-        createTime: "2022.02.02",
-        viewCount: 99,
-        commentCount: 99,
-        likeCount: 99,
-      },
-      {
-        id: 1,
-        articleTitle: "标题",
-        articleContent:
-          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-        createTime: "2022.02.02",
-        viewCount: 99,
-        commentCount: 99,
-        likeCount: 99,
-      },
-      {
-        id: 1,
-        articleTitle: "标题",
-        articleContent:
-          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-        createTime: "2022.02.02",
-        viewCount: 99,
-        commentCount: 99,
-        likeCount: 99,
-      },
-      {
-        id: 1,
-        articleTitle: "标题",
-        articleContent:
-          "《百年孤独》，是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为“再现拉丁美洲历史社会图景的鸿篇巨著”。",
-        articleCover: "https://bu.dusays.com/2022/05/03/627010707b598.webp",
-        createTime: "2022.02.02",
-        viewCount: 99,
-        commentCount: 99,
-        likeCount: 99,
-      },
-    ],
-  },
-  articleContentText: `# Vue 3 + TypeScript + Vite
-
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 \`<script setup>\` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-## 示例图片（点击可预览）
-
-下面是一些示例图片，点击图片可以放大预览：
-
-![风景图片1](https://picsum.photos/800/600?random=1)
-
-这是一张美丽的风景图片，展示了大自然的壮丽景色。
-
-![风景图片2](https://picsum.photos/800/600?random=2)
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Type Support For '.vue' Imports in TS
-
-TypeScript cannot handle type information for '.vue' imports by default, so we replace the 'tsc' CLI with 'vue-tsc' for type checking.
-
-![代码示例](https://picsum.photos/800/400?random=3)
-
-# 一级标题
-
-这里是一些示例文本内容，用于展示文章的排版效果。
-
-## 二级标题
-
-更多的示例内容，包含一张图片：
-
-![示例图片](https://picsum.photos/600/400?random=4)
-
-### 三级标题
-
-这是三级标题下的内容，展示了文章的层级结构。
-
- `,
-  treeHoleList: [],
-  weiYanDialogVisible: false,
-  newsTime: "",
+const state = reactive<ArticleState>({
+  article: null,
+  loading: true,
+  isLiked: false,
+  tagList: [],
+  prevArticle: null,
+  nextArticle: null,
   pageContainerClass: "page-container page-container-scroll",
-  tagList: [
-    {
-      id: 1,
-      tagName: "css",
-    },
-    {
-      id: 2,
-      tagName: "js",
-    },
-  ],
-  shareConfig: {
-    sites: ["qzone", "wechat", "weibo", "qq"],
-  },
 });
+
+// 加载文章详情
+const loadArticle = async (id: number) => {
+  state.loading = true;
+  try {
+    const article = await getArticleDetail(id);
+    state.article = article;
+    state.prevArticle = article.prevArticle || null;
+    state.nextArticle = article.nextArticle || null;
+    
+    // 设置标签列表
+    if (article.tags && article.tags.length > 0) {
+      state.tagList = article.tags.map((tag, index) => ({
+        id: index + 1,
+        tagName: tag,
+      }));
+    }
+    
+    // 检查是否已点赞 (从 localStorage 读取)
+    const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+    state.isLiked = likedArticles.includes(id);
+    
+    // 重新初始化目录
+    nextTick(() => {
+      highlight();
+      getTocbot();
+    });
+  } catch (error) {
+    console.error('加载文章失败:', error);
+    ElMessage.error('加载文章失败');
+  } finally {
+    state.loading = false;
+  }
+};
+
+// 点赞文章
+const handleLikeArticle = async () => {
+  if (!state.article) return;
+  
+  if (state.isLiked) {
+    ElMessage.info('您已经点赞过了');
+    return;
+  }
+  
+  try {
+    const result = await likeArticle(state.article.id);
+    if (result.success) {
+      state.isLiked = true;
+      state.article.likeCount = result.likeCount;
+      
+      // 保存到 localStorage
+      const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+      likedArticles.push(state.article.id);
+      localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
+      
+      ElMessage.success('点赞成功！');
+    }
+  } catch (error) {
+    ElMessage.error('点赞失败');
+  }
+};
 
 const articleRef = ref();
 const tocCount = ref(0);
@@ -486,32 +448,47 @@ const isFull = computed(() => {
 });
 
 const getTocbot = () => {
+  // 先销毁之前的实例
+  tocbot.destroy();
+
   // 添加文章生成目录功能
-  let nodes = articleRef.value.$el.querySelectorAll("h1,h2,h3,h4,h5,h6");
-  tocCount.value = nodes.length;
-  
-  if (nodes.length) {
+  nextTick(() => {
+    const contentEl = document.querySelector(".entry-content");
+    if (!contentEl) {
+      console.warn('找不到 .entry-content 元素');
+      return;
+    }
+
+    let nodes = contentEl.querySelectorAll("h1,h2,h3,h4,h5,h6");
+    tocCount.value = nodes.length;
+
+    if (nodes.length === 0) {
+      console.warn('文章中没有找到标题元素');
+      return;
+    }
+
+    // 为标题添加 ID
     for (let i = 0; i < nodes.length; i++) {
-      let node = nodes[i];
-      let reg = /^H[1-6]{1}$/;
-      if (reg.exec(node.tagName)) {
+      let node = nodes[i] as HTMLElement;
+      if (!node.id) {
         node.id = `heading-${i}`;
       }
     }
-  }
 
-  tocbot.init({
-    tocSelector: "#toc",
-    contentSelector: ".entry-content",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    scrollSmooth: true,
-    fixedSidebarOffset: "auto",
-    scrollSmoothOffset: -80,
-    hasInnerContainers: false,
-    headingsOffset: 80,
-    onClick: function (e: MouseEvent) {
-      e.preventDefault();
-    },
+    // 初始化 tocbot
+    tocbot.init({
+      tocSelector: "#toc",
+      contentSelector: ".entry-content",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      scrollSmooth: true,
+      fixedSidebarOffset: "auto",
+      scrollSmoothOffset: -80,
+      hasInnerContainers: true,
+      headingsOffset: 80,
+      onClick: function (e: MouseEvent) {
+        e.preventDefault();
+      },
+    });
   });
 };
 const getArticle = () => {
@@ -581,7 +558,7 @@ const highlight = () => {
   });
 
   // 初始化复制功能并添加成功提示
-  const clipboard = new ClipboardJS(".copy-code");
+  const clipboard = new (window as any).ClipboardJS(".copy-code");
   clipboard.on("success", (e) => {
     ElMessage.success("代码已复制到剪贴板");
     e.clearSelection();
@@ -603,7 +580,9 @@ const highlight = () => {
   }
 };
 onMounted(() => {
-  getArticle();
+  // 从路由参数获取文章ID并加载文章
+  const articleId = Number(route.params.id) || 1;
+  loadArticle(articleId);
 
   // 绑定手势事件
   nextTick(() => {
@@ -704,7 +683,7 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-::v-deep .github-markdown-body {
+:deep(.github-markdown-body) {
   font-family: "LXGW";
 }
 .my-card {
@@ -764,7 +743,7 @@ watch(
           Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
       }
       .aritcle-copyright span {
-        color: #49b1f5;
+        color: var(--theme-background);
         font-weight: bold;
       }
       .aritcle-copyright a {
@@ -778,7 +757,7 @@ watch(
         width: 1rem;
         height: 1rem;
         border-radius: 1rem;
-        background: #49b1f5;
+        background: var(--theme-background);
         content: "";
       }
       .aritcle-copyright:after {
@@ -823,7 +802,7 @@ watch(
         position: relative;
         display: inline-block;
         width: 100px;
-        background: #49b1f5;
+        background: var(--theme-background);
         margin: 0 1rem;
         color: #fff !important;
         text-align: center;
@@ -1155,16 +1134,16 @@ watch(
   margin: 0.5rem 0.5rem 0.5rem 0;
   padding: 0 0.75rem;
   width: fit-content;
-  border: 1px solid #49b1f5;
+  border: 1px solid var(--theme-background);
   border-radius: 1rem;
-  color: #49b1f5 !important;
+  color: var(--theme-background) !important;
   font-size: 12px;
   line-height: 2;
   text-decoration: none;
 }
 .tag-container a:hover {
   color: #fff !important;
-  background: #49b1f5;
+  background: var(--theme-background);
   transition: all 0.5s;
 }
 
@@ -1275,11 +1254,61 @@ watch(
           right: 20px;
           width: 260px;
           max-height: calc(100vh - 200px); /* 留出顶部和底部空间 */
-          z-index: 90; /* 低于浮动按钮(1000)和工具栏(100) */
+          z-index: var(--z-sticky); /* 低于浮动按钮和导航栏 */
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
       }
     }
   }
 }
+
+/* 加载骨架屏样式 */
+.article-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  
+  .loading-skeleton {
+    width: 100%;
+    max-width: 800px;
+    padding: 40px;
+    
+    .skeleton-header {
+      height: 300px;
+      background: linear-gradient(90deg, var(--border-color) 25%, var(--card-background) 50%, var(--border-color) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+    
+    .skeleton-content {
+      .skeleton-line {
+        height: 20px;
+        background: linear-gradient(90deg, var(--border-color) 25%, var(--card-background) 50%, var(--border-color) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        
+        &.short {
+          width: 60%;
+        }
+      }
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+
 </style>

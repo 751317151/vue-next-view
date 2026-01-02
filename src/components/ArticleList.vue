@@ -35,7 +35,21 @@
               <el-icon class="loading-icon"><Loading /></el-icon>
             </div>
           </template>
+          <template #error>
+            <div class="image-placeholder">
+              <el-icon class="error-icon"><Picture /></el-icon>
+            </div>
+          </template>
         </el-image>
+        <!-- 置顶/热门 徽章 -->
+        <div v-if="article.isTop || article.viewCount > 1000" class="article-badges">
+          <div v-if="article.isTop" class="badge-item top-badge">
+            <span class="badge-text">TOP</span>
+          </div>
+          <div v-else-if="article.viewCount > 1000" class="badge-item hot-badge">
+            <span class="badge-text">HOT</span>
+          </div>
+        </div>
         <!-- 分类标签 -->
         <div class="category-badge">
           {{ article.category || '未分类' }}
@@ -97,7 +111,7 @@
   </div>
   
   <!-- 骨架屏 -->
-  <div v-else class="skeleton-container">
+  <div v-else-if="ArticleList === undefined" class="skeleton-container">
     <div v-for="i in 3" :key="i" class="skeleton-item">
       <div class="skeleton-image"></div>
       <div class="skeleton-content">
@@ -108,21 +122,29 @@
       </div>
     </div>
   </div>
+
+  <!-- 空状态 -->
+  <EmptyState
+    v-else
+    title="暂无文章"
+    description="还没有发布任何文章，敬请期待~"
+  />
 </template>
 
 <script setup lang="ts">
 import { useRouter, useRoute } from "vue-router";
 import { ref, reactive, onMounted, onUnmounted, watch, nextTick } from "vue";
-import { Loading, Clock, View, ChatDotRound, Star } from "@element-plus/icons-vue";
+import { Loading, Clock, View, ChatDotRound, Star, Picture } from "@element-plus/icons-vue";
+import EmptyState from "@/components/common/EmptyState.vue";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
+import type { Article } from "@/types";
 
 const router = useRouter();
 const route = useRoute();
 
 const props = defineProps({
   ArticleList: Array<Article>,
-  ArticleList2: Array<Article>,
 });
 
 // 估算阅读时间（假设每分钟阅读300字）
@@ -260,7 +282,7 @@ onUnmounted(() => {
   
   .category-badge {
     position: absolute;
-    top: 15px;
+    bottom: 15px;
     left: 15px;
     background: var(--themeBackground);
     color: #fff;
@@ -268,8 +290,33 @@ onUnmounted(() => {
     border-radius: 20px;
     font-size: 12px;
     font-weight: 500;
-    z-index: 2;
+    z-index: 3;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+
+  .article-badges {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 3;
+    
+    .badge-item {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      
+      &.top-badge {
+        background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+      }
+      
+      &.hot-badge {
+        background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%);
+      }
+    }
   }
 }
 
@@ -322,6 +369,11 @@ onUnmounted(() => {
 
 .recent-post-item:hover .article-title {
   color: var(--themeBackground);
+}
+
+.recent-post-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .post-meta {

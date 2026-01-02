@@ -107,7 +107,7 @@
                 class="user-avatar"
                 :size="36"
                 style="margin-top: 12px"
-                :src="webInfo.avatar"
+                :src="currentAvatar"
               >
               </el-avatar>
 
@@ -115,21 +115,21 @@
                 <el-dropdown-menu>
                   <el-dropdown-item
                     @click="router.push({ path: '/user' })"
-                    v-if="true"
+                    v-if="userStore.isLogin"
                   >
                     <i class="fa fa-user-circle" aria-hidden="true"></i>
                     <span>个人中心</span>
                   </el-dropdown-item>
-                  <el-dropdown-item @click="logout()" v-if="true">
+                  <el-dropdown-item @click="logout()" v-if="userStore.isLogin">
                     <i class="fa fa-sign-out" aria-hidden="true"></i>
                     <span>退出</span>
                   </el-dropdown-item>
                   <el-dropdown-item
-                    @click="router.push({ path: '/user' })"
-                    v-if="true"
+                    @click="showLogin = true"
+                    v-if="!userStore.isLogin"
                   >
                     <i class="fa fa-sign-in" aria-hidden="true"></i>
-                    <span>登陆</span>
+                    <span>登录</span>
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -141,19 +141,28 @@
       </div>
     </div>
   </transition>
+  <LoginModal v-model="showLogin" @login-success="handleLoginSuccess" />
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
 import GlobalSearch from "@/components/common/GlobalSearch.vue";
+import LoginModal from "@/components/common/LoginModal.vue";
+import { useUserStore } from "@/stores/user";
+import { ElMessage } from "element-plus";
 
 const router = useRouter();
 const storesConfig = useConfig();
-const { toolbar, webInfo, sideNavBarShow, isMobile } =
-  storeToRefs(storesConfig);
+const { toolbar, webInfo, sideNavBarShow, isMobile } = storeToRefs(storesConfig);
+const userStore = useUserStore();
+const showLogin = ref(false);
+
+const currentAvatar = computed(() => {
+  return userStore.isLogin && userStore.userInfo ? userStore.userInfo.avatar : webInfo.value.avatar;
+});
 
 const state = reactive({
   hoverEnter: false,
@@ -168,8 +177,13 @@ const goIm = () => {
 
 // 退出登录
 const logout = () => {
-  // 这里可以添加退出登录的逻辑
-  console.log('退出登录');
+  userStore.logout();
+  ElMessage.success("已退出登录");
+  router.push({ path: '/' });
+};
+
+const handleLoginSuccess = () => {
+  // 登录成功回调
 };
 </script>
 
@@ -181,7 +195,7 @@ const logout = () => {
   color: var(--toolbarFont);
   /* 固定位置，不随滚动条滚动 */
   position: fixed;
-  z-index: 100;
+  z-index: var(--z-navbar);
   /* 禁止选中文字 */
   user-select: none;
 
@@ -217,6 +231,7 @@ const logout = () => {
 .search-section {
   max-width: 300px;
   min-width: 200px;
+  transition: all 0.3s ease;
 }
 
 .toolbar-mobile-menu {
@@ -387,21 +402,30 @@ const logout = () => {
 /* 1200px 以下：隐藏搜索框，继续缩小 */
 @media screen and (max-width: 1200px) {
   .scroll-menu > li {
-    margin: 0 5px;
-    font-size: 14px;
+    margin: 0 6px;
+    font-size: 15px;
   }
-  
+
   .scroll-menu > li > div {
-    font-size: 14px;
+    font-size: 15px;
   }
-  
+
   .search-section {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
+    max-width: 0;
+    min-width: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
   }
-  
+
+  .nav-content {
+    gap: 12px;
+  }
+
   .toolbar-title {
     margin-left: 15px;
-    
+
     h2 {
       font-size: 18px;
     }
@@ -411,16 +435,20 @@ const logout = () => {
 /* 1100px 以下：最小间距 */
 @media screen and (max-width: 1100px) {
   .scroll-menu > li {
-    margin: 0 3px;
-    font-size: 13px;
+    margin: 0 4px;
+    font-size: 14px;
   }
-  
+
   .scroll-menu > li > div {
-    font-size: 13px;
+    font-size: 14px;
   }
-  
+
   .scroll-menu {
     margin: 0 10px 0 0;
+  }
+
+  .nav-content {
+    gap: 10px;
   }
 }
 </style>
