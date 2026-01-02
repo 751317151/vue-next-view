@@ -1,11 +1,3 @@
-/*
- * @Author: 华豪 huah@sunwayworld.com
- * @Date: 2024-07-18 10:28:47
- * @LastEditors: 华豪 huah@sunwayworld.com
- * @LastEditTime: 2024-11-27 16:30:46
- * @FilePath: \vue-next-view\src\stores\config.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import { defineStore } from "pinia";
 
 export const useConfig = defineStore("config", {

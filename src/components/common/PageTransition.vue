@@ -18,7 +18,7 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 interface Props {
-  type?: 'fade' | 'slide' | 'scale' | 'flip';
+  type?: 'fade' | 'slide' | 'scale' | 'flip' | 'zoom' | 'slideUp';
   duration?: number;
   disabled?: boolean;
 }
@@ -180,6 +180,38 @@ const onAfterLeave = () => {
 
 .flip-leave-to {
   transform: rotateY(90deg);
+  opacity: 0;
+}
+
+// 缩放淡入效果
+.zoom-enter-active,
+.zoom-leave-active {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+}
+
+.zoom-enter-from {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+.zoom-leave-to {
+  transform: scale(1.02);
+  opacity: 0;
+}
+
+// 向上滑入效果
+.slideUp-enter-active,
+.slideUp-leave-active {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.slideUp-enter-from {
+  transform: translateY(30px);
+  opacity: 0;
+}
+
+.slideUp-leave-to {
+  transform: translateY(-20px);
   opacity: 0;
 }
 

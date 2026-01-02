@@ -1,11 +1,8 @@
 export default {
-  baseURL: "http://localhost:8081",
-  imBaseURL: "http://localhost:81",
-  webURL: "http://localhost",
-
-  // baseURL: "https://poetize.cn/api",
-  // imBaseURL: "https://poetize.cn/im",
-  // webURL: "https://poetize.cn",
+  // 从环境变量读取敏感配置
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8081",
+  imBaseURL: import.meta.env.VITE_IM_BASE_URL || "http://localhost:81",
+  webURL: import.meta.env.VITE_WEB_URL || "http://localhost",
 
   live2d_path:
     "https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/",
@@ -16,10 +13,10 @@ export default {
   tocbot: "https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js",
   jinrishici: "https://v1.jinrishici.com/all.json",
   random_image: "https://picsum.photos/800/400?random=",
-  //前后端定义的密钥，AES使用16位
-  cryptojs_key: "aoligeimeimaobin",
-  qiniuUrl: "https://upload.qiniup.com",
-  qiniuDownload: "$$$$七牛云下载地址",
+  // 加密密钥从环境变量读取
+  cryptojs_key: import.meta.env.VITE_CRYPTO_KEY || "",
+  qiniuUrl: import.meta.env.VITE_QINIU_URL || "https://upload.qiniup.com",
+  qiniuDownload: import.meta.env.VITE_QINIU_DOWNLOAD || "",
 
   favoriteVideo: "src/assets/file/hutao.mp4",
 

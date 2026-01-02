@@ -294,6 +294,8 @@ import { onMounted, onUnmounted, reactive, computed, nextTick, ref, watch } from
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useConfig } from "@/stores/config";
+import { ElMessage } from "element-plus";
+import { useSwipe } from "@/composables/useSwipe";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 import tocbot from "tocbot";
@@ -450,6 +452,28 @@ TypeScript cannot handle type information for '.vue' imports by default, so we r
 const articleRef = ref();
 const tocCount = ref(0);
 const tocCardRef = ref<HTMLElement | null>(null);
+const articleContainerRef = ref<HTMLElement | null>(null);
+
+// 手势支持 - 左右滑动切换文章
+const { bindSwipe, unbindSwipe } = useSwipe({
+  threshold: 80,
+  onSwipeLeft: () => {
+    // 下一篇文章
+    if (isMobile.value && state.article.id) {
+      const nextId = state.article.id + 1;
+      router.push(`/article/${nextId}`);
+      ElMessage.info('下一篇文章');
+    }
+  },
+  onSwipeRight: () => {
+    // 上一篇文章
+    if (isMobile.value && state.article.id > 1) {
+      const prevId = state.article.id - 1;
+      router.push(`/article/${prevId}`);
+      ElMessage.info('上一篇文章');
+    }
+  },
+});
 
 const isLike = computed(() => {
   return state.tagList.length > 1 ? "like-btn-active" : "like-btn";
@@ -498,7 +522,7 @@ const getArticle = () => {
 };
 
 const highlight = () => {
-  let attributes = {
+  const attributes: Record<string, string> = {
     autocomplete: "off",
     autocorrect: "off",
     autocapitalize: "off",
@@ -506,68 +530,89 @@ const highlight = () => {
     contenteditable: "false",
   };
 
-  $("pre").each(function (i, item) {
-    let preCode = $(item).children("code");
-    let classNameStr = preCode[0].className;
-    let classNameArr = classNameStr.split(" ");
+  document.querySelectorAll("pre").forEach((item, i) => {
+    const preCode = item.querySelector("code");
+    if (!preCode) return;
 
+    const classNameArr = preCode.className.split(" ");
     let lang = "";
-    classNameArr.some(function (className) {
+
+    classNameArr.some((className) => {
       if (className.indexOf("language-") > -1) {
-        lang = className.substring(
-          className.indexOf("-") + 1,
-          className.length
-        );
+        lang = className.substring(className.indexOf("-") + 1);
         return true;
       }
+      return false;
     });
 
     // 检测语言是否存在，不存在则自动检测
     let language = hljs.getLanguage(lang.toLowerCase());
     if (language === undefined) {
-      // 启用自动检测
-      let autoLanguage = hljs.highlightAuto(preCode.text());
-      preCode.removeClass("language-" + lang);
-      lang = autoLanguage.language;
-      if (lang === undefined) {
-        lang = "java";
-      }
-      preCode.addClass("language-" + lang);
+      const autoLanguage = hljs.highlightAuto(preCode.textContent || "");
+      preCode.classList.remove("language-" + lang);
+      lang = autoLanguage.language || "java";
+      preCode.classList.add("language-" + lang);
     } else {
-      lang = language.name;
+      lang = language.name || lang;
     }
 
-    $(item).addClass("highlight-wrap");
-    $(item).attr(attributes);
-    preCode.attr("data-rel", lang.toUpperCase()).addClass(lang.toLowerCase());
-    // 启用代码高亮
-    hljs.highlightBlock(preCode[0]);
-    // 启用代码行号
-    hljs.lineNumbersBlock(preCode[0]);
-  });
-
-  $("pre code").each(function (i, block) {
-    $(block).attr({
-      id: "hljs-" + i,
+    item.classList.add("highlight-wrap");
+    Object.entries(attributes).forEach(([key, value]) => {
+      item.setAttribute(key, value);
     });
+    preCode.setAttribute("data-rel", lang.toUpperCase());
+    preCode.classList.add(lang.toLowerCase());
 
-    $(block).after(
-      '<a class="copy-code" href="javascript:" data-clipboard-target="#hljs-' +
-        i +
-        '"><i class="fa fa-clipboard" aria-hidden="true"></i></a>'
-    );
-    new ClipboardJS(".copy-code");
+    // 启用代码高亮
+    hljs.highlightBlock(preCode);
+    // 启用代码行号
+    hljs.lineNumbersBlock(preCode);
   });
 
-  if ($(".entry-content").children("table").length > 0) {
-    $(".entry-content")
-      .children("table")
-      .wrap("<div class='table-wrapper'></div>");
+  document.querySelectorAll("pre code").forEach((block, i) => {
+    block.id = "hljs-" + i;
+
+    const copyBtn = document.createElement("a");
+    copyBtn.className = "copy-code";
+    copyBtn.href = "javascript:";
+    copyBtn.setAttribute("data-clipboard-target", "#hljs-" + i);
+    copyBtn.innerHTML = '<i class="fa fa-clipboard" aria-hidden="true"></i>';
+    block.parentNode?.appendChild(copyBtn);
+  });
+
+  // 初始化复制功能并添加成功提示
+  const clipboard = new ClipboardJS(".copy-code");
+  clipboard.on("success", (e) => {
+    ElMessage.success("代码已复制到剪贴板");
+    e.clearSelection();
+  });
+  clipboard.on("error", () => {
+    ElMessage.error("复制失败，请手动复制");
+  });
+
+  const entryContent = document.querySelector(".entry-content");
+  if (entryContent) {
+    entryContent.querySelectorAll("table").forEach((table) => {
+      if (!table.parentElement?.classList.contains("table-wrapper")) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-wrapper";
+        table.parentNode?.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      }
+    });
   }
 };
 onMounted(() => {
   getArticle();
-  
+
+  // 绑定手势事件
+  nextTick(() => {
+    const container = document.querySelector('.article-container') as HTMLElement;
+    if (container) {
+      bindSwipe(container);
+    }
+  });
+
   // 粘性定位逻辑 - 使用固定宽度避免滚动时的宽度变化
   let initialTop = 0;
   let fixedLeft = 0;
@@ -639,6 +684,11 @@ onMounted(() => {
 });
 onUnmounted(() => {
   tocbot.destroy();
+  // 解绑手势事件
+  const container = document.querySelector('.article-container') as HTMLElement;
+  if (container) {
+    unbindSwipe(container);
+  }
 });
 watch(
   () => storesConfig.scrollTop,

@@ -17,12 +17,30 @@
       </el-input>
       
       <!-- 搜索建议 -->
-      <div v-if="showSuggestions && suggestions.length" class="search-suggestions">
+      <div v-if="showSuggestions" class="search-suggestions">
+        <!-- 搜索历史 -->
+        <div v-if="searchHistory.length" class="suggestion-section">
+          <div class="section-header">
+            <h4>搜索历史</h4>
+            <span class="clear-btn" @click="clearHistory">清空</span>
+          </div>
+          <div class="suggestion-tags">
+            <span
+              v-for="keyword in searchHistory"
+              :key="keyword"
+              class="suggestion-tag history-tag"
+              @click="selectSuggestion(keyword)"
+            >
+              {{ keyword }}
+            </span>
+          </div>
+        </div>
+        <!-- 热门搜索 -->
         <div class="suggestion-section">
           <h4>热门搜索</h4>
           <div class="suggestion-tags">
-            <span 
-              v-for="tag in hotTags" 
+            <span
+              v-for="tag in hotTags"
               :key="tag"
               class="suggestion-tag"
               @click="selectSuggestion(tag)"
@@ -82,6 +100,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
+import { searchArticles } from '@/api';
+import type { Article } from '@/types';
 
 interface SearchResult {
   id: number;
@@ -96,53 +116,17 @@ const searchInput = ref();
 const searchQuery = ref('');
 const isSearchActive = ref(false);
 const searchResults = ref<SearchResult[]>([]);
+const searchHistory = ref<string[]>(JSON.parse(localStorage.getItem('searchHistory') || '[]'));
 
 const hotTags = ['Vue3', 'TypeScript', 'JavaScript', 'CSS', 'Node.js', '前端开发'];
 
-// 模拟搜索数据
-const mockData: SearchResult[] = [
-  {
-    id: 1,
-    type: 'article',
-    title: 'Vue 3 + TypeScript 开发实战指南',
-    description: 'Vue 3 带来了许多令人兴奋的新特性，包括 Composition API...',
-    date: '2024.12.28'
-  },
-  {
-    id: 2,
-    type: 'article', 
-    title: 'JavaScript 异步编程深度解析',
-    description: '异步编程是 JavaScript 的核心概念之一...',
-    date: '2024.12.22'
-  },
-  {
-    id: 3,
-    type: 'tag',
-    title: 'Vue3',
-    description: 'Vue.js 3.0 相关文章'
-  },
-  {
-    id: 4,
-    type: 'category',
-    title: '前端开发',
-    description: '前端开发技术分享'
-  }
-];
-
-const showSuggestions = computed(() => 
+const showSuggestions = computed(() =>
   isSearchActive.value && !searchQuery.value
 );
 
-const showResults = computed(() => 
+const showResults = computed(() =>
   isSearchActive.value && searchQuery.value
 );
-
-const suggestions = computed(() => {
-  if (!searchQuery.value) return [];
-  return hotTags.filter(tag => 
-    tag.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
-});
 
 // 防抖搜索
 let searchTimer: number;
@@ -153,18 +137,20 @@ const handleSearch = () => {
   }, 300);
 };
 
-const performSearch = () => {
+const performSearch = async () => {
   if (!searchQuery.value.trim()) {
     searchResults.value = [];
     return;
   }
-  
-  // 模拟搜索
-  const query = searchQuery.value.toLowerCase();
-  searchResults.value = mockData.filter(item =>
-    item.title.toLowerCase().includes(query) ||
-    item.description.toLowerCase().includes(query)
-  );
+
+  const articles = await searchArticles(searchQuery.value);
+  searchResults.value = articles.map((article: Article) => ({
+    id: article.id,
+    type: 'article' as const,
+    title: article.articleTitle,
+    description: article.articleContent.slice(0, 100) + '...',
+    date: article.createTime
+  }));
 };
 
 const handleFocus = () => {
@@ -172,7 +158,6 @@ const handleFocus = () => {
 };
 
 const handleBlur = () => {
-  // 延迟关闭，允许点击结果
   setTimeout(() => {
     if (!document.activeElement?.closest('.search-container')) {
       isSearchActive.value = false;
@@ -189,10 +174,23 @@ const closeSearch = () => {
 const selectSuggestion = (tag: string) => {
   searchQuery.value = tag;
   performSearch();
+  saveHistory(tag);
   searchInput.value?.focus();
 };
 
+const saveHistory = (keyword: string) => {
+  if (!keyword.trim()) return;
+  searchHistory.value = [keyword, ...searchHistory.value.filter(h => h !== keyword)].slice(0, 10);
+  localStorage.setItem('searchHistory', JSON.stringify(searchHistory.value));
+};
+
+const clearHistory = () => {
+  searchHistory.value = [];
+  localStorage.removeItem('searchHistory');
+};
+
 const goToResult = (result: SearchResult) => {
+  saveHistory(searchQuery.value);
   if (result.type === 'article') {
     router.push(`/article/${result.id}`);
   } else if (result.type === 'tag') {
@@ -206,7 +204,7 @@ const goToResult = (result: SearchResult) => {
 const getTypeLabel = (type: SearchResult['type']) => {
   const labels: Record<SearchResult['type'], string> = {
     article: '文章',
-    tag: '标签', 
+    tag: '标签',
     category: '分类'
   };
   return labels[type] || type;
@@ -300,21 +298,51 @@ onBeforeUnmount(() => {
 
 .search-suggestions {
   padding: 20px;
-  
+
   .suggestion-section {
+    margin-bottom: 20px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+
+      h4 {
+        margin: 0;
+        color: var(--text-color);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .clear-btn {
+        font-size: 12px;
+        color: var(--text-color-secondary);
+        cursor: pointer;
+
+        &:hover {
+          color: var(--themeBackground);
+        }
+      }
+    }
+
     h4 {
       margin: 0 0 15px 0;
       color: var(--text-color);
       font-size: 14px;
       font-weight: 600;
     }
-    
+
     .suggestion-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
-    
+
     .suggestion-tag {
       padding: 6px 12px;
       background: var(--background);
@@ -324,11 +352,15 @@ onBeforeUnmount(() => {
       color: var(--text-color);
       cursor: pointer;
       transition: all 0.3s ease;
-      
+
       &:hover {
         background: var(--themeBackground);
         color: var(--white);
         border-color: var(--themeBackground);
+      }
+
+      &.history-tag {
+        background: var(--card-background);
       }
     }
   }

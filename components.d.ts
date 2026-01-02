@@ -44,7 +44,7 @@ declare module 'vue' {
     ProButton: typeof import('./src/components/common/proButton.vue')['default']
     Process: typeof import('./src/components/common/process.vue')['default']
     ProPage: typeof import('./src/components/common/proPage.vue')['default']
-    ProTag: typeof import('./src/components/common/ProTag.vue')['default']
+    ProTag: typeof import('./src/components/common/proTag.vue')['default']
     ReadingProgress: typeof import('./src/components/common/ReadingProgress.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -378,3 +378,97 @@
 .table-wrapper > table tbody > tr:hover {
     background-color: rgba(0, 0, 0, 0.2);
 }
+
+/* 浅色模式代码高亮 */
+.theme-light .entry-content code:not(.hljs) {
+    background: #fff3cd;
+    color: #d63384;
+}
+
+.theme-light .highlight-wrap {
+    background: #f6f8fa;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .highlight-wrap code[data-rel]:before {
+    background: #f6f8fa;
+    color: #24292f;
+}
+
+.theme-light .hljs {
+    color: #24292f;
+    background: #f6f8fa;
+}
+
+.theme-light .hljs-ln-line.hljs-ln-numbers {
+    background: #f6f8fa;
+    color: #6e7781;
+}
+
+.theme-light .hljs-ln-line.hljs-ln-code:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.theme-light .hljs-comment,
+.theme-light .hljs-quote {
+    color: #6e7781;
+}
+
+.theme-light .hljs-doctag,
+.theme-light .hljs-formula,
+.theme-light .hljs-keyword {
+    color: #cf222e;
+}
+
+.theme-light .hljs-deletion,
+.theme-light .hljs-name,
+.theme-light .hljs-section,
+.theme-light .hljs-selector-tag,
+.theme-light .hljs-subst {
+    color: #cf222e;
+}
+
+.theme-light .hljs-literal {
+    color: #0550ae;
+}
+
+.theme-light .hljs-addition,
+.theme-light .hljs-attribute,
+.theme-light .hljs-meta-string,
+.theme-light .hljs-regexp,
+.theme-light .hljs-string {
+    color: #0a3069;
+}
+
+.theme-light .hljs-built_in,
+.theme-light .hljs-class .hljs-title {
+    color: #953800;
+}
+
+.theme-light .hljs-attr,
+.theme-light .hljs-number,
+.theme-light .hljs-selector-attr,
+.theme-light .hljs-selector-class,
+.theme-light .hljs-selector-pseudo,
+.theme-light .hljs-template-variable,
+.theme-light .hljs-type,
+.theme-light .hljs-variable {
+    color: #0550ae;
+}
+
+.theme-light .hljs-bullet,
+.theme-light .hljs-link,
+.theme-light .hljs-meta,
+.theme-light .hljs-selector-id,
+.theme-light .hljs-symbol,
+.theme-light .hljs-title {
+    color: #8250df;
+}
+
+.theme-light .table-wrapper > table tr:nth-child(2n) {
+    background-color: #f6f8fa;
+}
+
+.theme-light .table-wrapper > table tbody > tr:hover {
+    background-color: #eaeef2;
+}

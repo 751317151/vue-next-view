@@ -21,7 +21,7 @@
     <div id="main-container">
       <div class="web-bg"></div>
       <canvas id="universe"></canvas>
-      <PageTransition type="fade">
+      <PageTransition type="slideUp">
         <router-view></router-view>
       </PageTransition>
     </div>
@@ -113,6 +113,7 @@ import { onMounted, onBeforeUnmount, watch, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import mousedown from "@/utils/mousedown";
 import blackstar from "@/utils/blackstar";
+import { getCategoryList, getTagList } from "@/api";
 
 const route = useRoute();
 const storesConfig = useConfig();
@@ -131,6 +132,13 @@ const settingsModalVisible = ref(false);
 // 监听设置弹框打开事件的处理函数
 const handleOpenSettingsModal = () => {
   settingsModalVisible.value = true;
+};
+
+// 鼠标动画切换事件处理函数
+const handleMouseAnimationToggle = (e: any) => {
+  if (e.detail.enabled) {
+    mousedown();
+  }
 };
 
 // methods
@@ -171,115 +179,13 @@ const handleShare = () => {
     console.log('链接已复制到剪贴板');
   }
 };
-const getCategories = () => {
-  let Categories: Array<Category> = [
-    {
-      id: 1,
-      categoryName: "生活倒影",
-    },
-    {
-      id: 2,
-      categoryName: "java",
-    },
-    {
-      id: 3,
-      categoryName: "python",
-    },
-    {
-      id: 4,
-      categoryName: "javascript",
-    },
-    {
-      id: 5,
-      categoryName: "c++",
-    },
-    {
-      id: 6,
-      categoryName: "php",
-    },
-    {
-      id: 7,
-      categoryName: "大数据",
-    },
-    {
-      id: 8,
-      categoryName: "spring boot",
-    },
-    {
-      id: 9,
-      categoryName: "redis",
-    },
-    {
-      id: 10,
-      categoryName: "MySQL",
-    },
-    {
-      id: 11,
-      categoryName: "nginx",
-    },
-    {
-      id: 12,
-      categoryName: "vue",
-    },
-  ];
-  storesConfig.getCategories(Categories);
+const getCategories = async () => {
+  const categories = await getCategoryList();
+  storesConfig.getCategories(categories);
 };
-const getTags = () => {
-  let Tags: Array<Tag> = [
-    {
-      id: 1,
-      tagName: "生活倒影",
-    },
-    {
-      id: 2,
-      tagName: "java",
-    },
-    {
-      id: 3,
-      tagName: "python",
-    },
-    {
-      id: 4,
-      tagName: "javascript",
-    },
-    {
-      id: 5,
-      tagName: "c++",
-    },
-    {
-      id: 6,
-      tagName: "php",
-    },
-    {
-      id: 7,
-      tagName: "大数据",
-    },
-    {
-      id: 8,
-      tagName: "spring boot",
-    },
-    {
-      id: 9,
-      tagName: "redis",
-    },
-    {
-      id: 10,
-      tagName: "MySQL",
-    },
-    {
-      id: 11,
-      tagName: "nginx",
-    },
-    {
-      id: 12,
-      tagName: "vue",
-    },
-    {
-      id: 13,
-      tagName: "gpt",
-    },
-  ];
-  storesConfig.getTags(Tags);
+const getTags = async () => {
+  const tags = await getTagList();
+  storesConfig.getTags(tags);
 };
 
 const createdMethod = () => {
@@ -304,26 +210,22 @@ createdMethod();
 onMounted(() => {
   // 初始化主题系统 - 确保在组件渲染前完成
   themeStore.initTheme();
-  
+
   // 监听鼠标动画事件
-  document.addEventListener('mouse-animation-toggle', (e: any) => {
-    if (e.detail.enabled) {
-      mousedown();
-    }
-  });
-  
+  document.addEventListener('mouse-animation-toggle', handleMouseAnimationToggle);
+
   document.addEventListener('open-settings-modal', handleOpenSettingsModal);
-  
+
   if (mouseAnimation.value) {
     mousedown();
   }
-  
+
   window.addEventListener("scroll", storesConfig.onScrollPage);
   blackstar.dark();
 });
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", storesConfig.onScrollPage);
-  document.removeEventListener('mouse-animation-toggle', () => {});
+  document.removeEventListener('mouse-animation-toggle', handleMouseAnimationToggle);
   document.removeEventListener('open-settings-modal', handleOpenSettingsModal);
 });
 watch(
@@ -345,14 +247,15 @@ watch(
     const top = scrollTop - oldScrollTop < 0;
     let isShow = scrollTop - window.innerHeight > -1;
     state.showToolButton = isShow;
-    if (isShow && !isMobile.value) {
-      if (window.innerHeight > 950) {
-        $(".cd-top").css("top", "0");
+
+    // 使用原生 JS 替代 jQuery
+    const cdTop = document.querySelector(".cd-top") as HTMLElement;
+    if (cdTop && !isMobile.value) {
+      if (isShow) {
+        cdTop.style.top = window.innerHeight > 950 ? "0" : `${window.innerHeight - 950}px`;
       } else {
-        $(".cd-top").css("top", window.innerHeight - 950 + "px");
+        cdTop.style.top = "-900px";
       }
-    } else if (!isShow && !isMobile.value) {
-      $(".cd-top").css("top", "-900px");
     }
 
     //导航栏显示与颜色
