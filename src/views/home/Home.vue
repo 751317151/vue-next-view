@@ -29,7 +29,7 @@ import { getArticleList } from "@/api";
 import type { Article } from "@/types";
 
 const state = reactive({
-  articleList: [] as Article[],
+  articleList: undefined as Article[] | undefined,
   showAside: true,
   pagination: {
     current: 1,

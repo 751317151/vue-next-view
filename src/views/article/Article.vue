@@ -499,77 +499,104 @@ const getArticle = () => {
 };
 
 const highlight = () => {
-  const attributes: Record<string, string> = {
-    autocomplete: "off",
-    autocorrect: "off",
-    autocapitalize: "off",
-    spellcheck: "false",
-    contenteditable: "false",
-  };
+  // 使用 requestAnimationFrame 等待渲染完成
+  requestAnimationFrame(() => {
+    const container = document.querySelector(".entry-content");
+    if (!container) return;
 
-  document.querySelectorAll("pre").forEach((item, i) => {
-    const preCode = item.querySelector("code");
-    if (!preCode) return;
+    // 查找所有代码块（v-md-preview 渲染的结构）
+    container.querySelectorAll("pre").forEach((pre, i) => {
+      // 跳过已处理的
+      if (pre.classList.contains("highlight-wrap")) return;
 
-    const classNameArr = preCode.className.split(" ");
-    let lang = "";
+      const code = pre.querySelector("code");
+      if (!code) return;
 
-    classNameArr.some((className) => {
-      if (className.indexOf("language-") > -1) {
-        lang = className.substring(className.indexOf("-") + 1);
-        return true;
+      // 获取语言 - v-md-editor 在 pre 上添加 v-md-hljs-xxx 类
+      let lang = "CODE";
+      const preMatch = pre.className.match(/v-md-hljs-(\w+)/);
+      if (preMatch) {
+        lang = preMatch[1].toUpperCase();
+      } else {
+        const codeMatch = code.className.match(/(?:language-|lang-)(\w+)/);
+        if (codeMatch) {
+          lang = codeMatch[1].toUpperCase();
+        }
       }
-      return false;
+
+      pre.classList.add("highlight-wrap");
+      code.id = "code-block-" + i;
+
+      // 添加行号 - 保留原始 HTML 以保持语法高亮
+      const codeHtml = code.innerHTML;
+      const lines = codeHtml.split('\n');
+      if (lines[lines.length - 1].trim() === '') lines.pop();
+      const numberedCode = lines.map((line, idx) =>
+        `<span class="code-line"><span class="line-num">${idx + 1}</span><span class="line-code">${line || ' '}</span></span>`
+      ).join('\n');
+      code.innerHTML = numberedCode;
+
+      // 创建工具栏
+      const toolbar = document.createElement("div");
+      toolbar.className = "code-toolbar";
+      toolbar.innerHTML = `
+        <span class="code-lang">${lang}</span>
+        <div class="code-actions">
+          <button class="code-collapse-btn" title="折叠/展开">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <button class="code-copy-btn" data-clipboard-target="#code-block-${i}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>复制</span>
+          </button>
+        </div>
+      `;
+      pre.insertBefore(toolbar, pre.firstChild);
+
+      // 折叠按钮事件
+      const collapseBtn = toolbar.querySelector('.code-collapse-btn');
+      collapseBtn?.addEventListener('click', () => {
+        pre.classList.toggle('collapsed');
+        const svg = collapseBtn.querySelector('svg');
+        if (pre.classList.contains('collapsed')) {
+          svg.style.transform = 'rotate(-90deg)';
+        } else {
+          svg.style.transform = '';
+        }
+      });
     });
 
-    // 检测语言是否存在，不存在则自动检测
-    let language = hljs.getLanguage(lang.toLowerCase());
-    if (language === undefined) {
-      const autoLanguage = hljs.highlightAuto(preCode.textContent || "");
-      preCode.classList.remove("language-" + lang);
-      lang = autoLanguage.language || "java";
-      preCode.classList.add("language-" + lang);
-    } else {
-      lang = language.name || lang;
+    // 初始化复制功能
+    if ((window as any).ClipboardJS) {
+      const clipboard = new (window as any).ClipboardJS(".code-copy-btn", {
+        text: function(trigger: HTMLElement) {
+          const codeId = trigger.getAttribute('data-clipboard-target');
+          if (!codeId) return '';
+          const codeEl = document.querySelector(codeId);
+          if (!codeEl) return '';
+          // 只获取 .line-code 的文本内容
+          const lines = codeEl.querySelectorAll('.line-code');
+          if (lines.length > 0) {
+            return Array.from(lines).map(el => el.textContent || '').join('\n');
+          }
+          return codeEl.textContent || '';
+        }
+      });
+      clipboard.on("success", (e: any) => {
+        const btn = e.trigger;
+        btn.classList.add("copied");
+        btn.querySelector("span").textContent = "已复制";
+        ElMessage.success("代码已复制到剪贴板");
+        e.clearSelection();
+        setTimeout(() => {
+          btn.classList.remove("copied");
+          btn.querySelector("span").textContent = "复制";
+        }, 2000);
+      });
     }
 
-    item.classList.add("highlight-wrap");
-    Object.entries(attributes).forEach(([key, value]) => {
-      item.setAttribute(key, value);
-    });
-    preCode.setAttribute("data-rel", lang.toUpperCase());
-    preCode.classList.add(lang.toLowerCase());
-
-    // 启用代码高亮
-    hljs.highlightBlock(preCode);
-    // 启用代码行号
-    hljs.lineNumbersBlock(preCode);
-  });
-
-  document.querySelectorAll("pre code").forEach((block, i) => {
-    block.id = "hljs-" + i;
-
-    const copyBtn = document.createElement("a");
-    copyBtn.className = "copy-code";
-    copyBtn.href = "javascript:";
-    copyBtn.setAttribute("data-clipboard-target", "#hljs-" + i);
-    copyBtn.innerHTML = '<i class="fa fa-clipboard" aria-hidden="true"></i>';
-    block.parentNode?.appendChild(copyBtn);
-  });
-
-  // 初始化复制功能并添加成功提示
-  const clipboard = new (window as any).ClipboardJS(".copy-code");
-  clipboard.on("success", (e) => {
-    ElMessage.success("代码已复制到剪贴板");
-    e.clearSelection();
-  });
-  clipboard.on("error", () => {
-    ElMessage.error("复制失败，请手动复制");
-  });
-
-  const entryContent = document.querySelector(".entry-content");
-  if (entryContent) {
-    entryContent.querySelectorAll("table").forEach((table) => {
+    // 包装表格
+    container.querySelectorAll("table").forEach((table) => {
       if (!table.parentElement?.classList.contains("table-wrapper")) {
         const wrapper = document.createElement("div");
         wrapper.className = "table-wrapper";
@@ -577,7 +604,7 @@ const highlight = () => {
         wrapper.appendChild(table);
       }
     });
-  }
+  });
 };
 onMounted(() => {
   // 从路由参数获取文章ID并加载文章

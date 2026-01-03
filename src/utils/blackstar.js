@@ -111,8 +111,7 @@ export default {
         u();
       })(),
       (function t() {
-        document.getElementsByTagName("html")[0].getAttribute("theme") ==
-          "dark" && u(),
+        u(),
           window.requestAnimationFrame(t);
       })();
   },

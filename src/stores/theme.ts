@@ -149,12 +149,12 @@ export const useThemeStore = defineStore('theme', () => {
   };
 
   // 应用主题
-  const applyTheme = (themeName: ThemeMode) => {
-    // 避免递归更新 - 先检查是否需要更新
-    if (currentTheme.value === themeName) {
+  const applyTheme = (themeName: ThemeMode, force = false) => {
+    // 避免递归更新 - 先检查是否需要更新（除非强制应用）
+    if (!force && currentTheme.value === themeName) {
       return;
     }
-    
+
     const root = document.documentElement;
     let targetTheme: ThemeConfig;
 
@@ -221,14 +221,14 @@ export const useThemeStore = defineStore('theme', () => {
 
   // 初始化主题
   const initTheme = () => {
-    const savedTheme = (localStorage.getItem('theme') as ThemeMode) || 'light';
-    applyTheme(savedTheme);
+    const savedTheme = (localStorage.getItem('theme') as ThemeMode) || 'dark';
+    applyTheme(savedTheme, true); // 强制应用，确保刷新后主题生效
 
     // 监听系统主题变化
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     mediaQuery.addEventListener('change', () => {
       if (currentTheme.value === 'auto') {
-        applyTheme('auto');
+        applyTheme('auto', true);
       }
     });
   };

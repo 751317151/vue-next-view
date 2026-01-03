@@ -96,17 +96,19 @@ const handleSearch = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .not-found-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   position: relative;
   overflow: hidden;
   padding: 20px;
 }
+</style>
+
+<style lang="scss" scoped>
 
 // 星空背景动画
 .bg-animation {

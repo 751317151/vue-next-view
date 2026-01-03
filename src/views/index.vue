@@ -248,7 +248,8 @@ watch(
     //如果滑动距离超过屏幕高度三分之一视为进入页面，背景改为白色
     let enter = scrollTop > window.innerHeight / 2;
     const top = scrollTop - oldScrollTop < 0;
-    let isShow = scrollTop - window.innerHeight > -1;
+    // let isShow = scrollTop - window.innerHeight > -1;
+    let isShow = scrollTop > 30;
     state.showToolButton = isShow;
 
     // 使用原生 JS 替代 jQuery

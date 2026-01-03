@@ -252,7 +252,7 @@
   --text-color: #f0f6fc;
 
   --background: #272727;
-  --background-image: url("https://blackstar.s3.bitiful.net/img/dark_mode.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082642Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b2304afa40f6fc49c83cd79ba659d0fc9bddb1153f1aee77b598d3cb5c8ebda0");
+  --background-image: url("https://api.dujin.org/bing/1920.php");
   --backgroundImage: var(--background-image);
   --font-color: white;
   --fontColor: var(--font-color);
@@ -305,8 +305,8 @@
   --bg-color: #ecf0f3;
   --text-color: #181818;
 
-  --background: white;
-  --background-image: url("https://blackstar.s3.bitiful.net/img/home_bg.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082758Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=103daedf25e0c78d412719a7396cd6a63864ddac3e2ec2c53a67d429eaeaaf3a");
+  --background: #1a1a2e;
+  --background-image: url("https://api.dujin.org/bing/1920.php");
   --backgroundImage: var(--background-image);
   --font-color: black;
   --fontColor: var(--font-color);
@@ -341,14 +341,14 @@
   --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.15);
   --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.2);
 
-  .page-footer::before {
-    content: "";
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.25) !important;
-    width: 100%;
-    height: 100%;
-    left: 0;
-  }
+  /*.page-footer::before {*/
+  /*  content: "";*/
+  /*  position: absolute;*/
+  /*  background-color: rgba(0, 0, 0, 0.25) !important;*/
+  /*  width: 100%;*/
+  /*  height: 100%;*/
+  /*  left: 0;*/
+  /*}*/
 }
 
 /* 基础可见性保障 */

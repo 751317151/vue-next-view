@@ -263,6 +263,15 @@ const handleAbout = () => {
   flex-direction: column;
 }
 
+/* 浅色主题下确保实色背景 */
+[theme="light"] .settings-modal {
+  background: #ffffff;
+}
+
+[theme="dark"] .settings-modal {
+  background: var(--card-background);
+}
+
 .drag-indicator {
   display: none;
 }

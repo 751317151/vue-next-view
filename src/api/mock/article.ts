@@ -102,58 +102,204 @@ export const mockArticles: Article[] = [
 ];
 
 // 模拟文章详情内容
-export const mockArticleContent = `# Vue 3 + TypeScript + Vite
+export const mockArticleContent = `# Vue 3 + TypeScript 开发实战指南
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite.
+本文将详细介绍如何使用 Vue 3 和 TypeScript 构建现代化的前端应用。
 
-## 示例图片
+## 项目初始化
 
-![风景图片1](https://picsum.photos/800/600?random=1)
+首先，使用 Vite 创建一个新的 Vue 3 项目：
 
-这是一张美丽的风景图片，展示了大自然的壮丽景色。
-
-![风景图片2](https://picsum.photos/800/600?random=2)
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
-
-## Type Support For '.vue' Imports in TS
-
-TypeScript cannot handle type information for '.vue' imports by default.
-
-![代码示例](https://picsum.photos/800/400?random=3)
-
-# 一级标题
-
-这里是一些示例文本内容，用于展示文章的排版效果。
-
-## 二级标题
-
-更多的示例内容：
-
-\`\`\`javascript
-const greeting = 'Hello, World!';
-console.log(greeting);
+\`\`\`bash
+npm create vite@latest my-vue-app -- --template vue-ts
+cd my-vue-app
+npm install
+npm run dev
 \`\`\`
 
-### 三级标题
+## 组件开发示例
 
-这是三级标题下的内容，展示了文章的层级结构。
+### 使用 Composition API
 
 \`\`\`typescript
+import { ref, computed, onMounted } from 'vue';
+
 interface User {
   id: number;
   name: string;
   email: string;
+  avatar?: string;
 }
 
-const user: User = {
-  id: 1,
-  name: 'BlackStar',
-  email: 'test@example.com'
+export function useUser() {
+  const user = ref<User | null>(null);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
+
+  const isLoggedIn = computed(() => !!user.value);
+
+  const fetchUser = async (id: number) => {
+    loading.value = true;
+    try {
+      const response = await fetch(\`/api/users/\${id}\`);
+      user.value = await response.json();
+    } catch (e) {
+      error.value = '获取用户信息失败';
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  onMounted(() => {
+    console.log('useUser composable mounted');
+  });
+
+  return { user, loading, error, isLoggedIn, fetchUser };
+}
+\`\`\`
+
+### Vue 组件示例
+
+\`\`\`vue
+<template>
+  <div class="user-card">
+    <img :src="user.avatar" :alt="user.name" />
+    <h3>{{ user.name }}</h3>
+    <p>{{ user.email }}</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { defineProps } from 'vue';
+import type { User } from '@/types';
+
+defineProps<{
+  user: User;
+}>();
+</script>
+
+<style scoped>
+.user-card {
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--card-background);
+}
+</style>
+\`\`\`
+
+## 状态管理 - Pinia
+
+\`\`\`typescript
+import { defineStore } from 'pinia';
+
+export const useCounterStore = defineStore('counter', {
+  state: () => ({
+    count: 0,
+    name: 'Eduardo'
+  }),
+
+  getters: {
+    doubleCount: (state) => state.count * 2,
+  },
+
+  actions: {
+    increment() {
+      this.count++;
+    },
+    async fetchData() {
+      const data = await fetch('/api/data');
+      return data.json();
+    }
+  }
+});
+\`\`\`
+
+## CSS 样式技巧
+
+\`\`\`css
+/* 现代 CSS 变量使用 */
+:root {
+  --primary-color: #6366f1;
+  --background: #ffffff;
+  --text-color: #1f2937;
+  --border-radius: 12px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  background: var(--background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+}
+\`\`\`
+
+## API 请求封装
+
+\`\`\`javascript
+// request.js - 这是一个比较长的代码行，用于测试代码块的横向滚动效果，当代码内容超出容器宽度时应该显示水平滚动条
+const BASE_URL = '/api';
+
+async function request(url, options = {}) {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': \`Bearer \${localStorage.getItem('token')}\`,  // 这是一个很长的注释，用于测试代码块在有长行时的显示效果
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  try {
+    const response = await fetch(BASE_URL + url, config);
+
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Request failed:', error);
+    throw error;
+  }
+}
+
+export const api = {
+  get: (url) => request(url, { method: 'GET' }),
+  post: (url, data) => request(url, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+  put: (url, data) => request(url, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  }),
+  delete: (url) => request(url, { method: 'DELETE' }),
 };
 \`\`\`
+
+## 总结
+
+通过本文的学习，你应该掌握了：
+
+1. Vue 3 项目的初始化和配置
+2. Composition API 的使用方法
+3. TypeScript 在 Vue 中的应用
+4. Pinia 状态管理
+5. 现代 CSS 技巧
+
+> 💡 **提示**：实践是最好的学习方式，建议动手尝试上述代码示例。
 `;
 
 // 模拟归档数据

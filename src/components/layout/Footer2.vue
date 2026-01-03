@@ -321,6 +321,7 @@ const getHitokoto = () => {
   position: relative;
   padding: 20px 20px;
   color: rgba(255, 255, 255, 0.7);
+  background: transparent;
 }
 .black-text {
   color: rgba(255, 255, 255, 0.7);
