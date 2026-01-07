@@ -19,6 +19,8 @@
   --gradualBackground: var(--gradual-background); /* 向后兼容 */
   --favorite-bg: #f7f9fe;
   --favoriteBg: var(--favorite-bg); /* 向后兼容 */
+  --trans-card-bg: rgba(255, 255, 255, 0.98);
+  --border-style: 1px solid rgba(169, 169, 169, 0.7);
 
   /* 字体 */
   --font-color: black;

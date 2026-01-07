@@ -17,6 +17,7 @@
     "aos": "^2.3.4",
     "crypto-js": "^4.1.1",
     "element-plus": "^2.3.7",
+    "highlight.js": "^11.11.1",
     "jquery": "^3.7.0",
     "nprogress": "^0.2.0",
     "path": "^0.12.7",
