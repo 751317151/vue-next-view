@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { storage } from '@/utils/storage';
 
 interface UserInfo {
     id: number;
@@ -16,24 +17,29 @@ export const useUserStore = defineStore('user', () => {
 
     // 初始化
     const init = () => {
-        const localUser = localStorage.getItem('userInfo');
-        const localToken = localStorage.getItem('token');
+        const localUser = storage.get('userInfo');
+        const localToken = storage.get('token');
 
         if (localUser && localToken) {
-            userInfo.value = JSON.parse(localUser);
-            token.value = localToken;
-            isLogin.value = true;
+            try {
+                userInfo.value = JSON.parse(localUser) as UserInfo;
+                token.value = localToken;
+                isLogin.value = true;
+            } catch {
+                logout();
+            }
         }
     };
 
     // 登录
     const login = (user: UserInfo) => {
+        const nextToken = 'mock-token-' + Date.now();
         userInfo.value = user;
-        token.value = 'mock-token-' + Date.now();
+        token.value = nextToken;
         isLogin.value = true;
 
-        localStorage.setItem('userInfo', JSON.stringify(user));
-        localStorage.setItem('token', token.value);
+        storage.set('userInfo', JSON.stringify(user));
+        storage.set('token', nextToken);
     };
 
     // 退出
@@ -42,8 +48,8 @@ export const useUserStore = defineStore('user', () => {
         token.value = null;
         isLogin.value = false;
 
-        localStorage.removeItem('userInfo');
-        localStorage.removeItem('token');
+        storage.remove('userInfo');
+        storage.remove('token');
     };
 
     return {

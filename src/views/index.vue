@@ -2,6 +2,9 @@
   <div class="main-index">
     <!-- 页面加载进度条 -->
     <LoadingBar />
+    <AmbientConstellation />
+    <PointerGlow />
+    <MochiCompanion />
     
     <!-- 网络状态检测 -->
     <NetworkStatus />
@@ -42,7 +45,7 @@
           <i class="fa fa-cog right_side iconRotate"></i>
         </button>
         <button
-          v-show="route.path === '/article' && isMobile"
+          v-show="route.name === 'article' && isMobile"
           @click="changeTocStatus()"
           class="close"
           id="mobile-toc-button"
@@ -109,6 +112,9 @@ import LoadingBar from "@/components/common/LoadingBar.vue";
 import NetworkStatus from "@/components/common/NetworkStatus.vue";
 import ImagePreview from "@/components/common/ImagePreview.vue";
 import ErrorBoundary from "@/components/common/ErrorBoundary.vue";
+import AmbientConstellation from "@/components/common/AmbientConstellation.vue";
+import PointerGlow from "@/components/common/PointerGlow.vue";
+import MochiCompanion from "@/components/common/MochiCompanion.vue";
 import { useConfig } from "@/stores/config";
 import { useThemeStore } from "@/stores/theme";
 import { storeToRefs } from "pinia";
@@ -117,8 +123,10 @@ import { useRoute } from "vue-router";
 import mousedown from "@/utils/mousedown";
 import blackstar from "@/utils/blackstar";
 import { getCategoryList, getTagList } from "@/api";
+import { useSeo } from "@/composables/useSeo";
 
 const route = useRoute();
+useSeo();
 const storesConfig = useConfig();
 const themeStore = useThemeStore();
 const { isMobile } = storeToRefs(storesConfig);
@@ -201,14 +209,17 @@ const createdMethod = () => {
   // 1050px 以下切换到移动端布局（与导航栏 CSS 断点一致）
   isMobile.value = document.body.clientWidth <= 1050;
 
-  window.addEventListener("resize", () => {
+  const handleResize = () => {
     let docWidth = document.body.clientWidth;
     isMobile.value = docWidth <= 1050;
-  });
+  };
+  window.addEventListener("resize", handleResize);
+  resizeHandler = handleResize;
 
   getCategories();
   getTags();
 };
+let resizeHandler: (() => void) | null = null;
 createdMethod();
 onMounted(() => {
   // 初始化主题系统 - 确保在组件渲染前完成
@@ -228,6 +239,9 @@ onMounted(() => {
 });
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", storesConfig.onScrollPage);
+  if (resizeHandler) {
+    window.removeEventListener("resize", resizeHandler);
+  }
   document.removeEventListener('mouse-animation-toggle', handleMouseAnimationToggle);
   document.removeEventListener('open-settings-modal', handleOpenSettingsModal);
 });

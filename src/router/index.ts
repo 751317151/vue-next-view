@@ -97,12 +97,23 @@ const router = createRouter({
 
 import NProgress from "@/utils/nprogress";
 
+const setRobots = (content: string) => {
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'robots';
+    document.head.appendChild(meta);
+  }
+  meta.content = content;
+};
+
 //挂载路由守卫
 router.beforeEach((to, from, next) => {
   NProgress.start();
   if (to.meta.title) {
     document.title = to.meta.title as string;
   }
+  setRobots(to.name === 'NotFound' ? 'noindex, nofollow' : 'index, follow');
   next();
 });
 

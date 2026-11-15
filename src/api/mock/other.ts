@@ -1,4 +1,4 @@
-import type { Friend, Message, WebInfo } from '@/types';
+import type { Friend, Message, WebInfo } from '../../types';
 
 // 模拟网站信息
 export const mockWebInfo: WebInfo = {

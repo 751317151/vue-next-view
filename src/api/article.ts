@@ -1,5 +1,6 @@
 import type { Article, ArticleDetail, PageParams, PageResult, Archive, Comment } from '@/types';
 import { mockArticles, mockArticleContent, mockArchives } from './mock/article';
+import { toSlug } from '@/utils/slug';
 
 // 模拟延迟
 const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
@@ -58,13 +59,25 @@ export async function getArticleList(params: PageParams & { categoryId?: number;
 }
 
 /**
+ * 返回公开文章 URL 所需的轻量索引数据。
+ * Nuxt 迁移后可由 server route 复用，用于 sitemap、RSS 和相关文章链接。
+ */
+export async function getPublicArticleIndex(): Promise<Array<Pick<Article, 'id' | 'articleTitle' | 'createTime'> & { slug: string }>> {
+  await delay(80);
+  return mockArticles.map(({ id, articleTitle, createTime }) => ({ id, articleTitle, createTime, slug: toSlug(articleTitle, `article-${id}`) }));
+}
+
+/**
  * 获取文章详情
  */
 export async function getArticleDetail(id: number): Promise<ArticleDetail> {
   await delay();
 
   const articleIndex = mockArticles.findIndex(item => item.id === id);
-  const article = articleIndex !== -1 ? mockArticles[articleIndex] : mockArticles[0];
+  if (articleIndex === -1) {
+    throw new Error('文章不存在');
+  }
+  const article = mockArticles[articleIndex];
 
   // 获取上一篇和下一篇
   const prevArticle = articleIndex > 0

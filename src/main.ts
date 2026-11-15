@@ -10,10 +10,6 @@ import VMdPreview from "@kangc/v-md-editor/lib/preview";
 import "@kangc/v-md-editor/lib/style/preview.css";
 import githubTheme from "@kangc/v-md-editor/lib/theme/github.js";
 import "@kangc/v-md-editor/lib/theme/style/github.css";
-// 引入插件
-// 可选：行号
-import createLineNumbertPlugin from "@kangc/v-md-editor/lib/plugins/line-number/index";
-
 // highlightjs - 按需加载常用语言
 import hljs from "highlight.js/lib/core";
 import javascript from "highlight.js/lib/languages/javascript";
@@ -57,6 +53,7 @@ import "./assets/css/index.css";
 import "./assets/css/tocbot.css";
 import "./assets/css/markdown-highlight.css";
 import "./assets/css/font-awesome.min.css";
+import "./assets/css/visual-system.css";
 
 import "element-plus/theme-chalk/index.css";
 // import "element-plus/theme-chalk/dark/css-vars.css"; //这句是暗黑模式切换

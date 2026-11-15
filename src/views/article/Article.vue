@@ -13,6 +13,7 @@
   
   <!-- 文章内容 -->
   <div v-else-if="state.article">
+    <ArticleSeo :article="state.article" />
     <!-- 封面 -->
     <div class="article-head my-animation-slide-top">
       <!-- 背景图片 -->
@@ -302,6 +303,7 @@
 </template>
 
 <script setup lang="ts">
+import ArticleSeo from '@/components/common/ArticleSeo.vue';
 import { onMounted, onUnmounted, reactive, computed, nextTick, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";

@@ -5,8 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": " vite build",
-    "preview": "vite preview"
+    "dev:nuxt": "nuxt dev",
+    "build": "vite build",
+    "build:with-seo": "npm run generate:seo && vite build",
+    "build:nuxt": "nuxt build",
+    "preview": "vite preview",
+    "preview:nuxt": "nuxt preview",
+    "typecheck": "vue-tsc --noEmit",
+    "validate:nuxt": "node scripts/validate-nuxt-scaffold.mjs",
+    "validate:seo": "node scripts/validate-public-seo.mjs",
+    "release:check": "npm run validate:nuxt && npm run validate:seo && npm run typecheck",
+    "generate:seo": "node scripts/generate-seo.mjs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
@@ -42,11 +51,12 @@
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.3",
     "typescript": "^5.0.2",
-    "unplugin-auto-import": "^0.16.4",
+    "unplugin-auto-import": "^21.1.0",
     "unplugin-icons": "^0.16.3",
-    "unplugin-vue-components": "^0.25.1",
+    "unplugin-vue-components": "^32.1.0",
     "vite": "^4.3.9",
     "vite-plugin-svg-icons": "^2.0.1",
-    "vue-tsc": "^1.4.2"
+    "vue-tsc": "^1.4.2",
+    "nuxt": "^4.1.3"
   }
 }

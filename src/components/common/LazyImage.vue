@@ -24,7 +24,7 @@
     <img
       v-show="isLoaded"
       ref="imageRef"
-      :src="currentSrc"
+      :src="isRequested ? currentSrc : undefined"
       :alt="alt"
       :loading="lazy ? 'lazy' : 'eager'"
       @load="handleLoad"
@@ -89,6 +89,7 @@ const isLoaded = ref(false);
 const hasError = ref(false);
 const progress = ref(0);
 const retryCount = ref(0);
+const isRequested = ref(!props.lazy);
 const maxRetries = 3;
 
 const currentSrc = computed(() => {
@@ -129,6 +130,7 @@ const retry = () => {
   hasError.value = false;
   isLoaded.value = false;
   progress.value = 0;
+  isRequested.value = true;
   
   // 强制重新加载图片
   if (imageRef.value) {
@@ -146,17 +148,18 @@ let observer: IntersectionObserver | null = null;
 
 const setupLazyLoading = () => {
   if (!props.lazy || !imageRef.value) return;
+  if (!('IntersectionObserver' in window)) {
+    isRequested.value = true;
+    return;
+  }
   
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const img = entry.target as HTMLImageElement;
-          if (img.dataset.src) {
-            img.src = img.dataset.src;
-            img.removeAttribute('data-src');
-            observer?.unobserve(img);
-          }
+          isRequested.value = true;
+          observer?.unobserve(img);
         }
       });
     },
@@ -167,7 +170,6 @@ const setupLazyLoading = () => {
   );
   
   if (imageRef.value) {
-    imageRef.value.dataset.src = props.src;
     observer.observe(imageRef.value);
   }
 };
@@ -178,6 +180,7 @@ watch(() => props.src, () => {
   hasError.value = false;
   progress.value = 0;
   retryCount.value = 0;
+  isRequested.value = !props.lazy;
 });
 
 onMounted(() => {

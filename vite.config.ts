@@ -56,6 +56,7 @@ export default defineConfig({
       $: "jquery", // 这里会自动载入 node_modules 中的 jquery   jquery全局变量
       jQuery: "jquery",
       "windows.jQuery": "jquery",
+      include: ["src/**/*.{js,ts,vue}"],
     }),
     createSvgIconsPlugin({
       iconDirs: [resolve(process.cwd(), "src/assets/svg")],

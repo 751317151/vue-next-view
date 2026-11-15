@@ -1,4 +1,4 @@
-import type { Article, Archive } from '@/types';
+import type { Article, Archive } from '../../types';
 
 // 模拟文章数据
 export const mockArticles: Article[] = [

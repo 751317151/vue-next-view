@@ -1,4 +1,4 @@
-import type { Category, Tag } from '@/types';
+import type { Category, Tag } from '../../types';
 
 // 模拟分类数据
 export const mockCategories: Category[] = [

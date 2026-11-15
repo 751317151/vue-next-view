@@ -1,4 +1,4 @@
-const CACHE_NAME = 'blackstar-blog-v1';
+const CACHE_NAME = 'blackstar-blog-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -30,8 +30,30 @@ self.addEventListener('activate', (event) => {
 
 // 拦截请求
 self.addEventListener('fetch', (event) => {
-  // 只缓存同源请求
-  if (!event.request.url.startsWith(self.location.origin)) {
+  const requestUrl = new URL(event.request.url);
+
+  // 只处理同源 GET 请求，避免缓存 API 写操作或跨域资源。
+  if (requestUrl.origin !== self.location.origin || event.request.method !== 'GET') {
+    return;
+  }
+
+  // API 数据必须保持新鲜，失败时交给页面自己的错误态处理。
+  if (requestUrl.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // HTML 优先走网络，确保部署新版本后爬虫和用户不会长期拿到旧壳。
+  if (event.request.mode === 'navigate' || requestUrl.pathname.endsWith('.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/')))
+    );
     return;
   }
 
