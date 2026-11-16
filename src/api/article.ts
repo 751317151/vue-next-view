@@ -78,21 +78,26 @@ export async function getArticleDetail(id: number): Promise<ArticleDetail> {
     throw new Error('文章不存在');
   }
   const article = mockArticles[articleIndex];
+  if (!article) {
+    throw new Error('文章不存在');
+  }
 
   // 获取上一篇和下一篇
-  const prevArticle = articleIndex > 0
+  const prevSource = articleIndex > 0 ? mockArticles[articleIndex - 1] : undefined;
+  const prevArticle = prevSource
     ? {
-      id: mockArticles[articleIndex - 1].id,
-      articleTitle: mockArticles[articleIndex - 1].articleTitle,
-      articleCover: mockArticles[articleIndex - 1].articleCover,
+      id: prevSource.id,
+      articleTitle: prevSource.articleTitle,
+      articleCover: prevSource.articleCover,
     }
     : undefined;
 
-  const nextArticle = articleIndex < mockArticles.length - 1
+  const nextSource = articleIndex < mockArticles.length - 1 ? mockArticles[articleIndex + 1] : undefined;
+  const nextArticle = nextSource
     ? {
-      id: mockArticles[articleIndex + 1].id,
-      articleTitle: mockArticles[articleIndex + 1].articleTitle,
-      articleCover: mockArticles[articleIndex + 1].articleCover,
+      id: nextSource.id,
+      articleTitle: nextSource.articleTitle,
+      articleCover: nextSource.articleCover,
     }
     : undefined;
 
@@ -201,7 +206,7 @@ const mockComments: Comment[] = [
 /**
  * 获取文章评论
  */
-export async function getArticleComments(articleId: number): Promise<Comment[]> {
+export async function getArticleComments(_articleId: number): Promise<Comment[]> {
   await delay(300);
   return mockComments;
 }
@@ -241,7 +246,7 @@ export async function submitComment(data: {
 /**
  * 点赞评论
  */
-export async function likeComment(commentId: number): Promise<{ success: boolean; likeCount: number }> {
+export async function likeComment(_commentId: number): Promise<{ success: boolean; likeCount: number }> {
   await delay(200);
   return { success: true, likeCount: Math.floor(Math.random() * 20) + 1 };
 }

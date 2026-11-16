@@ -1,6 +1,6 @@
+import { resolvePublicSiteUrl } from '../utils/site-url';
 export default defineEventHandler((event) => {
-  const config = useRuntimeConfig(event);
-  const siteUrl = String(config.public.siteUrl || getRequestURL(event).origin).replace(/\/$/, '');
+  const siteUrl = resolvePublicSiteUrl(event);
   setResponseHeader(event, 'Content-Type', 'text/plain; charset=utf-8');
   setResponseHeader(event, 'Cache-Control', 'public, max-age=3600, s-maxage=86400');
   return [

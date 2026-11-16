@@ -6,9 +6,9 @@
         <!-- 背景图片 -->
         <video
           class="index-video"
-          autoplay="autoplay"
-          muted="muted"
-          loop="loop"
+          autoplay
+          muted
+          loop
           :src="constant.favoriteVideo"
         ></video>
         <div style="position: absolute; left: 20px; top: 20px">
@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
+import { reactive } from "vue";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 
@@ -116,7 +116,7 @@ const getPhotoTitles = () => {
   // 已在state中初始化
 };
 
-const changePhotoTitle = (classify) => {
+const changePhotoTitle = (classify: string) => {
   if (classify !== state.photoPagination.classify) {
     state.photoPagination = {
       current: 1,
@@ -141,7 +141,7 @@ const changePhoto = () => {
     `https://picsum.photos/400/300?random=${i + 1}`
   );
   
-  const categoryPhotos = {
+  const categoryPhotos: Record<string, string[]> = {
     "全部": allPhotos,
     "风景": allPhotos.slice(0, 8),
     "人物": allPhotos.slice(8, 14),

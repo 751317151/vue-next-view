@@ -130,7 +130,7 @@ useSeo();
 const storesConfig = useConfig();
 const themeStore = useThemeStore();
 const { isMobile } = storeToRefs(storesConfig);
-const { mouseAnimation, showSettingPanel } = storeToRefs(themeStore);
+const { mouseAnimation } = storeToRefs(themeStore);
 
 const state = reactive({
   showToolButton: false,

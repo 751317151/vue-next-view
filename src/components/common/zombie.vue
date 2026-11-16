@@ -69,7 +69,7 @@
       </div>
       <div class="tomb">
         <div class="tomb__info">
-          <h2 class="headers">{{$store.state.webInfo.webName}}</h2>
+          <h2 class="headers">{{ siteName }}</h2>
           <h4 class="headers">大爷进来玩啊~~~</h4>
           <h5 class="headers">网页有点慢，等一下就好啦~</h5>
         </div>
@@ -80,6 +80,11 @@
     </div>
   </div>
 </template>
+<script setup lang="ts">
+import { siteConfig } from "@/config/site";
+
+const siteName = siteConfig.name;
+</script>
 <style scoped>
   @import url("https://fonts.googleapis.com/css?family=Creepster|Rye");
 

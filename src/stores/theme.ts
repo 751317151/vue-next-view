@@ -195,7 +195,7 @@ export const useThemeStore = defineStore('theme', () => {
     const themeOrder: ThemeMode[] = ['light', 'dark', 'auto'];
     const currentIndex = themeOrder.indexOf(currentTheme.value);
     const nextIndex = (currentIndex + 1) % themeOrder.length;
-    applyTheme(themeOrder[nextIndex]);
+    applyTheme(themeOrder[nextIndex] ?? 'auto');
   };
 
   // 设置特定主题

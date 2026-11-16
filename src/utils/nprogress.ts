@@ -5,7 +5,7 @@
 const NProgress = {
     start: () => { console.log('NProgress start'); },
     done: () => { console.log('NProgress done'); },
-    configure: (options: any) => { }
+    configure: (_options?: unknown) => { }
 };
 
 export default NProgress;

@@ -17,7 +17,7 @@ const { data: articles } = await useAsyncData<PublicArticle[]>('public-articles'
 
 <template>
   <section class="migration-home">
-    <p class="migration-home__eyebrow">Nuxt 4 public shell</p>
+    <p class="migration-home__eyebrow">在星光与代码之间，慢慢写</p>
     <h1>把技术、生活和灵感，写成会发光的小故事。</h1>
     <p>{{ siteConfig.description }}</p>
     <div class="migration-home__actions">

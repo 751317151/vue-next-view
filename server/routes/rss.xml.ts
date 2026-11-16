@@ -1,8 +1,8 @@
+import { resolvePublicSiteUrl } from '../utils/site-url';
 import { articleRepository } from '../repositories/article-repository';
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event);
-  const siteUrl = String(config.public.siteUrl || getRequestURL(event).origin).replace(/\/$/, '');
+  const siteUrl = resolvePublicSiteUrl(event);
   const now = new Date().toUTCString();
   setResponseHeader(event, 'Content-Type', 'application/rss+xml; charset=utf-8');
   setResponseHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=3600');

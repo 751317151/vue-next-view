@@ -14,7 +14,10 @@ export interface PublicArticleRecord {
   content?: string;
   contentHtml?: string;
   updateTime?: string;
+  recommendations?: PublicArticleSummary[];
 }
+
+export type PublicArticleSummary = Omit<PublicArticleRecord, 'articleContent' | 'recommendations'>;
 
 export const publicArticles = (): PublicArticleRecord[] => mockArticles.map((article) => ({
   ...article,

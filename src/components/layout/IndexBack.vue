@@ -169,7 +169,7 @@ const isDeleting = ref(false);
 let typingTimer: number | null = null;
 
 const typeWriter = () => {
-  const currentText = signatures[currentSignatureIndex.value];
+  const currentText = signatures[currentSignatureIndex.value] ?? '';
   
   if (!isDeleting.value) {
     // 打字

@@ -177,11 +177,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { getArticleComments, submitComment, likeComment } from '@/api/article';
 import type { Comment } from '@/types';
-import common from '@/utils/common';
 
 const props = defineProps({
   source: {

@@ -54,8 +54,8 @@ export const renderMarkdown = (source: string) => {
     const ordered = line.match(/^\s*\d+\.\s+(.+)$/);
     if (heading) {
       closeList();
-      const level = heading[1].length;
-      output.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+      const level = heading[1]!.length;
+      output.push(`<h${level}>${renderInline(heading[2]!)}</h${level}>`);
     } else if (unordered || ordered) {
       const nextType = unordered ? 'ul' : 'ol';
       if (listType !== nextType) {
@@ -63,7 +63,7 @@ export const renderMarkdown = (source: string) => {
         listType = nextType;
         output.push(`<${listType}>`);
       }
-      output.push(`<li>${renderInline((unordered || ordered)![1])}</li>`);
+      output.push(`<li>${renderInline((unordered || ordered)![1]!)}</li>`);
     } else if (!line.trim()) {
       closeList();
     } else {

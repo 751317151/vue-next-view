@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { Category, Tag } from "@/types";
 
 export const useConfig = defineStore("config", {
   state: () => ({
@@ -13,6 +14,7 @@ export const useConfig = defineStore("config", {
     currentAdmin: {},
     webInfo: {
       webName: "",
+      author: "BlackStar",
       webTitle: [],
       notices: [],
       footer: "",
@@ -26,7 +28,7 @@ export const useConfig = defineStore("config", {
     showToc: true, // 展示文章目录
   }),
   actions: {
-    changeToolbarStatus(toolbar) {
+    changeToolbarStatus(toolbar: { visible: boolean; enter: boolean }) {
       this.toolbar = toolbar;
     },
     changeTocStatus() {

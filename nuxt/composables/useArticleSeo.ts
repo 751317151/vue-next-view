@@ -20,7 +20,7 @@ export const useArticleSeo = (article: SeoArticleInput) => {
 
   useHead({
     link: [{ rel: 'canonical', href: seo.canonical }],
-    script: [{ type: 'application/ld+json', children: JSON.stringify(seo.jsonLd) }],
+    script: [{ type: 'application/ld+json' as 'application/json', innerHTML: JSON.stringify(seo.jsonLd) }],
   });
 
   return seo;

@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { siteConfig } from '../../../src/config/site';
 import type { PublicArticle, PublicTag } from '../../types/public';
-usePublicCanonical(`/tags/${id}`);
-
 const route = useRoute();
 const id = String(route.params.id || '');
+usePublicCanonical(`/tags/${id}`);
 const [{ data: tag, error: tagError }, { data: articles }] = await Promise.all([
   useAsyncData<PublicTag>(`tag-${id}`, () => $fetch(`/api/tags/${encodeURIComponent(id)}`)),
   useAsyncData<PublicArticle[]>(`tag-articles-${id}`, () => $fetch('/api/articles')),
 ]);
 if (tagError.value || !tag.value) throw createError({ statusCode: 404, statusMessage: '标签不存在' });
-const relatedArticles = computed(() => (articles.value || []).filter((article) => article.tags?.includes(tag.value?.tagName || '')));
-useSeoMeta({ title: `#${tag.value.tagName} | ${siteConfig.name}`, description: `浏览带有 #${tag.value.tagName} 标签的文章。` });
+const currentTag = tag.value;
+const relatedArticles = computed(() => (articles.value || []).filter((article) => article.tags?.includes(currentTag.tagName)));
+useSeoMeta({ title: `#${currentTag.tagName} | ${siteConfig.name}`, description: `浏览带有 #${currentTag.tagName} 标签的文章。` });
 </script>
 
 <template>
-  <MigrationPage eyebrow="TAG" :title="`#${tag.tagName}`" :description="`这里收集所有与 ${tag.tagName} 有关的故事。`">
+  <MigrationPage eyebrow="TAG" :title="`#${currentTag.tagName}`" :description="`这里收集所有与 ${currentTag.tagName} 有关的故事。`">
     <div class="related-list">
       <NuxtLink v-for="article in relatedArticles" :key="article.id" :to="`/article/${article.slug}`" class="related-item">
         <strong>{{ article.articleTitle }}</strong><small>{{ article.createTime }}</small>

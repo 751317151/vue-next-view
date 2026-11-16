@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { siteConfig } from '../../../src/config/site';
 import type { PublicArticle, PublicCategory } from '../../types/public';
-usePublicCanonical(`/categories/${id}`);
-
 const route = useRoute();
 const id = String(route.params.id || '');
+usePublicCanonical(`/categories/${id}`);
 const [{ data: category, error: categoryError }, { data: articles }] = await Promise.all([
   useAsyncData<PublicCategory>(`category-${id}`, () => $fetch(`/api/categories/${encodeURIComponent(id)}`)),
   useAsyncData<PublicArticle[]>(`category-articles-${id}`, () => $fetch('/api/articles')),
 ]);
 if (categoryError.value || !category.value) throw createError({ statusCode: 404, statusMessage: '分类不存在' });
-const relatedArticles = computed(() => (articles.value || []).filter((article) => article.category === category.value?.categoryName));
-useSeoMeta({ title: `${category.value.categoryName} | ${siteConfig.name}`, description: category.value.description || `浏览${category.value.categoryName}相关的文章。` });
+const currentCategory = category.value;
+const relatedArticles = computed(() => (articles.value || []).filter((article) => article.category === currentCategory.categoryName));
+useSeoMeta({ title: `${currentCategory.categoryName} | ${siteConfig.name}`, description: currentCategory.description || `浏览${currentCategory.categoryName}相关的文章。` });
 </script>
 
 <template>
-  <MigrationPage eyebrow="CATEGORY" :title="category.categoryName" :description="category.description || '沿着这个主题继续探索。'">
+  <MigrationPage eyebrow="CATEGORY" :title="currentCategory.categoryName" :description="currentCategory.description || '沿着这个主题继续探索。'">
     <div class="related-list">
       <NuxtLink v-for="article in relatedArticles" :key="article.id" :to="`/article/${article.slug}`" class="related-item">
         <strong>{{ article.articleTitle }}</strong><small>{{ article.createTime }}</small>

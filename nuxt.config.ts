@@ -1,6 +1,24 @@
+import { fileURLToPath } from 'node:url';
+
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || process.env.VITE_SITE_URL || process.env.SITE_URL || '';
+const hasSiteUrl = Boolean(siteUrl);
+
+// Crawler files are served by Nitro at request time by default. When a public
+// site URL exists they can be prerendered safely; without one, prerendering
+// would bake http://localhost into the sitemap and robots.txt.
+const crawlerRoutes = ['/robots.txt', '/sitemap.xml', '/rss.xml', '/llms.txt'];
+const crawlerRouteRules = Object.fromEntries(
+  crawlerRoutes.map((route) => [route, hasSiteUrl ? { prerender: true } : { cache: false }])
+);
+
 export default defineNuxtConfig({
-  // Parallel migration mode: the current Vite app remains the default build.
+  // Parallel migration mode: the Vite app is deployed separately while Nuxt
+  // progressively takes over the public blog.
   srcDir: 'nuxt/',
+  // Legacy shared components and stores still import from the Vite root (`src/`).
+  alias: {
+    '@': fileURLToPath(new URL('./src', import.meta.url)),
+  },
   components: [
     { path: '~/components', pathPrefix: false },
   ],
@@ -8,7 +26,7 @@ export default defineNuxtConfig({
   css: ['~/../src/assets/css/visual-system.css'],
   runtimeConfig: {
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || process.env.VITE_SITE_URL || '',
+      siteUrl,
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
     },
   },
@@ -19,10 +37,7 @@ export default defineNuxtConfig({
     '/tags/**': { swr: 3600 },
     '/article/**': { swr: 3600 },
     '/admin/**': { ssr: false },
-    '/robots.txt': { prerender: true },
-    '/sitemap.xml': { prerender: true },
-    '/rss.xml': { prerender: true },
-    '/llms.txt': { prerender: true },
+    ...crawlerRouteRules,
     '/api/articles': { cache: { maxAge: 300 } },
     '/api/articles/**': { cache: { maxAge: 300 } },
     '/api/categories/**': { cache: { maxAge: 900 } },
@@ -32,7 +47,16 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
-      routes: ['/', '/archive', '/categories', '/tags', '/about', '/friend', '/search', '/robots.txt', '/sitemap.xml', '/rss.xml', '/llms.txt'],
+      routes: [
+        '/',
+        '/archive',
+        '/categories',
+        '/tags',
+        '/about',
+        '/friend',
+        '/search',
+        ...(hasSiteUrl ? crawlerRoutes : []),
+      ],
     },
   },
 });

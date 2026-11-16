@@ -28,21 +28,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
 import constant from "@/utils/constant";
-import common from "@/utils/common";
 
-const props = defineProps({
+defineProps({
   typeName: {
     type: String,
     default: "分类1",
-  },
-});
-const state = reactive({
-  hitokoto: {
-    hitokoto: "...",
-    from: "...",
-    from_who: "...",
   },
 });
 </script>

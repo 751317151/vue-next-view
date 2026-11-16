@@ -108,7 +108,7 @@ const setRobots = (content: string) => {
 };
 
 //挂载路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   NProgress.start();
   if (to.meta.title) {
     document.title = to.meta.title as string;

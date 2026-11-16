@@ -50,7 +50,7 @@ interface Props {
   resourcePathList?: string[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   resourcePathList: () => []
 });
 </script>

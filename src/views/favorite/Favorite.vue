@@ -6,9 +6,9 @@
         <!-- 背景图片 -->
         <video
           class="index-video"
-          autoplay="autoplay"
-          muted="muted"
-          loop="loop"
+          autoplay
+          muted
+          loop
           :src="constant.favoriteVideo"
         ></video>
         <div style="position: absolute; left: 0; top: 0; padding: 20px">
@@ -91,19 +91,26 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
+import { reactive } from "vue";
 import common from "@/utils/common";
 import constant from "@/utils/constant";
 
+interface FavoriteItem {
+  title: string;
+  introduction: string;
+  url: string;
+  cover: string;
+}
+
 const state = reactive({
   card: 1,
-  collects: {},
+  collects: {} as Record<string, FavoriteItem[]>,
 });
 
-const toUrl = (url) => {
+const toUrl = (url: string) => {
   window.open(url);
 };
-const changeFavorite = (card) => {
+const changeFavorite = (card: number) => {
   state.card = card;
   if (card === 1) {
     if (common.isEmpty(state.collects)) {

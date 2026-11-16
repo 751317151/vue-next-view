@@ -1,9 +1,9 @@
+import { resolvePublicSiteUrl } from '../utils/site-url';
 import { publicCategories, publicTags } from '../utils/public-taxonomy';
 import { articleRepository } from '../repositories/article-repository';
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event);
-  const siteUrl = String(config.public.siteUrl || getRequestURL(event).origin).replace(/\/$/, '');
+  const siteUrl = resolvePublicSiteUrl(event);
   const routes = ['/', '/archive', '/categories', '/tags', '/about', '/friend'];
   const now = new Date().toISOString();
   const escapeXml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

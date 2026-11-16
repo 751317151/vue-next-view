@@ -202,7 +202,7 @@ const submitApply = () => {
     ElMessage.success('友链申请已提交，请耐心等待审核！');
     
     // 重置表单
-    Object.keys(applyForm).forEach(key => {
+    (Object.keys(applyForm) as Array<keyof typeof applyForm>).forEach((key) => {
       applyForm[key] = '';
     });
     

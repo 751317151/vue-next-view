@@ -319,10 +319,9 @@ import { Share } from "vue3-social-share";
 import "vue3-social-share/lib/index.css";
 import Comment from "@/components/comment/Comment.vue";
 
-import VueMarkdownEditor, { xss } from "@kangc/v-md-editor";
 
 const storesConfig = useConfig();
-const { showToc, isMobile, scrollTop, webInfo } = storeToRefs(storesConfig);
+const { showToc, isMobile, webInfo } = storeToRefs(storesConfig);
 
 // 动态 URL
 const currentUrl = computed(() => window.location.href);
@@ -416,14 +415,13 @@ const handleLikeArticle = async () => {
 const articleRef = ref();
 const tocCount = ref(0);
 const tocCardRef = ref<HTMLElement | null>(null);
-const articleContainerRef = ref<HTMLElement | null>(null);
 
 // 手势支持 - 左右滑动切换文章
 const { bindSwipe, unbindSwipe } = useSwipe({
   threshold: 80,
   onSwipeLeft: () => {
     // 下一篇文章
-    if (isMobile.value && state.article.id) {
+    if (isMobile.value && state.article?.id) {
       const nextId = state.article.id + 1;
       router.push(`/article/${nextId}`);
       ElMessage.info('下一篇文章');
@@ -431,8 +429,8 @@ const { bindSwipe, unbindSwipe } = useSwipe({
   },
   onSwipeRight: () => {
     // 上一篇文章
-    if (isMobile.value && state.article.id > 1) {
-      const prevId = state.article.id - 1;
+    if (isMobile.value && (state.article?.id ?? 0) > 1) {
+      const prevId = (state.article?.id ?? 1) - 1;
       router.push(`/article/${prevId}`);
       ElMessage.info('上一篇文章');
     }
@@ -493,13 +491,6 @@ const getTocbot = () => {
     });
   });
 };
-const getArticle = () => {
-  nextTick(() => {
-    highlight();
-    getTocbot();
-  });
-};
-
 const highlight = () => {
   // 使用 requestAnimationFrame 等待渲染完成
   requestAnimationFrame(() => {
@@ -559,11 +550,9 @@ const highlight = () => {
       const collapseBtn = toolbar.querySelector('.code-collapse-btn');
       collapseBtn?.addEventListener('click', () => {
         pre.classList.toggle('collapsed');
-        const svg = collapseBtn.querySelector('svg');
-        if (pre.classList.contains('collapsed')) {
-          svg.style.transform = 'rotate(-90deg)';
-        } else {
-          svg.style.transform = '';
+        const svg = collapseBtn.querySelector<SVGElement>('svg');
+        if (svg) {
+          svg.style.transform = pre.classList.contains('collapsed') ? 'rotate(-90deg)' : '';
         }
       });
     });
