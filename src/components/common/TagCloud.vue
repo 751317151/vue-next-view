@@ -227,7 +227,7 @@ onBeforeUnmount(() => {
   border-radius: 10px;
   width: 100%;
   aspect-ratio: 1 / 1; /* 宽高比为 1:1，确保宽度和高度相等 */
-  /* background-image: url(https://blackstar.s3.bitiful.net/img/dark_mode.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=14Cj69yjeDqxvrg7yRPHj2AP%2F20241127%2F%2Fs3%2Faws4_request&X-Amz-Date=20241127T082642Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b2304afa40f6fc49c83cd79ba659d0fc9bddb1153f1aee77b598d3cb5c8ebda0); */
+  /* background-image: url(/dark_mode.webp); */
 }
 .tag {
   position: absolute;
