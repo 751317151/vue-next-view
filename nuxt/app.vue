@@ -41,7 +41,10 @@ useHead({
     { property: 'og:site_name', content: siteConfig.name },
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
-  link: [{ rel: 'alternate', type: 'application/rss+xml', href: '/rss.xml', title: `${siteConfig.name} RSS` }],
+  link: [
+    { rel: 'preload', as: 'font', type: 'font/woff2', href: '/fonts/lxgw-wenkai.woff2', crossorigin: 'anonymous' },
+    { rel: 'alternate', type: 'application/rss+xml', href: '/rss.xml', title: `${siteConfig.name} RSS` },
+  ],
   script: [
     {
       type: 'application/ld+json',

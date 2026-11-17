@@ -24,6 +24,10 @@ export default defineNuxtConfig({
   ],
   devtools: { enabled: false },
   css: ['~/../src/assets/css/visual-system.css'],
+  app: {
+    // Unified, mochi-soft route transitions defined in visual-system.css.
+    pageTransition: { name: 'page-mochi', mode: 'out-in' },
+  },
   runtimeConfig: {
     public: {
       siteUrl,

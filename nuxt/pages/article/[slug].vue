@@ -39,10 +39,123 @@ const categoryHref = `/categories/${articleData.category ? encodeURIComponent(ar
 const hero = articleArt({ id: articleData.id, category: articleData.category });
 const heroEmoji = hero.emoji;
 const heroStyle = hero.style;
+
+// Re-create the page per article path so switching between stories never shows stale content.
+definePageMeta({ key: (route) => route.fullPath });
+
+const tocItems = computed(() => {
+  const items: Array<{ id: string; text: string; level: number }> = [];
+  const pattern = /<h([23]) id="([^"]+)">([\s\S]*?)<\/h\1>/g;
+  for (const match of articleData.contentHtml?.matchAll(pattern) ?? []) {
+    items.push({ id: match[2]!, level: Number(match[1]!), text: match[3]!.replace(/<[^>]+>/g, '') });
+  }
+  return items;
+});
+
+const activeHeadingId = ref('');
+let spyFrame = 0;
+
+const runSpy = () => {
+  let current = '';
+  for (const item of tocItems.value) {
+    const heading = document.getElementById(item.id);
+    if (heading && heading.getBoundingClientRect().top <= 140) current = item.id;
+  }
+  activeHeadingId.value = current;
+};
+
+const onSpyScroll = () => {
+  if (spyFrame) return;
+  spyFrame = window.requestAnimationFrame(() => {
+    runSpy();
+    spyFrame = 0;
+  });
+};
+
+const copyText = async (value: string) => {
+  try {
+    await navigator.clipboard.writeText(value);
+  } catch {
+    const area = document.createElement('textarea');
+    area.value = value;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    area.remove();
+  }
+};
+
+const enhanceCodeBlocks = () => {
+  document.querySelectorAll('.reading__body pre').forEach((pre) => {
+    if (!(pre instanceof HTMLPreElement) || pre.querySelector('.code-copy')) return;
+    const code = pre.querySelector('code');
+    if (!code) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'code-copy';
+    button.textContent = '复制 ✧';
+    button.setAttribute('aria-label', '复制代码');
+    button.addEventListener('click', () => {
+      void copyText(code.innerText).then(() => {
+        button.textContent = '复制好啦 ✨';
+        window.setTimeout(() => { button.textContent = '复制 ✧'; }, 1600);
+      });
+    });
+    pre.appendChild(button);
+  });
+  document.querySelectorAll('.reading__body h2, .reading__body h3, .reading__body h4').forEach((heading) => {
+    if (!(heading instanceof HTMLElement) || heading.dataset.anchorReady) return;
+    heading.dataset.anchorReady = '1';
+    heading.addEventListener('click', () => {
+      if (!heading.id) return;
+      window.history.replaceState(null, '', `#${heading.id}`);
+      heading.classList.add('is-flashing');
+      window.setTimeout(() => heading.classList.remove('is-flashing'), 900);
+    });
+  });
+};
+
+const jumpToHeading = (id: string) => {
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.history.replaceState(null, '', `#${id}`);
+};
+
+const backToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+onMounted(() => {
+  enhanceCodeBlocks();
+  window.addEventListener('scroll', onSpyScroll, { passive: true });
+  runSpy();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onSpyScroll);
+  if (spyFrame) window.cancelAnimationFrame(spyFrame);
+});
 </script>
 
 <template>
   <article class="reading">
+    <ReadingProgress />
+
+    <aside v-if="tocItems.length >= 2" class="reading__toc" aria-label="文章目录">
+      <p class="reading__toc-title">目录 ✦</p>
+      <ul>
+        <li
+          v-for="item in tocItems"
+          :key="item.id"
+          :class="[`reading__toc-item--h${item.level}`, { 'is-active': item.id === activeHeadingId }]"
+        >
+          <a :href="`#${item.id}`" @click.prevent="jumpToHeading(item.id)">{{ item.text }}</a>
+        </li>
+      </ul>
+    </aside>
+
     <nav class="reading__crumbs" aria-label="面包屑">
       <NuxtLink to="/">首页</NuxtLink>
       <span>✧</span>
@@ -70,6 +183,16 @@ const heroStyle = hero.style;
     <ul v-if="articleData.tags?.length" class="reading__tags" aria-label="文章标签">
       <li v-for="tag in articleData.tags" :key="tag">#{{ tag }}</li>
     </ul>
+
+    <section class="reading__finale" aria-label="读完啦">
+      <p class="reading__finale-mark">✧･ﾟ</p>
+      <strong>读到这里啦</strong>
+      <p class="reading__finale-text">谢谢你把这篇小故事读完。愿它给你的今天，加一点柔软的光。</p>
+      <div class="reading__finale-actions">
+        <button type="button" @click="backToTop">回到顶部 ☝</button>
+        <NuxtLink to="/archive" class="reading__finale-ghost">再读一篇 ✦</NuxtLink>
+      </div>
+    </section>
 
     <section v-if="articleData.recommendations?.length" class="reading__next" aria-labelledby="recommendations-title">
       <h2 id="recommendations-title">继续探索 ✦</h2>
@@ -119,5 +242,39 @@ const heroStyle = hero.style;
 .reading__next-art b { font-size: 2rem; filter: drop-shadow(0 6px 14px rgba(57,45,79,.18)); }
 .reading__next-card strong { color: #392d4f; line-height: 1.45; }
 .reading__next-card small { color: #9485a3; }
+
+/* Floating table of contents on wide screens. */
+.reading__toc { position: fixed; top: 50%; right: max(1rem, calc(50vw - 604px)); z-index: 5; display: none; width: 11.5rem; max-height: 62vh; overflow: auto; padding: .9rem .8rem .7rem; border: 1px solid rgba(255,255,255,.7); border-radius: 1.1rem; background: rgba(255,250,245,.8); box-shadow: 0 14px 38px rgba(95,66,118,.14); backdrop-filter: blur(14px); transform: translateY(-50%); }
+@media (min-width: 1240px) { .reading__toc { display: block; } }
+.reading__toc-title { margin: 0 0 .45rem; color: #b1768c; font-size: .76rem; letter-spacing: .12em; }
+.reading__toc ul { margin: 0; padding: 0; list-style: none; }
+.reading__toc li { margin: .08rem 0; }
+.reading__toc a { display: block; padding: .28rem .55rem; border-left: 2px solid transparent; border-radius: .55rem; color: #746b86; font-size: .8rem; line-height: 1.5; text-decoration: none; transition: 180ms ease; }
+.reading__toc li.reading__toc-item--h3 a { padding-left: 1.25rem; }
+.reading__toc a:hover { color: #392d4f; background: rgba(255,143,179,.14); }
+.reading__toc li.is-active a { border-left-color: #ff8fb3; background: rgba(255,228,138,.26); color: #b1768c; }
+
+/* Code copy buttons and heading anchors (progressive enhancement over v-html). */
+.reading__body :deep(pre) { position: relative; }
+.reading__body :deep(.code-copy) { position: absolute; top: .6rem; right: .6rem; padding: .26rem .6rem; border: 1px solid rgba(255,250,245,.4); border-radius: 999px; background: rgba(255,250,245,.16); color: #fffaf5; font-size: .72rem; cursor: pointer; opacity: 0; transition: 180ms ease; }
+.reading__body :deep(pre:hover .code-copy), .reading__body :deep(.code-copy:focus-visible) { opacity: 1; }
+.reading__body :deep(.code-copy:hover) { background: rgba(255,143,179,.42); transform: translateY(-1px); }
+@media (hover: none) { .reading__body :deep(.code-copy) { opacity: 1; } }
+.reading__body :deep(h2), .reading__body :deep(h3), .reading__body :deep(h4) { position: relative; scroll-margin-top: 1.4rem; cursor: pointer; }
+.reading__body :deep(h2)::before, .reading__body :deep(h3)::before, .reading__body :deep(h4)::before { position: absolute; left: -1.25rem; color: #ff8fb3; content: '✦'; opacity: 0; transition: opacity 220ms ease; }
+.reading__body :deep(h2:hover)::before, .reading__body :deep(h3:hover)::before, .reading__body :deep(h4:hover)::before { opacity: .85; }
+.reading__body :deep(.is-flashing) { animation: heading-flash 900ms ease; }
+@keyframes heading-flash { 0% { text-shadow: none; } 40% { text-shadow: 0 0 18px rgba(255,143,179,.8); } 100% { text-shadow: none; } }
+
+/* End-of-article thank-you card. */
+.reading__finale { margin-top: 2.4rem; padding: 1.5rem 1.4rem; border: 1.5px dashed rgba(255,143,179,.5); border-radius: 1.5rem; background: rgba(255,228,138,.16); text-align: center; }
+.reading__finale-mark { margin: 0; color: #ffbd8a; letter-spacing: .3em; }
+.reading__finale strong { display: block; margin-top: .4rem; color: #392d4f; font-size: 1.15rem; }
+.reading__finale-text { max-width: 30rem; margin: .45rem auto 0; color: #746b86; font-size: .92rem; line-height: 1.8; }
+.reading__finale-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .7rem; margin-top: 1.1rem; }
+.reading__finale-actions button, .reading__finale-actions a { padding: .55rem 1rem; border: 0; border-radius: 999px; background: linear-gradient(135deg, #ffe48a, #ffb6c8); color: #392d4f; font-weight: 600; text-decoration: none; cursor: pointer; transition: 200ms ease; }
+.reading__finale-actions .reading__finale-ghost { background: rgba(255,255,255,.72); box-shadow: 0 10px 26px rgba(95,66,118,.1); }
+.reading__finale-actions button:hover, .reading__finale-actions a:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 0 14px 34px rgba(255,143,179,.28); }
+
 @media (max-width: 640px) { .reading__next-grid { grid-template-columns: 1fr; } }
 </style>

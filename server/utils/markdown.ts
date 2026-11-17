@@ -7,6 +7,24 @@ const escapeHtml = (value: string) => value
 
 const safeUrl = (value: string) => /^(https?:\/\/|mailto:)/i.test(value) ? value : '#';
 
+const slugger = () => {
+  const used = new Set<string>();
+  return (text: string) => {
+    const base = text
+      .toLowerCase()
+      .replace(/&amp;|&lt;|&gt;|&quot;|&#39;/g, ' ')
+      .replace(/<[^>]+>/g, '')
+      .replace(/[`*！？，。：；“”‘’（）【】、·—…]/g, '')
+      .replace(/[^\p{Letter}\p{Number}]+/gu, '-')
+      .replace(/^-+|-+$/g, '') || 'section';
+    let slug = base;
+    let counter = 2;
+    while (used.has(slug)) slug = `${base}-${counter++}`;
+    used.add(slug);
+    return slug;
+  };
+};
+
 const renderInline = (value: string) => {
   let html = escapeHtml(value);
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -24,6 +42,7 @@ export const renderMarkdown = (source: string) => {
   let codeLanguage = '';
   let codeLines: string[] = [];
   let listType: 'ul' | 'ol' | null = null;
+  const headingId = slugger();
 
   const closeList = () => {
     if (listType) output.push(`</${listType}>`);
@@ -55,7 +74,8 @@ export const renderMarkdown = (source: string) => {
     if (heading) {
       closeList();
       const level = heading[1]!.length;
-      output.push(`<h${level}>${renderInline(heading[2]!)}</h${level}>`);
+      const inlineHtml = renderInline(heading[2]!);
+      output.push(`<h${level} id="${headingId(inlineHtml)}">${inlineHtml}</h${level}>`);
     } else if (unordered || ordered) {
       const nextType = unordered ? 'ul' : 'ol';
       if (listType !== nextType) {
