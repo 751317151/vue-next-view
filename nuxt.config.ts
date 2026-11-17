@@ -48,6 +48,7 @@ export default defineNuxtConfig({
     '/api/health': { cache: false },
   },
   nitro: {
+    serverAssets: [{ baseName: 'articles', dir: 'content/articles' }],
     prerender: {
       routes: [
         '/',

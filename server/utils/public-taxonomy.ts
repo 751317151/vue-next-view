@@ -1,13 +1,14 @@
-import { publicArticles } from './public-articles';
+import { articleRepository } from '../repositories/article-repository';
 
 /**
- * Categories and tags are derived from the articles themselves so counts and
- * detail pages can never drift away from the article list (the previous mock
- * taxonomy advertised five 生活倒影 posts while zero articles carried it).
+ * Categories and tags are derived from the article list so counts and detail
+ * pages can never drift away from the content (the previous mock taxonomy
+ * advertised five 生活倒影 posts while zero articles carried it).
  */
-export const publicCategories = () => {
+export const publicCategories = async () => {
+  const articles = await articleRepository.list();
   const counts = new Map<string, number>();
-  for (const article of publicArticles()) {
+  for (const article of articles) {
     const name = article.category || '随笔';
     counts.set(name, (counts.get(name) || 0) + 1);
   }
@@ -20,9 +21,10 @@ export const publicCategories = () => {
   }));
 };
 
-export const publicTags = () => {
+export const publicTags = async () => {
+  const articles = await articleRepository.list();
   const counts = new Map<string, number>();
-  for (const article of publicArticles()) {
+  for (const article of articles) {
     for (const tag of article.tags || []) {
       counts.set(tag, (counts.get(tag) || 0) + 1);
     }
@@ -35,10 +37,12 @@ export const publicTags = () => {
   }));
 };
 
-export const findPublicCategory = (id: string) => publicCategories().find(
-  (category) => category.slug === id || String(category.id) === id,
-);
+export const findPublicCategory = async (id: string) => {
+  const categories = await publicCategories();
+  return categories.find((category) => category.slug === id || String(category.id) === id);
+};
 
-export const findPublicTag = (id: string) => publicTags().find(
-  (tag) => tag.slug === id || String(tag.id) === id,
-);
+export const findPublicTag = async (id: string) => {
+  const tags = await publicTags();
+  return tags.find((tag) => tag.slug === id || String(tag.id) === id);
+};

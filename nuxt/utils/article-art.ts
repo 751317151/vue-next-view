@@ -1,16 +1,17 @@
 export interface ArticleLike {
   id: number;
+  slug?: string;
   articleContent?: string;
   category?: string;
 }
 
 const PALETTES = [
-  { from: '#ffb6c8', to: '#ffe48a', emoji: '🌸', glow: 'rgba(255, 143, 179, 0.5)' },
-  { from: '#b9a7ff', to: '#9ee6d0', emoji: '🌙', glow: 'rgba(185, 167, 255, 0.5)' },
-  { from: '#9ee6d0', to: '#ffd9a0', emoji: '🍵', glow: 'rgba(158, 230, 208, 0.5)' },
-  { from: '#ffbd8a', to: '#ffb6c8', emoji: '🔥', glow: 'rgba(255, 189, 138, 0.5)' },
-  { from: '#ffe48a', to: '#b9a7ff', emoji: '⭐', glow: 'rgba(255, 228, 138, 0.55)' },
-  { from: '#ffb6c8', to: '#b9a7ff', emoji: '🫧', glow: 'rgba(255, 143, 179, 0.45)' },
+  { from: '#ffb6c8', to: '#ffe48a', emoji: '🌸' },
+  { from: '#b9a7ff', to: '#9ee6d0', emoji: '🌙' },
+  { from: '#9ee6d0', to: '#ffd9a0', emoji: '🍵' },
+  { from: '#ffbd8a', to: '#ffb6c8', emoji: '🔥' },
+  { from: '#ffe48a', to: '#b9a7ff', emoji: '⭐' },
+  { from: '#ffb6c8', to: '#b9a7ff', emoji: '🫧' },
 ];
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -21,9 +22,15 @@ const CATEGORY_EMOJI: Record<string, string> = {
   随笔: '🌙',
 };
 
-/** Deterministic pastel cover art so every card feels hand-placed, not random. */
+const paletteFor = (seed: string) => {
+  let hash = 0;
+  for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return PALETTES[hash % PALETTES.length]!;
+};
+
+/** Deterministic pastel cover art: the same article always looks the same. */
 export function articleArt(article: ArticleLike) {
-  const palette = PALETTES[article.id % PALETTES.length]!;
+  const palette = paletteFor(article.slug || String(article.id));
   return {
     ...palette,
     emoji: CATEGORY_EMOJI[article.category || ''] || palette.emoji,
