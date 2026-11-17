@@ -12,23 +12,38 @@ if (categoryError.value || !category.value) throw createError({ statusCode: 404,
 const currentCategory = category.value;
 const relatedArticles = computed(() => (articles.value || []).filter((article) => article.category === currentCategory.categoryName));
 useSeoMeta({ title: `${currentCategory.categoryName} | ${siteConfig.name}`, description: currentCategory.description || `浏览${currentCategory.categoryName}相关的文章。` });
+
+const runtimeConfig = useRuntimeConfig();
+const siteUrl = String(runtimeConfig.public.siteUrl || useRequestURL().origin).replace(/\/$/, '');
+useHead({
+  script: [{
+    type: 'application/ld+json' as 'application/json',
+    innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: '首页', item: `${siteUrl}/` },
+        { '@type': 'ListItem', position: 2, name: '分类', item: `${siteUrl}/categories` },
+        { '@type': 'ListItem', position: 3, name: currentCategory.categoryName, item: `${siteUrl}/categories/${id}` },
+      ],
+    }),
+  }],
+});
 </script>
 
 <template>
   <MigrationPage eyebrow="CATEGORY" :title="currentCategory.categoryName" :description="currentCategory.description || '沿着这个主题继续探索。'">
-    <div class="related-list">
-      <NuxtLink v-for="article in relatedArticles" :key="article.id" :to="`/article/${article.slug}`" class="related-item">
-        <strong>{{ article.articleTitle }}</strong><small>{{ article.createTime }}</small>
-      </NuxtLink>
-      <p v-if="relatedArticles.length === 0">这个房间还在等待第一篇故事。</p>
+    <p class="collection-count">共 {{ relatedArticles.length }} 篇故事</p>
+    <div v-if="relatedArticles.length" class="collection-grid">
+      <ArticleCard v-for="article in relatedArticles" :key="article.id" :article="article" />
     </div>
+    <p v-else class="collection-empty">这个房间还在等待第一篇故事。</p>
   </MigrationPage>
 </template>
 
 <style scoped>
-.related-list { display: grid; gap: .7rem; }
-.related-item { display: flex; justify-content: space-between; gap: 1rem; padding: .9rem 0; border-bottom: 1px dashed rgba(185,167,255,.45); color: #4b3d60; text-decoration: none; }
-.related-item:hover strong { color: #e1799c; }
-.related-item small { color: #9485a3; white-space: nowrap; }
-@media (max-width: 640px) { .related-item { flex-direction: column; gap: .25rem; } }
+.collection-count { margin: 0 0 1rem; color: #9485a3; font-size: .88rem; }
+.collection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.collection-empty { color: #9485a3; }
+@media (max-width: 640px) { .collection-grid { grid-template-columns: 1fr; } }
 </style>

@@ -37,6 +37,8 @@ export default defineNuxtConfig({
     '/tags/**': { swr: 3600 },
     '/article/**': { swr: 3600 },
     '/admin/**': { ssr: false },
+    // The search page reads ?q= and must never be baked as a static shell.
+    '/search': { prerender: false },
     ...crawlerRouteRules,
     '/api/articles': { cache: { maxAge: 300 } },
     '/api/articles/**': { cache: { maxAge: 300 } },
@@ -54,7 +56,6 @@ export default defineNuxtConfig({
         '/tags',
         '/about',
         '/friend',
-        '/search',
         ...(hasSiteUrl ? crawlerRoutes : []),
       ],
     },

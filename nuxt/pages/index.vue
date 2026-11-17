@@ -49,25 +49,7 @@ const totalWords = computed(() => (articles.value || []).reduce((sum, article) =
         <NuxtLink to="/archive">查看全部 →</NuxtLink>
       </div>
       <div class="home__grid">
-        <NuxtLink
-          v-for="article in latest"
-          :key="article.id"
-          :to="`/article/${article.slug}`"
-          class="home__card"
-        >
-          <span class="home__card-art" :style="articleArt(article).style">
-            <b>{{ articleArt(article).emoji }}</b>
-          </span>
-          <span class="home__card-body">
-            <span class="home__card-chip">{{ article.category || '随笔' }}</span>
-            <h3>{{ article.articleTitle }}</h3>
-            <p>{{ excerptOf(article.articleContent) }}</p>
-            <small>
-              <time :datetime="article.createTime">{{ formatDate(article.createTime) }}</time>
-              · 约 {{ readingMinutes(article.articleContent) }} 分钟
-            </small>
-          </span>
-        </NuxtLink>
+        <ArticleCard v-for="article in latest" :key="article.id" :article="article" />
       </div>
     </section>
 
@@ -105,16 +87,6 @@ const totalWords = computed(() => (articles.value || []).reduce((sum, article) =
 .home__section-head h2 { color: #392d4f; }
 .home__section-head a { color: #8b73c5; text-decoration: none; }
 .home__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.1rem; }
-.home__card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,.72); border-radius: 1.4rem; background: rgba(255,255,255,.6); color: #4b3d60; text-decoration: none; box-shadow: 0 12px 30px rgba(95,66,118,.08); transition: 220ms ease; }
-.home__card:hover { border-color: rgba(255,143,179,.45); transform: translateY(-5px) rotate(-.3deg); box-shadow: 0 22px 48px rgba(95,66,118,.16); }
-.home__card-art { position: relative; display: grid; place-items: center; height: 7.5rem; }
-.home__card-art b { font-size: 2.4rem; filter: drop-shadow(0 6px 14px rgba(57,45,79,.18)); transition: transform 260ms ease; }
-.home__card:hover .home__card-art b { transform: scale(1.18) rotate(-6deg); }
-.home__card-body { display: flex; flex-direction: column; flex: 1; padding: 1rem 1.1rem 1.1rem; }
-.home__card-chip { align-self: flex-start; padding: .2rem .6rem; border-radius: 999px; background: rgba(255,143,179,.16); color: #b1768c; font-size: .72rem; letter-spacing: .06em; }
-.home__card h3 { margin: .55rem 0 .35rem; color: #392d4f; font-size: 1.08rem; line-height: 1.4; }
-.home__card p { display: -webkit-box; overflow: hidden; margin: 0; color: #746b86; font-size: .9rem; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.home__card small { display: block; margin-top: auto; padding-top: .7rem; color: #9485a3; font-size: .8rem; }
 .home__paths-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .7rem; margin-top: 1.1rem; }
 .home__path { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .85rem 1rem; border-radius: 1rem; background: rgba(255,255,255,.55); color: #4b3d60; text-decoration: none; transition: 200ms ease; }
 .home__path strong { color: #392d4f; }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { siteConfig } from '../../src/config/site';
-import type { PublicSearchResult } from '../types/public';
+import type { PublicSearchResult, PublicTag } from '../types/public';
 usePublicCanonical('/search');
 
 const route = useRoute();
@@ -11,6 +11,7 @@ const { data: results } = await useAsyncData<PublicSearchResult[]>(
   () => query.value ? $fetch(`/api/search?q=${encodeURIComponent(query.value)}`) : Promise.resolve([]),
   { watch: [query] },
 );
+const { data: tags } = await useAsyncData<PublicTag[]>('search-tags', () => $fetch('/api/tags'));
 
 watch(query, (value) => { searchInput.value = value; });
 const submitSearch = () => navigateTo({ path: '/search', query: { q: searchInput.value.trim() || undefined } });
@@ -28,15 +29,24 @@ useSeoMeta({
       <input v-model="searchInput" name="q" placeholder="输入关键词，例如 Vue、生活、动画" aria-label="搜索关键词" />
       <button type="submit">搜索 ✦</button>
     </form>
-    <div v-if="query && results?.length" class="search-results">
-      <NuxtLink v-for="article in results" :key="article.id" :to="`/article/${article.slug}`" class="search-result">
-        <span>{{ article.category || '随笔' }}</span>
-        <h2>{{ article.articleTitle }}</h2>
-        <p>{{ article.articleContent }}</p>
-      </NuxtLink>
+
+    <div v-if="query && results?.length" class="search-hits">
+      <p class="search-hits__count">找到 {{ results.length }} 篇相关故事</p>
+      <div class="search-hits__grid">
+        <ArticleCard v-for="article in results" :key="article.id" :article="article" />
+      </div>
     </div>
+
     <p v-else-if="query" class="search-empty">暂时没有找到这颗星星，换个关键词试试看吧。</p>
-    <p v-else class="search-empty">输入关键词，开始一场小小的探索。</p>
+
+    <div v-else class="search-hints">
+      <h2>试试这些热门标签</h2>
+      <div class="search-hints__chips">
+        <NuxtLink v-for="tag in tags?.slice(0, 8) || []" :key="tag.id" :to="`/tags/${tag.id}`" class="search-hints__chip">
+          #{{ tag.tagName }}
+        </NuxtLink>
+      </div>
+    </div>
   </MigrationPage>
 </template>
 
@@ -45,12 +55,16 @@ useSeoMeta({
 .search-form input { min-width: 0; flex: 1; padding: .8rem 1rem; border: 1px solid rgba(185,167,255,.45); border-radius: 999px; outline: none; background: rgba(255,255,255,.75); color: #392d4f; }
 .search-form input:focus { border-color: #ff8fb3; box-shadow: 0 0 0 4px rgba(255,143,179,.12); }
 .search-form button { padding: .8rem 1rem; border: 0; border-radius: 999px; background: linear-gradient(135deg,#ffe48a,#ffb6c8); color: #392d4f; cursor: pointer; }
-.search-results { display: grid; gap: .8rem; margin-top: 1.5rem; }
-.search-result { display: block; padding: 1rem; border-radius: 1.1rem; background: rgba(255,255,255,.6); color: #4b3d60; text-decoration: none; transition: 180ms ease; }
-.search-result:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(95,66,118,.12); }
-.search-result span { color: #b1768c; font-size: .75rem; }
-.search-result h2 { margin: .35rem 0; color: #392d4f; font-size: 1.1rem; }
-.search-result p { margin: 0; color: #746b86; line-height: 1.6; }
+.search-hits { margin-top: 1.5rem; }
+.search-hits__count { margin: 0 0 1rem; color: #9485a3; font-size: .88rem; }
+.search-hits__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .search-empty { margin: 2rem 0 0; color: #9485a3; }
-@media (max-width: 520px) { .search-form { flex-direction: column; } }
+.search-hints { margin-top: 1.8rem; }
+.search-hints h2 { color: #392d4f; }
+.search-hints__chips { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
+.search-hints__chip { padding: .5rem .8rem; border-radius: 999px; background: rgba(185,167,255,.18); color: #624d72; font-size: .85rem; text-decoration: none; transition: 180ms ease; }
+.search-hints__chip:nth-child(3n) { background: rgba(158,230,208,.24); }
+.search-hints__chip:nth-child(3n + 1) { background: rgba(255,228,138,.34); }
+.search-hints__chip:hover { transform: translateY(-3px) rotate(-1deg); }
+@media (max-width: 640px) { .search-hits__grid { grid-template-columns: 1fr; } .search-form { flex-direction: column; } }
 </style>
