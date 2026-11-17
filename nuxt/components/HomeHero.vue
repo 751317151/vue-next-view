@@ -34,7 +34,7 @@ import type { Ref } from 'vue';
 import { siteConfig } from '../../src/config/site';
 
 // Swap or extend the hero backgrounds here (public/ paths, in mouse-zone order: left / middle / right).
-const HERO_IMAGES = ['/home_bg.webp', '/mb8.webp', '/snow.webp'];
+const HERO_IMAGES = ['/bg1.jpg', '/bg2.jpg', '/bg3.jpg'];
 const PHRASES = [
   siteConfig.description,
   '把技术、生活和灵感，写成会发光的小故事。',

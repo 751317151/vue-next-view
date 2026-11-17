@@ -5,7 +5,7 @@
       v-show="isMobile"
       style="animation: header-effect 2s"
       class="background-image"
-      src="https://bu.dusays.com/2022/05/03/627010707b598.webp"
+      src="/bg1.jpg"
       fit="cover"
     />
     
@@ -14,20 +14,20 @@
       <div>
         <img
           ref="imgbg1"
-          src="https://cdn.naccl.top/blog/img/bg1.jpg"
+          src="/bg1.jpg"
           style="display: none"
         />
         <div
           class="bg1"
-          style="background-image: url('https://cdn.naccl.top/blog/img/bg1.jpg');"
+          style="background-image: url('/bg1.jpg');"
         ></div>
         <div
           class="bg2"
-          style="background-image: url('https://cdn.naccl.top/blog/img/bg2.jpg');"
+          style="background-image: url('/bg2.jpg');"
         ></div>
         <div
           class="bg3"
-          style="background-image: url('https://cdn.naccl.top/blog/img/bg3.jpg');"
+          style="background-image: url('/bg3.jpg');"
           v-show="state.loaded"
         ></div>
       </div>
@@ -584,13 +584,13 @@ header.moving .bg3 {
 .wave1 {
   height: 80px;
   width: 200%;
-  background: url("https://cdn.naccl.top/blog/img/wave1.png") repeat-x;
+  background: url("../../assets/file/bannerwave1.png") repeat-x;
 }
 
 .wave2 {
   height: 90px;
   width: 400%;
-  background: url("https://cdn.naccl.top/blog/img/wave2.png") repeat-x;
+  background: url("../../assets/file/bannerwave2.png") repeat-x;
 }
 
 /* 移动端适配 */

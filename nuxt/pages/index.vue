@@ -13,7 +13,7 @@ useSeoMeta({
 });
 
 // The hero's first background is the LCP element; start fetching it immediately.
-useHead({ link: [{ rel: 'preload', as: 'image', href: '/home_bg.webp', fetchpriority: 'high' }] });
+useHead({ link: [{ rel: 'preload', as: 'image', href: '/bg1.jpg', fetchpriority: 'high' }] });
 
 const [{ data: articles }, { data: categories }, { data: tags }] = await Promise.all([
   useAsyncData<PublicArticle[]>('public-articles', () => $fetch('/api/articles')),
