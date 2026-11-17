@@ -54,10 +54,26 @@ npm run build:nuxt
 
 ## Cloudflare Pages deployment
 
-The repository pins the runtime with `.node-version` (22.23.4) and `engines.node` (>=22.12.0), matching Nuxt 4 and Vite 8. In the Cloudflare Pages project settings also set the environment variable `NODE_VERSION` to `22.23.4` so the build image cannot fall back to Node 18.
+The repository pins the runtime with `.node-version` (22.23.4) and `engines.node` (>=22.12.0), matching Nuxt 4 and Vite 8. Set `NODE_VERSION=22.23.4` in the Pages project environment variables so the build image cannot fall back to Node 18.
 
-- Legacy Vite app (default deploy): build command `npm run build:with-seo`, output directory `dist`. Run `npm run generate:seo` with `SITE_URL` first so `dist` contains robots.txt, sitemap.xml, rss.xml and llms.txt.
-- Nuxt app: build command `npm run build:nuxt` with `NUXT_PUBLIC_SITE_URL` set, output directory `.output/public` for static hosting; use a Node runtime (Cloudflare Workers) for SSR APIs and SWR routes.
+### Option A: SSR pages (recommended)
+
+Runs the Nuxt server on Cloudflare's edge runtime, so `?q=` search, SWR article pages and the API routes work for real:
+
+- Build command: `npm run build:cf`
+- Output directory: `dist`
+
+The Nitro `cloudflare_pages` preset emits `dist/_worker.js` plus `dist/_routes.json`; prerendered pages (home, archive, crawler files) are served statically and everything else is handled by the worker. `wrangler.toml` at the repo root pins `nodejs_compat`.
+
+### Option B: static pages
+
+Legacy Vite app without SSR:
+
+- Build command: `npm run build:with-seo`
+- Output directory: `dist`
+
+Remember to run `npm run generate:seo` with `SITE_URL` first so `dist` contains robots.txt, sitemap.xml, rss.xml and llms.txt.
+
 
 # Vite release gate after setting SITE_URL and generating SEO files
 npm run release:check
