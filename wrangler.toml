@@ -4,4 +4,4 @@ compatibility_date = "2025-07-15"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-NODE_VERSION = "22.23.4"
+NODE_VERSION = "24.15.0"
