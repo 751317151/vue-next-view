@@ -57,6 +57,8 @@ html {
 body {
   color: var(--bs-ink);
   font-family: var(--bs-font-hand);
+  /* Full-bleed heroes use 100vw; clip the scrollbar-width overflow. */
+  overflow-x: clip;
   background:
     radial-gradient(circle at 12% 8%, rgba(255, 190, 205, 0.28), transparent 26rem),
     radial-gradient(circle at 90% 16%, rgba(185, 167, 255, 0.2), transparent 24rem),
