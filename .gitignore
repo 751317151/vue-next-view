@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.node-version
 dist
 dist-ssr
 .nuxt
@@ -17,6 +18,7 @@ public-seo
 nuxt.d.ts
 nuxt.schema.d.ts
 *.local
+tmp-*.mjs
 
 # Editor directories and files
 .vscode/*
@@ -29,3 +31,4 @@ nuxt.schema.d.ts
 *.sln
 *.sw?
 .kiro
+.workbuddy-ai/
