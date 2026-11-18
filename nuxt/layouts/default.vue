@@ -15,6 +15,7 @@
         <NuxtLink to="/categories">分类</NuxtLink>
         <NuxtLink to="/tags">标签</NuxtLink>
         <NuxtLink to="/about">关于</NuxtLink>
+        <NuxtLink to="/message">留言板</NuxtLink>
         <NuxtLink to="/search" class="site-shell__search">搜索 ✦</NuxtLink>
       </nav>
     </header>
@@ -33,6 +34,7 @@
           <NuxtLink to="/categories">分类</NuxtLink>
           <NuxtLink to="/tags">标签</NuxtLink>
           <NuxtLink to="/about">关于</NuxtLink>
+          <NuxtLink to="/message">留言板</NuxtLink>
           <a href="/rss.xml" target="_blank" rel="noopener">RSS</a>
           <a href="/sitemap.xml" target="_blank" rel="noopener">站点地图</a>
         </nav>

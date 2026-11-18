@@ -61,6 +61,7 @@ export default defineNuxtConfig({
         '/tags',
         '/about',
         '/friend',
+        '/message',
         ...(hasSiteUrl ? crawlerRoutes : []),
       ],
     },

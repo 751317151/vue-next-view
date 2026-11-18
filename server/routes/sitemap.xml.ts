@@ -4,7 +4,7 @@ import { articleRepository } from '../repositories/article-repository';
 
 export default defineEventHandler(async (event) => {
   const siteUrl = resolvePublicSiteUrl(event);
-  const routes = ['/', '/archive', '/categories', '/tags', '/about', '/friend'];
+  const routes = ['/', '/archive', '/categories', '/tags', '/about', '/friend', '/message'];
   const now = new Date().toISOString();
   const escapeXml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const articleRoutes = (await articleRepository.list()).map((article) => ({ route: `/article/${article.slug}`, lastmod: article.createTime }));
