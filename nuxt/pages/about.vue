@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { siteConfig } from '../../src/config/site';
-usePublicCanonical('/about');
-useSeoMeta({ title: `关于 | ${siteConfig.name}`, description: '认识 BlackStar，以及这个博客为什么存在。' });
+usePageSeo({
+  path: '/about',
+  title: `关于 | ${siteConfig.name}`,
+  description: '认识 BlackStar，以及这个博客为什么存在。',
+});
 
 const stacks = ['Vue 3', 'TypeScript', 'Nuxt 4', 'Vite', 'Node.js', 'Spring Boot'];
 const values = [

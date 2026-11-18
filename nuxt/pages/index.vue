@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { siteConfig } from '../../src/config/site';
 import type { PublicArticle, PublicCategory, PublicTag } from '../types/public';
-usePublicCanonical('/');
-
-useSeoMeta({
+usePageSeo({
+  path: '/',
   title: siteConfig.name,
   description: siteConfig.description,
-  ogTitle: siteConfig.name,
-  ogDescription: siteConfig.description,
-  ogType: 'website',
-  twitterCard: 'summary_large_image',
 });
 
 // The hero's first background is the LCP element; start fetching it immediately.

@@ -6,15 +6,25 @@ usePublicCanonical('/search');
 const route = useRoute();
 const query = computed(() => String(route.query.q || '').trim());
 const searchInput = ref(query.value);
-const { data: results } = await useAsyncData<PublicSearchResult[]>(
+const pending = ref(false);
+const { data: results, status } = await useAsyncData<PublicSearchResult[]>(
   'search-results',
   () => query.value ? $fetch(`/api/search?q=${encodeURIComponent(query.value)}`) : Promise.resolve([]),
   { watch: [query] },
 );
 const { data: tags } = await useAsyncData<PublicTag[]>('search-tags', () => $fetch('/api/tags'));
 
+const isSearching = computed(() => pending.value || status.value === 'pending');
+
 watch(query, (value) => { searchInput.value = value; });
-const submitSearch = () => navigateTo({ path: '/search', query: { q: searchInput.value.trim() || undefined } });
+watch(searchInput, () => { pending.value = false; });
+
+const submitSearch = async () => {
+  const next = searchInput.value.trim();
+  pending.value = Boolean(next) && next !== query.value;
+  await navigateTo({ path: '/search', query: { q: next || undefined } });
+  pending.value = false;
+};
 
 useSeoMeta({
   title: computed(() => query.value ? `搜索：${query.value} | ${siteConfig.name}` : `搜索 | ${siteConfig.name}`),
@@ -27,10 +37,15 @@ useSeoMeta({
   <MigrationPage eyebrow="SEARCH" :title="query ? `找到关于「${query}」的故事` : '搜索一颗灵感星星'" description="从文章标题、摘要、分类和标签中寻找你想继续探索的方向。">
     <form class="search-form" @submit.prevent="submitSearch">
       <input v-model="searchInput" name="q" placeholder="输入关键词，例如 Vue、生活、动画" aria-label="搜索关键词" />
-      <button type="submit">搜索 ✦</button>
+      <button type="submit" :disabled="isSearching">{{ isSearching ? '寻找中…' : '搜索 ✦' }}</button>
     </form>
 
-    <div v-if="query && results?.length" class="search-hits">
+    <div v-if="isSearching" class="search-loading" aria-live="polite">
+      <span class="search-loading__star">✦</span>
+      正在星海里翻找「{{ searchInput || query }}」…
+    </div>
+
+    <div v-else-if="query && results?.length" class="search-hits">
       <p class="search-hits__count">找到 {{ results.length }} 篇相关故事</p>
       <div class="search-hits__grid">
         <ArticleCard v-for="article in results" :key="article.id" :article="article" />
@@ -55,6 +70,11 @@ useSeoMeta({
 .search-form input { min-width: 0; flex: 1; padding: .8rem 1rem; border: 1px solid rgba(185,167,255,.45); border-radius: 999px; outline: none; background: rgba(255,255,255,.75); color: #392d4f; }
 .search-form input:focus { border-color: #ff8fb3; box-shadow: 0 0 0 4px rgba(255,143,179,.12); }
 .search-form button { padding: .8rem 1rem; border: 0; border-radius: 999px; background: linear-gradient(135deg,#ffe48a,#ffb6c8); color: #392d4f; cursor: pointer; }
+.search-form button:disabled { opacity: .6; cursor: wait; }
+.search-loading { display: flex; gap: .6rem; align-items: center; margin-top: 2rem; color: #746b86; }
+.search-loading__star { display: inline-block; color: #ffbd8a; animation: search-spin 1.4s ease-in-out infinite; }
+@keyframes search-spin { 0%, 100% { transform: rotate(-12deg) scale(1); } 50% { transform: rotate(18deg) scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { .search-loading__star { animation: none; } }
 .search-hits { margin-top: 1.5rem; }
 .search-hits__count { margin: 0 0 1rem; color: #9485a3; font-size: .88rem; }
 .search-hits__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }

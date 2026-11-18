@@ -19,6 +19,9 @@
       </nav>
     </header>
     <main class="site-shell__main"><slot /></main>
+    <ClientOnly>
+      <BackToTop />
+    </ClientOnly>
     <footer class="site-shell__footer">
       <div class="site-shell__footer-inner">
         <div class="site-shell__footer-brand">

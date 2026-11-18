@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { siteConfig } from '../../src/config/site';
-usePublicCanonical('/friend');
-useSeoMeta({ title: `友人帐 | ${siteConfig.name}`, description: '记录那些值得一起探索的站点和朋友。' });
+usePageSeo({
+  path: '/friend',
+  title: `友人帐 | ${siteConfig.name}`,
+  description: '记录那些值得一起探索的站点和朋友。',
+});
 
 const friends = [
   { name: 'Vue.js 官方', url: 'https://vuejs.org', desc: '本站的骨架，一起把界面写得更优雅。' },
