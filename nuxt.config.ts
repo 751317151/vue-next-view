@@ -7,9 +7,12 @@ const hasSiteUrl = Boolean(siteUrl);
 // into every prerendered canonical and og:url. Crawlers would then be told the
 // canonical address is localhost, which is worse than a build that refuses to
 // run — so fail loudly, unless the caller explicitly accepts a local origin.
-const isBuildCommand =
-  process.env.NODE_ENV === 'production' ||
-  process.argv.some((arg) => arg === 'build' || arg === 'generate');
+//
+// The command has to be read from argv: `nuxt prepare` also runs with
+// NODE_ENV=production, so keying off NODE_ENV would block type checking and
+// every tool that prepares .nuxt before doing real work.
+const nuxtCommand = process.argv[2];
+const isBuildCommand = nuxtCommand === 'build' || nuxtCommand === 'generate';
 
 if (isBuildCommand && !hasSiteUrl && process.env.NUXT_ALLOW_LOCAL_ORIGIN !== '1') {
   throw new Error(
@@ -18,6 +21,7 @@ if (isBuildCommand && !hasSiteUrl && process.env.NUXT_ALLOW_LOCAL_ORIGIN !== '1'
       '',
       'Set it to the public HTTPS origin, e.g. NUXT_PUBLIC_SITE_URL=https://blog.example.com,',
       'so canonical, og:url, sitemap.xml and rss.xml never point at localhost.',
+      'On Cloudflare Pages, add it under Settings → Environment variables.',
       'For a throwaway local build, set NUXT_ALLOW_LOCAL_ORIGIN=1.',
     ].join('\n'),
   );
