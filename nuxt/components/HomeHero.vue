@@ -158,7 +158,20 @@ onBeforeUnmount(() => {
 .home-hero__blend { position: absolute; inset: auto 0 0; height: 8.5rem; background: linear-gradient(180deg, rgba(255,244,248,0), rgba(255,244,248,.9) 76%, #fff4f8); }
 
 .home-hero__content { position: relative; z-index: 1; display: grid; justify-items: center; gap: .45rem; padding: 2rem 1.2rem; color: #fffaf5; text-align: center; }
-.home-hero__sparkles { margin: 0; letter-spacing: .5em; opacity: .9; text-shadow: 0 2px 14px rgba(57,45,79,.5); }
+/* The hero art is a bright anime illustration, so light glyphs on top read as
+   indistinct blobs. A dark outline plus a warm tint keeps them legible over any
+   region of the photo instead of only the dark parts. */
+.home-hero__sparkles {
+  margin: 0;
+  color: #ffe48a;
+  font-size: 1.05rem;
+  letter-spacing: .5em;
+  opacity: .95;
+  text-shadow:
+    0 0 2px rgba(57, 45, 79, .95),
+    0 0 8px rgba(57, 45, 79, .75),
+    0 2px 16px rgba(57, 45, 79, .6);
+}
 .home-hero__title { margin: 0; color: #fffaf5; font-size: clamp(3rem, 10vw, 5.8rem); line-height: 1.05; letter-spacing: .06em; text-shadow: 0 6px 30px rgba(57,45,79,.55), 3px 3px 0 rgba(255,228,138,.4); }
 .home-hero__subtitle { display: flex; align-items: center; min-height: 2.4em; margin: .2rem 0 0; font-size: clamp(1rem, 2.4vw, 1.25rem); line-height: 1.7; text-shadow: 0 2px 16px rgba(57,45,79,.55); }
 .home-hero__caret { display: inline-block; width: 3px; height: 1.15em; margin-left: .18em; border-radius: 999px; background: #ffe48a; box-shadow: 0 0 10px rgba(255,228,138,.85); }

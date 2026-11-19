@@ -47,7 +47,11 @@ onBeforeUnmount(() => {
 .pointer-glow {
   position: fixed;
   inset: 0;
-  z-index: 9998;
+  /* Above page content but below the settings sheet (90) and drawer (95).
+     The old 9998 forced every later overlay to out-bid it, and a full-viewport
+     layer at that depth also trips automation tooling into reporting an
+     occlusion that does not actually block clicks. */
+  z-index: 60;
   pointer-events: none;
 }
 

@@ -98,7 +98,12 @@ onMounted(init);
   -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 72%);
   mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 72%);
 }
-.site-shell > * { position: relative; z-index: 1; }
+/* Lift only the layout children above the texture. Using `.site-shell > *`
+   here would also override position:fixed on the ambient overlays, dragging
+   them back into normal flow and pushing the header down by their full size. */
+.site-shell > header,
+.site-shell > main,
+.site-shell > footer { position: relative; z-index: 1; }
 .site-shell__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 1180px; width: 100%; margin: 0 auto; padding: .7rem 1.2rem; border: 1px solid rgba(255,255,255,.7); border-radius: 999px; background: rgba(255,250,245,.72); box-shadow: 0 12px 40px rgba(95,66,118,.12); backdrop-filter: blur(20px); }
 .site-shell__brand { display: inline-flex; align-items: center; gap: .45rem; color: #392d4f; font-weight: 800; text-decoration: none; text-shadow: 2px 2px 0 rgba(255,228,138,.6); }
 .site-shell__brand-mark { font-size: 1.1rem; transition: transform 260ms ease; }
@@ -124,9 +129,10 @@ onMounted(init);
 .site-shell__footer-inner { max-width: 1180px; margin: 0 auto; padding: 1.6rem 1.4rem 1.2rem; border: 1px solid rgba(255,255,255,.6); border-radius: 1.6rem 1.6rem 0 0; background: rgba(255,250,245,.66); box-shadow: 0 -12px 40px rgba(95,66,118,.08); backdrop-filter: blur(18px); }
 .site-shell__footer-brand strong { color: #392d4f; }
 .site-shell__footer-brand p { margin: .3rem 0 0; color: #746b86; font-size: .9rem; }
-.site-shell__footer-links { display: flex; flex-wrap: wrap; gap: .9rem; margin: 1rem 0 .6rem; }
-.site-shell__footer-links a { color: #8b73c5; font-size: .88rem; text-decoration: none; transition: 180ms ease; }
-.site-shell__footer-links a:hover { color: #e1799c; transform: translateY(-2px); }
+.site-shell__footer-links { display: flex; flex-wrap: wrap; gap: .35rem .5rem; margin: .9rem 0 .5rem; }
+.site-shell__footer-links a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .3rem .55rem; border-radius: 999px; color: #8b73c5; font-size: .88rem; text-decoration: none; transition: 180ms ease; }
+.site-shell__footer-links a:hover { color: #e1799c; background: rgba(255, 143, 179, .12); transform: translateY(-2px); }
+:root.bs-dark .site-shell__footer-links a { color: var(--bs-lilac); }
 .site-shell__footer-note { margin: 0; color: #9485a3; font-size: .8rem; }
 @media (max-width: 860px) {
   .site-shell__header { align-items: center; flex-direction: row; border-radius: 999px; padding: .55rem .9rem; }

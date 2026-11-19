@@ -1,7 +1,11 @@
 <template>
   <ClientOnly>
-    <Transition name="drawer">
-      <div v-if="modelValue" class="drawer-scrim" @click.self="close">
+    <!-- No <Transition> wrapper: Vue keeps a leaving node mounted until
+         transitionend, and this project's global reduced-motion rules force
+         transition-duration to 0.01ms, which can leave the node stuck covering
+         the page after the visitor taps a link. A plain v-if plus a mount
+         animation is deterministic. -->
+    <div v-if="modelValue" class="drawer-scrim" @click.self="close">
         <nav class="drawer" aria-label="移动端导航">
           <span class="drawer__spark drawer__spark--one" aria-hidden="true">✦</span>
           <span class="drawer__spark drawer__spark--two" aria-hidden="true">✧</span>
@@ -35,8 +39,7 @@
             <p class="drawer__note">把技术、生活和灵感，写成会发光的小故事。</p>
           </footer>
         </nav>
-      </div>
-    </Transition>
+    </div>
   </ClientOnly>
 </template>
 
@@ -88,8 +91,7 @@ onBeforeUnmount(() => {
 .drawer__close:hover { background: rgba(255, 143, 179, 0.18); color: var(--bs-ink); transform: rotate(90deg); }
 
 .drawer__list { display: grid; gap: .35rem; margin: 1.4rem 0 0; padding: 0; list-style: none; }
-.drawer__list li { opacity: 0; }
-.drawer-enter-active .drawer__list li { animation: drawer-item-in 380ms cubic-bezier(.2, .9, .3, 1.2) forwards; animation-delay: calc(var(--i) * 45ms + 90ms); }
+.drawer__list li { animation: drawer-item-in 380ms cubic-bezier(.2, .9, .3, 1.2) forwards; animation-delay: calc(var(--i) * 45ms + 90ms); opacity: 0; }
 
 .drawer__link { display: grid; grid-template-columns: auto 1fr auto; gap: .75rem; align-items: center; padding: .7rem .8rem; border-radius: 1rem; color: var(--bs-ink); text-decoration: none; transition: 200ms cubic-bezier(.2, .9, .3, 1.2); }
 .drawer__link:hover, .drawer__link:focus-visible { background: var(--bs-surface-soft); transform: translateX(4px); }
@@ -105,17 +107,20 @@ onBeforeUnmount(() => {
 .drawer__settings:hover { background: var(--bs-surface-soft); border-color: var(--bs-pink); }
 .drawer__note { margin: .9rem 0 0; color: var(--bs-ink-soft); font-size: .74rem; line-height: 1.7; }
 
-.drawer-enter-active, .drawer-leave-active { transition: opacity 260ms ease; }
-.drawer-enter-active .drawer, .drawer-leave-active .drawer { transition: transform 320ms cubic-bezier(.2, .9, .3, 1.15); }
-.drawer-enter-from, .drawer-leave-to { opacity: 0; }
-.drawer-enter-from .drawer, .drawer-leave-to .drawer { transform: translateX(100%); }
+/* Mount-only entrance: the panel slides in and the scrim fades, with no exit
+   animation to wait on. */
+.drawer-scrim { animation: drawer-scrim-in 260ms ease; }
+.drawer { animation: drawer-panel-in 320ms cubic-bezier(.2, .9, .3, 1.15); }
+
+@keyframes drawer-scrim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes drawer-panel-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
 @keyframes drawer-item-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes drawer-twinkle { 0%, 100% { opacity: .3; transform: scale(.8) rotate(0); } 50% { opacity: 1; transform: scale(1.2) rotate(18deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .drawer, .drawer-enter-active, .drawer-leave-active, .drawer__link, .drawer__close { transition: none; }
+  .drawer, .drawer-scrim, .drawer__link, .drawer__close { transition: none; animation: none; }
   .drawer__spark { animation: none; }
-  .drawer-enter-active .drawer__list li { animation: none; opacity: 1; }
+  .drawer__list li { animation: none; opacity: 1; }
 }
 </style>

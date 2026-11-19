@@ -15,17 +15,19 @@
       <span v-if="unread" class="mochi-companion__pip" aria-hidden="true"></span>
     </button>
 
-    <Transition name="mochi-card">
-      <div v-if="!collapsed" class="mochi-companion__card">
-        <button class="mochi-companion__close" type="button" aria-label="关闭陪伴提示" @click="dismiss">×</button>
-        <small>{{ face.label }}</small>
-        <p aria-live="polite">{{ message }}</p>
-        <div class="mochi-companion__actions">
-          <button class="mochi-companion__refresh" type="button" @click="nextMessage">换一句 ✨</button>
-          <button class="mochi-companion__quiet" type="button" @click="collapse">安静一会儿</button>
-        </div>
+    <!-- No <Transition> here on purpose: Vue keeps a leaving node in the DOM
+         until transitionend, and this card is also animated by the global
+         reduced-motion rules, which can leave it stuck and expanded. A plain
+         v-if with a mount-only animation is deterministic. -->
+    <div v-if="!collapsed" class="mochi-companion__card">
+      <button class="mochi-companion__close" type="button" aria-label="关闭陪伴提示" @click="dismiss">×</button>
+      <small>{{ face.label }}</small>
+      <p aria-live="polite">{{ message }}</p>
+      <div class="mochi-companion__actions">
+        <button class="mochi-companion__refresh" type="button" @click="nextMessage">换一句 ✨</button>
+        <button class="mochi-companion__quiet" type="button" @click="collapse">安静一会儿</button>
       </div>
-    </Transition>
+    </div>
   </aside>
 </template>
 
@@ -101,10 +103,14 @@ const show = () => {
   visible.value = true;
   unread.value = !collapsed.value;
 };
-const collapse = () => { collapsed.value = true; unread.value = false; };
+let greetingTimer = 0;
+
+const collapse = () => { collapsed.value = true; unread.value = true; };
 const toggle = () => {
   collapsed.value = !collapsed.value;
   unread.value = false;
+  // Reading the message counts as engaging: do not fold it away again.
+  if (!collapsed.value) window.clearTimeout(greetingTimer);
 };
 const advance = () => { messageIndex.value += 1; };
 const nextMessage = () => {
@@ -142,6 +148,11 @@ onMounted(() => {
   mood.value = moodFromClock();
   messageIndex.value = Math.floor(Math.random() * lines.value.length);
   show();
+  // Greet, then fold away. An always-open card covers article copy on short
+  // viewports, so it retracts into the orb and leaves an unread pip instead.
+  greetingTimer = window.setTimeout(() => {
+    if (!collapsed.value) collapse();
+  }, 9000);
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('pointermove', onIdle, { passive: true });
 });
@@ -150,6 +161,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll);
   window.removeEventListener('pointermove', onIdle);
   window.clearTimeout(idleTimer);
+  window.clearTimeout(greetingTimer);
 });
 </script>
 
@@ -184,20 +196,22 @@ onBeforeUnmount(() => {
 
 .mochi-companion__pip { position: absolute; top: .1rem; left: .1rem; width: .6rem; height: .6rem; border: 2px solid var(--bs-paper, #fffaf5); border-radius: 50%; background: var(--bs-pink, #ff8fb3); animation: mochi-pip 1.9s ease-in-out infinite; }
 
-.mochi-companion__card { position: relative; width: min(17rem, calc(100vw - 6rem)); padding: 1rem 1.1rem .85rem; border: 1px solid var(--bs-hairline, rgba(255, 255, 255, .72)); border-radius: 1.25rem 1.25rem 1.25rem .35rem; background: var(--bs-paper-strong, rgba(255, 250, 245, .84)); box-shadow: 0 18px 45px rgba(95, 66, 118, .16); backdrop-filter: blur(16px) saturate(1.1); }
-.mochi-companion__close { position: absolute; top: .35rem; right: .5rem; border: 0; background: transparent; color: var(--bs-ink-soft, #9485a3); font-size: 1.15rem; line-height: 1; cursor: pointer; transition: 180ms ease; }
-.mochi-companion__close:hover { color: var(--bs-ink, #392d4f); transform: rotate(90deg); }
+.mochi-companion__card { position: relative; width: min(17rem, calc(100vw - 6rem)); padding: 1rem 1.1rem .85rem; border: 1px solid var(--bs-hairline, rgba(255, 255, 255, .72)); border-radius: 1.25rem 1.25rem 1.25rem .35rem; background: var(--bs-paper-strong, rgba(255, 250, 245, .84)); box-shadow: 0 18px 45px rgba(95, 66, 118, .16); backdrop-filter: blur(16px) saturate(1.1); animation: mochi-card-in 300ms cubic-bezier(.2, .8, .2, 1); }
+.mochi-companion__close { position: absolute; top: .2rem; right: .3rem; display: grid; place-items: center; width: 2.2rem; height: 2.2rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--bs-ink-soft, #9485a3); font-size: 1.15rem; line-height: 1; cursor: pointer; transition: 180ms ease; }
+.mochi-companion__close:hover { color: var(--bs-ink, #392d4f); background: rgba(255, 143, 179, .16); transform: rotate(90deg); }
 .mochi-companion__card small { color: #b1768c; letter-spacing: .08em; }
 :root.bs-dark .mochi-companion__card small { color: var(--bs-pink); }
 .mochi-companion__card p { margin: .35rem 0 0; color: var(--bs-ink, #4b3d60); font-size: .9rem; line-height: 1.65; }
-.mochi-companion__actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: .6rem; }
-.mochi-companion__refresh { padding: 0; border: 0; background: transparent; color: #8b73c5; font-family: inherit; font-size: .82rem; cursor: pointer; }
-.mochi-companion__quiet { padding: 0; border: 0; background: transparent; color: var(--bs-ink-soft, #9485a3); font-family: inherit; font-size: .82rem; cursor: pointer; }
-.mochi-companion__refresh:hover, .mochi-companion__quiet:hover { text-decoration: underline; }
+.mochi-companion__actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .55rem; }
+/* Padding rather than bare text so the tap target clears the 44px comfort
+   floor on touch devices, where a 19px-tall label is frustrating to hit. */
+.mochi-companion__refresh, .mochi-companion__quiet { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .3rem .7rem; border: 1px solid transparent; border-radius: 999px; background: transparent; font-family: inherit; font-size: .82rem; cursor: pointer; transition: 180ms ease; }
+.mochi-companion__refresh { color: #8b73c5; }
+.mochi-companion__quiet { color: var(--bs-ink-soft, #9485a3); }
+.mochi-companion__refresh:hover, .mochi-companion__quiet:hover { background: var(--bs-surface-soft, rgba(255, 255, 255, .5)); border-color: var(--bs-hairline, rgba(255, 255, 255, .72)); }
+.mochi-companion__refresh:focus-visible, .mochi-companion__quiet:focus-visible, .mochi-companion__close:focus-visible { outline: 3px solid rgba(185, 167, 255, .8); outline-offset: 2px; }
 
-.mochi-card-enter-active { transition: opacity 260ms ease, transform 300ms cubic-bezier(.2, .8, .2, 1); }
-.mochi-card-leave-active { transition: opacity 160ms ease, transform 160ms ease; }
-.mochi-card-enter-from, .mochi-card-leave-to { opacity: 0; transform: translateY(.5rem) scale(.96); }
+@keyframes mochi-card-in { from { opacity: 0; transform: translateY(.5rem) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 @keyframes mochi-float { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-.4rem) rotate(5deg); } }
 @keyframes mochi-pip { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: .75; } }
@@ -207,7 +221,6 @@ onBeforeUnmount(() => {
   .mochi-companion__card { width: min(15rem, calc(100vw - 5.5rem)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mochi-companion__orb, .mochi-companion__pip { animation: none; }
-  .mochi-card-enter-active, .mochi-card-leave-active { transition: none; }
+  .mochi-companion__orb, .mochi-companion__pip, .mochi-companion__card { animation: none; }
 }
 </style>

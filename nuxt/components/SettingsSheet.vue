@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
-    <Transition name="sheet">
-      <div v-if="open" class="sheet-scrim" @click.self="close">
+    <!-- Same reasoning as MobileDrawer: no exit transition to get stuck on. -->
+    <div v-if="open" class="sheet-scrim" @click.self="close">
         <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
           <header class="sheet__head">
             <h2 id="settings-title">设置 <span aria-hidden="true">✦</span></h2>
@@ -65,8 +65,7 @@
             </label>
           </div>
         </section>
-      </div>
-    </Transition>
+    </div>
   </ClientOnly>
 </template>
 
@@ -135,12 +134,14 @@ onBeforeUnmount(() => {
 .toggle input:checked + .toggle__track .toggle__thumb { transform: translateX(1.2rem); }
 .toggle input:focus-visible + .toggle__track { outline: 3px solid rgba(185, 167, 255, 0.72); outline-offset: 3px; }
 
-.sheet-enter-active, .sheet-leave-active { transition: opacity 240ms ease; }
-.sheet-enter-active .sheet, .sheet-leave-active .sheet { transition: transform 300ms cubic-bezier(.2, .9, .3, 1.2), opacity 240ms ease; }
-.sheet-enter-from, .sheet-leave-to { opacity: 0; }
-.sheet-enter-from .sheet, .sheet-leave-to .sheet { transform: translateY(1.5rem) scale(.97); opacity: 0; }
+/* Mount-only entrance animations; closing removes the node immediately. */
+.sheet-scrim { animation: sheet-scrim-in 240ms ease; }
+.sheet { animation: sheet-panel-in 300ms cubic-bezier(.2, .9, .3, 1.2); }
+
+@keyframes sheet-scrim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheet-panel-in { from { opacity: 0; transform: translateY(1.5rem) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .sheet, .sheet-enter-active, .sheet-leave-active, .segmented button, .sheet__close { transition: none; }
+  .sheet, .sheet-scrim, .segmented button, .sheet__close { transition: none; animation: none; }
 }
 </style>
