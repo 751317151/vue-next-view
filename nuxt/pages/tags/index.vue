@@ -51,10 +51,13 @@ const emojis = ['🍓', '🌙', '🍵', '✨', '🫧', '🌷', '⭐', '🧁', '�
 .tag-cloud__summary span { color: #ffbd8a; }
 .tag-cloud__pills { display: flex; flex-wrap: wrap; gap: .65rem; }
 
-.tag-pill { display: inline-flex; align-items: center; gap: .4rem; padding: .55rem .9rem; border: 1px solid rgba(255,255,255,.8); border-radius: 999px; background: rgba(185,167,255,.18); color: #624d72; font-size: calc(.92rem * var(--pill-scale, 1)); text-decoration: none; box-shadow: 0 8px 20px rgba(95,66,118,.07); transition: transform 220ms cubic-bezier(.2,.9,.3,1.3), background 220ms ease, box-shadow 220ms ease; }
-.tag-pill:nth-child(3n) { background: rgba(158,230,208,.26); }
-.tag-pill:nth-child(3n + 1) { background: rgba(255,228,138,.32); }
-.tag-pill:hover { transform: translateY(-4px) rotate(-1.5deg) scale(1.04); background: rgba(255,143,179,.26); box-shadow: 0 16px 34px rgba(95,66,118,.16); }
+.tag-pill { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem .9rem; border: 1.5px solid var(--bs-ink-line, #392d4f); border-radius: 999px; background: rgba(185,167,255,.22); color: #4b3d60; font-size: calc(.92rem * var(--pill-scale, 1)); text-decoration: none; box-shadow: 2.5px 2.5px 0 var(--bs-ink-line, #392d4f); transition: transform 220ms cubic-bezier(.2,.9,.3,1.3), background 220ms ease, box-shadow 220ms ease; }
+:root.bs-dark .tag-pill { color: var(--bs-ink); background: rgba(185,167,255,.18); }
+.tag-pill:nth-child(3n) { background: rgba(158,230,208,.3); }
+.tag-pill:nth-child(3n + 1) { background: rgba(255,228,138,.38); }
+:root.bs-dark .tag-pill:nth-child(3n) { background: rgba(158,230,208,.2); }
+:root.bs-dark .tag-pill:nth-child(3n + 1) { background: rgba(255,228,138,.24); }
+.tag-pill:hover { transform: translate(-2px, -4px) rotate(-2deg) scale(1.04); background: rgba(255,143,179,.34); box-shadow: 5px 6px 0 var(--bs-ink-line, #392d4f); }
 .tag-pill__emoji { line-height: 1; transition: transform 260ms ease; }
 .tag-pill:hover .tag-pill__emoji { transform: scale(1.28) rotate(12deg); }
 .tag-pill__name { font-weight: 500; }

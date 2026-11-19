@@ -82,7 +82,23 @@ onMounted(init);
 </script>
 
 <style scoped>
-.site-shell { display: flex; min-height: 100vh; flex-direction: column; padding: 1rem clamp(1rem, 4vw, 4rem) 0; }
+.site-shell { display: flex; min-height: 100vh; flex-direction: column; padding: 1rem clamp(1rem, 4vw, 4rem) 0; position: relative; }
+
+/* Screentone texture scoped to the shell, behind everything it contains.
+   The body pseudo-elements already host the drifting colour orbs. */
+.site-shell::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--bs-halftone);
+  background-size: var(--bs-halftone-size);
+  content: "";
+  opacity: .45;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 72%);
+}
+.site-shell > * { position: relative; z-index: 1; }
 .site-shell__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 1180px; width: 100%; margin: 0 auto; padding: .7rem 1.2rem; border: 1px solid rgba(255,255,255,.7); border-radius: 999px; background: rgba(255,250,245,.72); box-shadow: 0 12px 40px rgba(95,66,118,.12); backdrop-filter: blur(20px); }
 .site-shell__brand { display: inline-flex; align-items: center; gap: .45rem; color: #392d4f; font-weight: 800; text-decoration: none; text-shadow: 2px 2px 0 rgba(255,228,138,.6); }
 .site-shell__brand-mark { font-size: 1.1rem; transition: transform 260ms ease; }

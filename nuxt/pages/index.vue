@@ -42,6 +42,8 @@ const totalWords = computed(() => (articles.value || []).reduce((sum, article) =
         </div>
       </section>
 
+      <hr class="bs-halftone-divider" aria-hidden="true" />
+
       <section v-if="categories?.length" class="home__paths" aria-labelledby="home-paths-title">
         <div class="home__section-head">
           <h2 id="home-paths-title">选一条小路继续逛</h2>

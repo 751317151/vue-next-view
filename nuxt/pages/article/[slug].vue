@@ -189,7 +189,14 @@ onBeforeUnmount(() => {
       <span v-if="articleData.category">{{ articleData.category }}</span>
     </div>
 
-    <img v-if="articleData.articleCover" class="reading__cover" :src="articleData.articleCover" :alt="articleData.articleTitle" />
+    <img
+      v-if="articleData.articleCover"
+      class="reading__cover"
+      :src="articleData.articleCover"
+      :alt="articleData.articleTitle"
+      loading="lazy"
+      decoding="async"
+    />
 
     <div class="reading__body" v-html="articleData.contentHtml"></div>
 

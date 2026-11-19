@@ -35,7 +35,9 @@ const props = defineProps<{ article: CardArticle }>();
 .article-card__art b { font-size: 2.4rem; filter: drop-shadow(0 6px 14px rgba(57,45,79,.18)); transition: transform 260ms ease; }
 .article-card:hover .article-card__art b { transform: scale(1.18) rotate(-6deg); }
 .article-card__body { display: flex; flex-direction: column; flex: 1; padding: 1rem 1.1rem 1.1rem; }
-.article-card__chip { align-self: flex-start; padding: .2rem .6rem; border-radius: 999px; background: rgba(255,143,179,.16); color: #b1768c; font-size: .72rem; letter-spacing: .06em; }
+.article-card__chip { align-self: flex-start; padding: .18rem .55rem; border: 1.5px solid var(--bs-ink-line, #392d4f); border-radius: 999px; background: rgba(255,143,179,.2); color: #b1768c; font-size: .72rem; letter-spacing: .06em; box-shadow: 2px 2px 0 var(--bs-ink-line, #392d4f); transition: transform 220ms cubic-bezier(.2,.9,.3,1.3); }
+:root.bs-dark .article-card__chip { color: var(--bs-pink); background: rgba(255,143,179,.16); }
+.article-card:hover .article-card__chip { transform: rotate(-3deg) translate(-1px, -1px); }
 .article-card h3 { margin: .55rem 0 .35rem; color: #392d4f; font-size: 1.08rem; line-height: 1.4; }
 .article-card p { display: -webkit-box; overflow: hidden; margin: 0; color: #746b86; font-size: .9rem; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .article-card small { display: block; margin-top: auto; padding-top: .7rem; color: #9485a3; font-size: .8rem; }
