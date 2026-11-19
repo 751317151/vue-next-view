@@ -20,6 +20,19 @@ nuxt.schema.d.ts
 *.local
 tmp-*.mjs
 
+# Environment files
+#
+# `.env` is committed on purpose: Cloudflare Pages loads it while building, so
+# the public origin reaches CI without dashboard configuration. `.env.development`
+# and `.env.production` are committed too, since Vite reads them. All three are
+# therefore public, and `npm run validate:env` fails the release gate if a
+# secret ever lands in `.env`.
+#
+# Real credentials belong in a `*.local` file (never committed) or in the
+# Cloudflare dashboard.
+.env.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -47,14 +47,14 @@ Vite 入口仍是当前默认部署入口。Nuxt 分支位于 `nuxt/`，使用 S
 ## Before switching production to Nuxt
 
 ```bash
-export NUXT_PUBLIC_SITE_URL=https://your-domain.example
 npm run release:check
 ```
 
-`release:check` validates the scaffold and types, builds with the Cloudflare
-preset, then checks the crawler files that build produced. A Nuxt production
-build refuses to run without a public origin, so canonical URLs and
-`og:url` can never quietly point at `localhost`.
+The public origin comes from the committed `.env`, so no shell variable is
+needed. `release:check` validates the scaffold, the environment files and the
+types, builds with the Cloudflare preset, then checks the crawler files that
+build produced. A Nuxt production build refuses to run without a public origin,
+so canonical URLs and `og:url` can never quietly point at `localhost`.
 
 Then inspect the public pages by hand: initial HTML, canonical, JSON-LD,
 sitemap, RSS, robots, a JavaScript-disabled visit, and Lighthouse scores.
@@ -75,6 +75,24 @@ Runs the Nuxt server on Cloudflare's edge runtime, so `?q=` search, SWR article 
 - Required variable: `NUXT_PUBLIC_SITE_URL=https://your-domain.example`
 
 The Nitro `cloudflare_pages` preset emits `dist/_worker.js` plus `dist/_routes.json`; prerendered pages (home, archive, crawler files) are served statically and everything else is handled by the worker. `wrangler.toml` at the repo root pins `nodejs_compat`.
+
+The origin is read from the committed `.env`. Nuxt loads that file while
+building — on your machine and on Pages alike — so no dashboard variable is
+needed, and anything set in the Cloudflare dashboard or the shell still wins.
+
+`wrangler.toml [vars]` is kept in sync, but note it is a **runtime** binding for
+Functions and does not satisfy the build-time check on its own.
+
+### Environment file convention
+
+`.env`, `.env.development` and `.env.production` are committed, so treat their
+contents as public. Only `.env` is loaded by `nuxt build`; `.env.production` is
+read by Vite, not Nuxt, so a value placed there alone will fail on CI while
+looking correct in the repository.
+
+Put real credentials in a `*.local` file (gitignored) or in the Cloudflare
+dashboard. `npm run validate:env` runs inside the release gate and fails if a
+credential-shaped value appears in a committed file.
 
 ### Option B: static pages
 
