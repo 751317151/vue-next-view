@@ -35,7 +35,17 @@ const articleSeo = {
 };
 const seo = useArticleSeo(articleSeo);
 
-const categoryHref = `/categories/${articleData.category ? encodeURIComponent(articleData.category) : ''}`;
+// Resolve the real category slug instead of encoding the display name: names
+// like "Spring Boot" or "创意实验" do not survive a round-trip through the URL,
+// and the category page only matches on its own slug.
+const { data: categoryIndex } = await useAsyncData<Array<{ slug: string; categoryName: string }>>(
+  'article-category-index',
+  () => $fetch('/api/categories'),
+);
+const categoryHref = computed(() => {
+  const match = (categoryIndex.value || []).find((entry) => entry.categoryName === articleData.category);
+  return match ? `/categories/${encodeURIComponent(match.slug)}` : null;
+});
 const hero = articleArt({ id: articleData.id, category: articleData.category });
 const heroEmoji = hero.emoji;
 const heroStyle = hero.style;
@@ -158,9 +168,12 @@ onBeforeUnmount(() => {
 
     <nav class="reading__crumbs" aria-label="面包屑">
       <NuxtLink to="/">首页</NuxtLink>
+      <template v-if="articleData.category">
+        <span>✧</span>
+        <NuxtLink v-if="categoryHref" :to="categoryHref">{{ articleData.category }}</NuxtLink>
+        <span v-else>{{ articleData.category }}</span>
+      </template>
       <span>✧</span>
-      <NuxtLink v-if="articleData.category" :to="categoryHref">{{ articleData.category }}</NuxtLink>
-      <span v-if="articleData.category">✧</span>
       <span aria-current="page">{{ articleData.articleTitle }}</span>
     </nav>
 

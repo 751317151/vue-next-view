@@ -31,7 +31,7 @@ const emojis = ['🍓', '🌙', '🍵', '✨', '🫧', '🌷', '⭐', '🧁', '�
         <NuxtLink
           v-for="(tag, index) in sorted"
           :key="tag.id"
-          :to="`/tags/${tag.id}`"
+          :to="`/tags/${tag.slug}`"
           class="tag-pill"
           :style="{ '--pill-scale': weightOf(tag.articleCount) }"
         >

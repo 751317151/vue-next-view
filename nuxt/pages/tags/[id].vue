@@ -3,15 +3,25 @@ import { siteConfig } from '../../../src/config/site';
 import type { PublicArticle, PublicTag } from '../../types/public';
 const route = useRoute();
 const id = String(route.params.id || '');
-usePublicCanonical(`/tags/${id}`);
 const [{ data: tag, error: tagError }, { data: articles }] = await Promise.all([
   useAsyncData<PublicTag>(`tag-${id}`, () => $fetch(`/api/tags/${encodeURIComponent(id)}`)),
   useAsyncData<PublicArticle[]>(`tag-articles-${id}`, () => $fetch('/api/articles')),
 ]);
 if (tagError.value || !tag.value) throw createError({ statusCode: 404, statusMessage: '标签不存在' });
 const currentTag = tag.value;
+
+// Same durable-URL contract as categories: numeric ids redirect to the
+// name-based slug so an old link never becomes a duplicate page.
+if (id !== currentTag.slug) {
+  await navigateTo(`/tags/${encodeURIComponent(currentTag.slug)}`, { redirectCode: 301 });
+}
+
+usePageSeo({
+  path: `/tags/${currentTag.slug}`,
+  title: `#${currentTag.tagName} | ${siteConfig.name}`,
+  description: `浏览带有 #${currentTag.tagName} 标签的文章。`,
+});
 const relatedArticles = computed(() => (articles.value || []).filter((article) => article.tags?.includes(currentTag.tagName)));
-useSeoMeta({ title: `#${currentTag.tagName} | ${siteConfig.name}`, description: `浏览带有 #${currentTag.tagName} 标签的文章。` });
 
 const runtimeConfig = useRuntimeConfig();
 const siteUrl = String(runtimeConfig.public.siteUrl || useRequestURL().origin).replace(/\/$/, '');
@@ -24,7 +34,7 @@ useHead({
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: '首页', item: `${siteUrl}/` },
         { '@type': 'ListItem', position: 2, name: '标签', item: `${siteUrl}/tags` },
-        { '@type': 'ListItem', position: 3, name: currentTag.tagName, item: `${siteUrl}/tags/${id}` },
+        { '@type': 'ListItem', position: 3, name: currentTag.tagName, item: `${siteUrl}/tags/${encodeURIComponent(currentTag.slug)}` },
       ],
     }),
   }],

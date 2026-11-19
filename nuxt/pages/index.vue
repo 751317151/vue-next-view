@@ -48,7 +48,7 @@ const totalWords = computed(() => (articles.value || []).reduce((sum, article) =
           <NuxtLink to="/categories">全部分类 →</NuxtLink>
         </div>
         <div class="home__paths-grid">
-          <NuxtLink v-for="category in categories" :key="category.id" :to="`/categories/${category.id}`" class="home__path">
+          <NuxtLink v-for="category in categories" :key="category.id" :to="`/categories/${category.slug}`" class="home__path">
             <strong>{{ category.categoryName }}</strong>
             <span>{{ category.articleCount || 0 }} 篇</span>
           </NuxtLink>

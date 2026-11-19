@@ -31,7 +31,7 @@ const roomOf = (index: number) => ROOMS[index % ROOMS.length]!;
         <NuxtLink
           v-for="(category, index) in categories || []"
           :key="category.id"
-          :to="`/categories/${category.id}`"
+          :to="`/categories/${category.slug}`"
           class="room"
           :style="{ '--room-tint': roomOf(index).tint, '--room-ink': roomOf(index).ink }"
         >

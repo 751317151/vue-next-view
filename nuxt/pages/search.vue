@@ -57,7 +57,7 @@ useSeoMeta({
     <div v-else class="search-hints">
       <h2>试试这些热门标签</h2>
       <div class="search-hints__chips">
-        <NuxtLink v-for="tag in tags?.slice(0, 8) || []" :key="tag.id" :to="`/tags/${tag.id}`" class="search-hints__chip">
+        <NuxtLink v-for="tag in tags?.slice(0, 8) || []" :key="tag.id" :to="`/tags/${tag.slug}`" class="search-hints__chip">
           #{{ tag.tagName }}
         </NuxtLink>
       </div>

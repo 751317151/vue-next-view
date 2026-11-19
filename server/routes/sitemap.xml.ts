@@ -7,11 +7,14 @@ export default defineEventHandler(async (event) => {
   const routes = ['/', '/archive', '/categories', '/tags', '/about', '/friend', '/message'];
   const now = new Date().toISOString();
   const escapeXml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Category and tag slugs keep their CJK letters, and the sitemap spec needs
+  // percent-encoded URLs, so encode the path while leaving the "/" separators.
+  const absoluteUrl = (route: string) => encodeURI(`${siteUrl}${route}`);
   const articleRoutes = (await articleRepository.list()).map((article) => ({ route: `/article/${article.slug}`, lastmod: article.createTime }));
   const categoryRoutes = (await publicCategories()).map((category) => ({ route: `/categories/${category.slug}`, lastmod: now }));
   const tagRoutes = (await publicTags()).map((tag) => ({ route: `/tags/${tag.slug}`, lastmod: now }));
   const body = [...routes.map((route) => ({ route, lastmod: now })), ...articleRoutes, ...categoryRoutes, ...tagRoutes]
-    .map(({ route, lastmod }) => `  <url><loc>${escapeXml(siteUrl + route)}</loc><lastmod>${escapeXml(lastmod)}</lastmod></url>`)
+    .map(({ route, lastmod }) => `  <url><loc>${escapeXml(absoluteUrl(route))}</loc><lastmod>${escapeXml(lastmod)}</lastmod></url>`)
     .join('');
   setResponseHeader(event, 'Content-Type', 'application/xml; charset=utf-8');
   setResponseHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=3600');

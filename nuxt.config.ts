@@ -3,6 +3,26 @@ import { fileURLToPath } from 'node:url';
 const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || process.env.VITE_SITE_URL || process.env.SITE_URL || '';
 const hasSiteUrl = Boolean(siteUrl);
 
+// A production build without a public origin silently bakes `http://localhost`
+// into every prerendered canonical and og:url. Crawlers would then be told the
+// canonical address is localhost, which is worse than a build that refuses to
+// run — so fail loudly, unless the caller explicitly accepts a local origin.
+const isBuildCommand =
+  process.env.NODE_ENV === 'production' ||
+  process.argv.some((arg) => arg === 'build' || arg === 'generate');
+
+if (isBuildCommand && !hasSiteUrl && process.env.NUXT_ALLOW_LOCAL_ORIGIN !== '1') {
+  throw new Error(
+    [
+      'NUXT_PUBLIC_SITE_URL is required for a production build.',
+      '',
+      'Set it to the public HTTPS origin, e.g. NUXT_PUBLIC_SITE_URL=https://blog.example.com,',
+      'so canonical, og:url, sitemap.xml and rss.xml never point at localhost.',
+      'For a throwaway local build, set NUXT_ALLOW_LOCAL_ORIGIN=1.',
+    ].join('\n'),
+  );
+}
+
 // Crawler files are served by Nitro at request time by default. When a public
 // site URL exists they can be prerendered safely; without one, prerendering
 // would bake http://localhost into the sitemap and robots.txt.

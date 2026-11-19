@@ -3,15 +3,25 @@ import { siteConfig } from '../../../src/config/site';
 import type { PublicArticle, PublicCategory } from '../../types/public';
 const route = useRoute();
 const id = String(route.params.id || '');
-usePublicCanonical(`/categories/${id}`);
 const [{ data: category, error: categoryError }, { data: articles }] = await Promise.all([
   useAsyncData<PublicCategory>(`category-${id}`, () => $fetch(`/api/categories/${encodeURIComponent(id)}`)),
   useAsyncData<PublicArticle[]>(`category-articles-${id}`, () => $fetch('/api/articles')),
 ]);
 if (categoryError.value || !category.value) throw createError({ statusCode: 404, statusMessage: '分类不存在' });
 const currentCategory = category.value;
+
+// Links minted against the old index-based ids must land on the name-based
+// canonical URL instead of serving duplicate content on two addresses.
+if (id !== currentCategory.slug) {
+  await navigateTo(`/categories/${encodeURIComponent(currentCategory.slug)}`, { redirectCode: 301 });
+}
+
+usePageSeo({
+  path: `/categories/${currentCategory.slug}`,
+  title: `${currentCategory.categoryName} | ${siteConfig.name}`,
+  description: currentCategory.description || `浏览${currentCategory.categoryName}相关的文章。`,
+});
 const relatedArticles = computed(() => (articles.value || []).filter((article) => article.category === currentCategory.categoryName));
-useSeoMeta({ title: `${currentCategory.categoryName} | ${siteConfig.name}`, description: currentCategory.description || `浏览${currentCategory.categoryName}相关的文章。` });
 
 const runtimeConfig = useRuntimeConfig();
 const siteUrl = String(runtimeConfig.public.siteUrl || useRequestURL().origin).replace(/\/$/, '');
@@ -24,7 +34,7 @@ useHead({
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: '首页', item: `${siteUrl}/` },
         { '@type': 'ListItem', position: 2, name: '分类', item: `${siteUrl}/categories` },
-        { '@type': 'ListItem', position: 3, name: currentCategory.categoryName, item: `${siteUrl}/categories/${id}` },
+        { '@type': 'ListItem', position: 3, name: currentCategory.categoryName, item: `${siteUrl}/categories/${encodeURIComponent(currentCategory.slug)}` },
       ],
     }),
   }],
