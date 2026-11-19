@@ -83,6 +83,46 @@ samp {
 
 html {
   scroll-behavior: smooth;
+  /* Firefox scrollbar: thin, on-palette, and theme-aware via the tokens. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-scroll-thumb) transparent;
+}
+
+:root {
+  --bs-scroll-thumb: rgba(185, 167, 255, 0.75);
+  --bs-scroll-thumb-hover: var(--bs-pink);
+}
+
+:root.bs-dark {
+  --bs-scroll-thumb: rgba(196, 180, 255, 0.5);
+}
+
+/* WebKit/Blink scrollbar. Kept narrow so it reads as a ribbon rather than a
+   system chrome block; the track stays transparent to let the page show through. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--bs-pink), var(--bs-lilac)) border-box;
+  background-clip: padding-box;
+  transition: background 200ms ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--bs-peach), var(--bs-pink)) border-box;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 body {

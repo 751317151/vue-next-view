@@ -3,12 +3,21 @@
     <ClientOnly>
       <AmbientConstellation />
       <PointerGlow />
-      <MochiCompanion />
     </ClientOnly>
-    <header class="site-shell__header">
+
+    <!-- Reading progress is global: every page gets the same indicator, not
+         only the article template. -->
+    <ClientOnly>
+      <ReadingProgress />
+    </ClientOnly>
+
+    <header
+      class="site-shell__header"
+      :class="{ 'is-tucked': headerTucked, 'is-scrolled': scrolled }"
+    >
       <NuxtLink to="/" class="site-shell__brand">
         <span class="site-shell__brand-mark">🌙</span>
-        <span>生活倒影</span>
+        <span>{{ siteConfig.author }}</span>
       </NuxtLink>
       <nav class="site-shell__desktop-nav" aria-label="主导航">
         <NuxtLink to="/archive">归档</NuxtLink>
@@ -41,11 +50,14 @@
       <BackToTop />
       <MobileDrawer v-model="drawerOpen" @settings="settingsOpen = true" />
       <SettingsSheet :open="settingsOpen" @close="settingsOpen = false" />
+      <!-- Mounted after the overlays so its z-index sits above them without
+           needing an inflated value. -->
+      <MochiCompanion />
     </ClientOnly>
     <footer class="site-shell__footer">
       <div class="site-shell__footer-inner">
         <div class="site-shell__footer-brand">
-          <strong>🌙 生活倒影</strong>
+          <strong>🌙 {{ siteConfig.name }}</strong>
           <p>把技术、生活和灵感，写成会发光的小故事。</p>
         </div>
         <nav class="site-shell__footer-links" aria-label="页脚导航">
@@ -79,6 +91,46 @@ const settingsOpen = ref(false);
 // so the Settings sheet shows the correct selection.
 const { init } = useAppearance();
 onMounted(init);
+
+/**
+ * Hide the header while scrolling down and bring it back on the way up, so a
+ * phone screen is not permanently spending 60px on navigation. The threshold
+ * stops a jittery finger from flickering it in and out.
+ */
+const headerTucked = ref(false);
+const scrolled = ref(false);
+let lastY = 0;
+let frame = 0;
+
+const onScroll = () => {
+  if (frame) return;
+  frame = window.requestAnimationFrame(() => {
+    const y = window.scrollY;
+    scrolled.value = y > 12;
+    if (Math.abs(y - lastY) > 6) {
+      // Never tuck at the very top, and never while an overlay is open.
+      headerTucked.value = y > 120 && y > lastY && !drawerOpen.value && !settingsOpen.value;
+      lastY = y;
+    }
+    frame = 0;
+  });
+};
+
+onMounted(() => {
+  lastY = window.scrollY;
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll);
+  if (frame) window.cancelAnimationFrame(frame);
+});
+
+// Opening a panel must always reveal the header underneath it.
+watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
+  if (drawer || sheet) headerTucked.value = false;
+});
 </script>
 
 <style scoped>
@@ -100,49 +152,91 @@ onMounted(init);
 }
 /* Lift only the layout children above the texture. Using `.site-shell > *`
    here would also override position:fixed on the ambient overlays, dragging
-   them back into normal flow and pushing the header down by their full size. */
-.site-shell > header,
+   them back into normal flow and pushing the header down by their full size.
+   The header is deliberately excluded: it is fixed, and this selector would
+   out-specify that and force it back into flow. */
 .site-shell > main,
 .site-shell > footer { position: relative; z-index: 1; }
-.site-shell__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 1180px; width: 100%; margin: 0 auto; padding: .7rem 1.2rem; border: 1px solid rgba(255,255,255,.7); border-radius: 999px; background: rgba(255,250,245,.72); box-shadow: 0 12px 40px rgba(95,66,118,.12); backdrop-filter: blur(20px); }
-.site-shell__brand { display: inline-flex; align-items: center; gap: .45rem; color: #392d4f; font-weight: 800; text-decoration: none; text-shadow: 2px 2px 0 rgba(255,228,138,.6); }
+
+.site-shell__header {
+  /* Fixed rather than sticky: a sticky bar scrolls out of the viewport once the
+     page passes its height, so translating it back on scroll-up had no effect
+     (it was already 288px above the fold). Fixed keeps it anchored to the
+     viewport and lets the tuck animation actually bring it back. */
+  position: fixed;
+  top: .6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 1180px;
+  width: calc(100% - 2 * clamp(1rem, 4vw, 4rem));
+  padding: .7rem 1.2rem;
+  border: 1px solid var(--bs-hairline);
+  border-radius: 999px;
+  background: var(--bs-paper-strong);
+  box-shadow: 0 12px 40px rgba(95, 66, 118, .12);
+  backdrop-filter: blur(20px) saturate(1.1);
+  transition: transform 320ms cubic-bezier(.3, 0, .2, 1), box-shadow 240ms ease, background-color 240ms ease;
+}
+
+/* Scrolled a little: tighten the shadow so the bar separates from content. */
+.site-shell__header.is-scrolled { box-shadow: 0 16px 44px rgba(95, 66, 118, .18); }
+
+/* Scrolling down tucks it above the viewport; scrolling up drops it back. */
+.site-shell__header.is-tucked { transform: translateX(-50%) translateY(calc(-100% - .8rem)); }
+
+/* The fixed bar is out of flow, so the content needs its height back. */
+.site-shell__main { padding-top: 3.9rem; }
+
+.site-shell__brand { display: inline-flex; align-items: center; gap: .45rem; color: var(--bs-ink); font-weight: 800; text-decoration: none; text-shadow: 2px 2px 0 rgba(255, 228, 138, .6); }
+:root.bs-dark .site-shell__brand { text-shadow: 2px 2px 0 rgba(255, 228, 138, .18); }
 .site-shell__brand-mark { font-size: 1.1rem; transition: transform 260ms ease; }
 .site-shell__brand:hover .site-shell__brand-mark { transform: rotate(-14deg) scale(1.15); }
 .site-shell__header nav { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; justify-content: flex-end; }
-.site-shell__header nav a { position: relative; padding: .45rem .75rem; border-radius: 999px; color: #746b86; font-size: .9rem; text-decoration: none; transition: 180ms ease; }
-:root.bs-dark .site-shell__header nav a { color: var(--bs-ink-soft); }
+.site-shell__header nav a { position: relative; padding: .45rem .75rem; border-radius: 999px; color: var(--bs-ink-soft); font-size: .9rem; text-decoration: none; transition: 180ms ease; }
 .site-shell__header nav a::after { content: ''; position: absolute; inset: auto .8rem -1px; height: 2px; border-radius: 999px; background: linear-gradient(90deg, #ff8fb3, #ffbd8a, #b9a7ff); opacity: 0; transform: scaleX(.3); transition: 220ms ease; }
-.site-shell__header nav a:hover, .site-shell__header nav a.router-link-active { color: #392d4f; background: rgba(255,143,179,.16); transform: translateY(-2px); }
-:root.bs-dark .site-shell__header nav a:hover, :root.bs-dark .site-shell__header nav a.router-link-active { color: var(--bs-ink); background: rgba(255,143,179,.22); }
+.site-shell__header nav a:hover, .site-shell__header nav a.router-link-active { color: var(--bs-ink); background: rgba(255, 143, 179, .16); transform: translateY(-2px); }
+:root.bs-dark .site-shell__header nav a:hover, :root.bs-dark .site-shell__header nav a.router-link-active { background: rgba(255, 143, 179, .22); }
 .site-shell__header nav a:hover::after, .site-shell__header nav a.router-link-active::after { opacity: 1; transform: scaleX(1); }
-.site-shell__header nav .site-shell__search { border: 1px dashed rgba(185,167,255,.6); }
+.site-shell__header nav .site-shell__search { border: 1px dashed rgba(185, 167, 255, .6); }
 
 .site-shell__actions { display: flex; align-items: center; gap: .4rem; }
-.site-shell__icon-btn { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; padding: 0; border: 1px solid var(--bs-hairline); border-radius: 50%; background: var(--bs-surface-soft); color: var(--bs-ink); font-size: 1rem; line-height: 1; cursor: pointer; transition: 200ms cubic-bezier(.2,.9,.3,1.2); }
-.site-shell__icon-btn:hover { background: rgba(255,143,179,.18); transform: translateY(-2px) rotate(-6deg); }
-.site-shell__icon-btn:focus-visible { outline: 3px solid rgba(185,167,255,.72); outline-offset: 3px; }
+.site-shell__icon-btn { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; padding: 0; border: 1px solid var(--bs-hairline); border-radius: 50%; background: var(--bs-surface-soft); color: var(--bs-ink); font-size: 1rem; line-height: 1; cursor: pointer; transition: 200ms cubic-bezier(.2, .9, .3, 1.2); }
+.site-shell__icon-btn:hover { background: rgba(255, 143, 179, .18); transform: translateY(-2px) rotate(-6deg); }
+.site-shell__icon-btn:focus-visible { outline: 3px solid rgba(185, 167, 255, .72); outline-offset: 3px; }
 /* The drawer is the phone navigation; the hamburger only appears when the
    horizontal nav would wrap into an unreadable stack. */
 .site-shell__menu-btn { display: none; }
 .site-shell__main { flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; }
 .site-shell__footer { width: 100%; margin-top: 5rem; }
-.site-shell__footer-inner { max-width: 1180px; margin: 0 auto; padding: 1.6rem 1.4rem 1.2rem; border: 1px solid rgba(255,255,255,.6); border-radius: 1.6rem 1.6rem 0 0; background: rgba(255,250,245,.66); box-shadow: 0 -12px 40px rgba(95,66,118,.08); backdrop-filter: blur(18px); }
-.site-shell__footer-brand strong { color: #392d4f; }
-.site-shell__footer-brand p { margin: .3rem 0 0; color: #746b86; font-size: .9rem; }
+.site-shell__footer-inner { max-width: 1180px; margin: 0 auto; padding: 1.6rem 1.4rem 1.2rem; border: 1px solid var(--bs-hairline); border-radius: 1.6rem 1.6rem 0 0; background: var(--bs-paper-strong); box-shadow: 0 -12px 40px rgba(95, 66, 118, .08); backdrop-filter: blur(18px); }
+.site-shell__footer-brand strong { color: var(--bs-ink); }
+.site-shell__footer-brand p { margin: .3rem 0 0; color: var(--bs-ink-soft); font-size: .9rem; }
 .site-shell__footer-links { display: flex; flex-wrap: wrap; gap: .35rem .5rem; margin: .9rem 0 .5rem; }
 .site-shell__footer-links a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .3rem .55rem; border-radius: 999px; color: #8b73c5; font-size: .88rem; text-decoration: none; transition: 180ms ease; }
 .site-shell__footer-links a:hover { color: #e1799c; background: rgba(255, 143, 179, .12); transform: translateY(-2px); }
 :root.bs-dark .site-shell__footer-links a { color: var(--bs-lilac); }
-.site-shell__footer-note { margin: 0; color: #9485a3; font-size: .8rem; }
+.site-shell__footer-note { margin: 0; color: var(--bs-ink-soft); font-size: .8rem; }
+
 @media (max-width: 860px) {
-  .site-shell__header { align-items: center; flex-direction: row; border-radius: 999px; padding: .55rem .9rem; }
-  /* Must out-specify the base .site-shell__header nav rule (0,1,1), or the
-     horizontal nav keeps rendering next to the hamburger. */
+  /* The phone bar keeps only the brand and the two icon buttons. */
+  .site-shell__header { top: .45rem; gap: .5rem; padding: .5rem .7rem .5rem .95rem; }
   .site-shell__header .site-shell__desktop-nav { display: none; }
   .site-shell__header .site-shell__menu-btn { display: grid; }
+  .site-shell__brand { gap: .35rem; font-size: .95rem; }
+  .site-shell__icon-btn { width: 2.2rem; height: 2.2rem; }
 }
 @media (max-width: 480px) {
-  .site-shell { padding: .6rem .7rem 0; }
-  .site-shell__brand span:last-child { font-size: .95rem; }
+  .site-shell { padding: .5rem .6rem 0; }
+  .site-shell__brand span:last-child { font-size: .9rem; }
+  .site-shell__header { padding: .45rem .55rem .45rem .85rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-shell__header { transition: none; }
 }
 </style>

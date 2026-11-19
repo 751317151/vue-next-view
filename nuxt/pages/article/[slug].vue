@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
 
 <template>
   <article class="reading">
-    <ReadingProgress />
+    <!-- The progress bar is rendered once by the layout, so every page has it. -->
 
     <aside v-if="tocItems.length >= 2" class="reading__toc" aria-label="文章目录">
       <p class="reading__toc-title">目录 ✦</p>

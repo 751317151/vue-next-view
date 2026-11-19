@@ -119,7 +119,21 @@ const nextMessage = () => {
 };
 const dismiss = () => {
   visible.value = false;
-  storage.set('mochi-companion-dismissed', '1');
+  // Session-scoped on purpose: a permanent flag meant one stray click on × hid
+  // the companion forever, with no way back short of clearing site data.
+  try {
+    window.sessionStorage.setItem('mochi-companion-hidden', '1');
+  } catch {
+    // Storage can be unavailable; the companion simply reappears next visit.
+  }
+};
+
+const wasHiddenThisVisit = () => {
+  try {
+    return window.sessionStorage.getItem('mochi-companion-hidden') === '1';
+  } catch {
+    return false;
+  }
 };
 
 /** Deep in an article the companion switches to a quieter reading mood. */
@@ -144,7 +158,11 @@ const onIdle = () => {
 };
 
 onMounted(() => {
-  if (storage.get('mochi-companion-dismissed') === '1') return;
+  // One-time migration: earlier versions wrote a permanent flag that silently
+  // removed the companion for good.
+  storage.remove('mochi-companion-dismissed');
+  if (wasHiddenThisVisit()) return;
+
   mood.value = moodFromClock();
   messageIndex.value = Math.floor(Math.random() * lines.value.length);
   show();

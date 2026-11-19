@@ -4,13 +4,16 @@
       v-if="shown"
       type="button"
       class="to-top"
-      aria-label="回到顶部"
+      :class="{ 'is-down': heading === 'down' }"
+      :aria-label="heading === 'down' ? '继续向下浏览' : '回到顶部'"
       :style="{ '--progress': progress }"
-      @click="scrollTop"
+      @click="onClick"
     >
       <span class="to-top__ring" aria-hidden="true"></span>
       <span class="to-top__orb" aria-hidden="true">
-        <b>↑</b>
+        <!-- Points the way the page is moving: down while descending, up while
+             ascending, so the arrow always matches what a click will do. -->
+        <b>{{ heading === 'down' ? '↓' : '↑' }}</b>
       </span>
     </button>
   </Transition>
@@ -19,13 +22,24 @@
 <script setup lang="ts">
 const shown = ref(false);
 const progress = ref(0);
+/** Direction the page is heading, which the arrow mirrors. */
+const heading = ref<'up' | 'down'>('up');
 let frame = 0;
+let lastY = 0;
 
 const update = () => {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  const ratio = max > 0 ? window.scrollY / max : 0;
-  progress.value = Math.min(1, Math.max(0, Number(ratio.toFixed(3))));
-  shown.value = window.scrollY > window.innerHeight * 0.75;
+  const doc = document.documentElement;
+  const y = window.scrollY;
+  const max = doc.scrollHeight - window.innerHeight;
+  progress.value = Math.min(1, Math.max(0, max > 0 ? Number((y / max).toFixed(3)) : 0));
+  shown.value = y > window.innerHeight * 0.75;
+
+  if (Math.abs(y - lastY) > 4) {
+    const next = y > lastY ? 'down' : 'up';
+    // At the very bottom "up" is the only useful direction left.
+    heading.value = y + window.innerHeight >= doc.scrollHeight - 4 ? 'up' : next;
+    lastY = y;
+  }
 };
 
 const onScroll = () => {
@@ -41,7 +55,19 @@ const scrollTop = () => {
   window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
 };
 
+const scrollToBottom = () => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: reduce ? 'auto' : 'smooth' });
+};
+
+/** The button acts on the direction it currently shows. */
+const onClick = () => {
+  if (heading.value === 'down') scrollToBottom();
+  else scrollTop();
+};
+
 onMounted(() => {
+  lastY = window.scrollY;
   update();
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
@@ -104,6 +130,13 @@ onBeforeUnmount(() => {
 @keyframes to-top-hop {
   0% { transform: translateY(0); }
   45% { transform: translateY(-4px) scale(1.08); }
+  100% { transform: translateY(0); }
+}
+/* Heading down has to hop the other way, or the motion contradicts the glyph. */
+.to-top.is-down:hover .to-top__orb b { animation: to-top-hop-down 620ms ease; }
+@keyframes to-top-hop-down {
+  0% { transform: translateY(0); }
+  45% { transform: translateY(4px) scale(1.08); }
   100% { transform: translateY(0); }
 }
 
