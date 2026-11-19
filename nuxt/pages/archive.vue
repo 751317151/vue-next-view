@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { siteConfig } from '../../src/config/site';
 import type { PublicArticle } from '../types/public';
-usePageSeo({
+
+const { data: articles } = await useAsyncData<PublicArticle[]>('archive-articles', () => $fetch('/api/articles'));
+
+useCollectionSeo({
   path: '/archive',
   title: `归档 | ${siteConfig.name}`,
   description: '按时间浏览生活倒影的文章归档。',
+  items: articles,
 });
-const { data: articles } = await useAsyncData<PublicArticle[]>('archive-articles', () => $fetch('/api/articles'));
 
 const years = computed(() => {
   const groups = new Map<string, PublicArticle[]>();
@@ -69,11 +72,11 @@ const monthLabel = (value?: string) => {
 
 <style scoped>
 .timeline { display: grid; gap: 2.2rem; }
-.timeline__summary { display: inline-flex; align-items: center; gap: .45rem; margin: 0; color: #9485a3; font-size: .86rem; }
+.timeline__summary { display: inline-flex; align-items: center; gap: .45rem; margin: 0; color: var(--bs-ink-muted); font-size: .86rem; }
 
 .timeline__year-head { display: flex; align-items: center; gap: .6rem; }
-.timeline__year h2 { margin: 0; color: #392d4f; font-size: 1.65rem; letter-spacing: .02em; }
-.timeline__year-pill { padding: .12rem .55rem; border-radius: 999px; background: rgba(255, 143, 179, .18); color: #b1768c; font-size: .74rem; }
+.timeline__year h2 { margin: 0; color: var(--bs-ink); font-size: 1.65rem; letter-spacing: .02em; }
+.timeline__year-pill { padding: .12rem .55rem; border-radius: 999px; background: rgba(255, 143, 179, .18); color: var(--bs-accent-ink); font-size: .74rem; }
 .timeline__year-line { flex: 1; height: 2px; border-radius: 999px; background: linear-gradient(90deg, rgba(255, 143, 179, .55), rgba(185, 167, 255, .12)); }
 
 .timeline__list { display: grid; gap: .35rem; margin: .85rem 0 0; padding: 0; list-style: none; }
@@ -84,22 +87,22 @@ const monthLabel = (value?: string) => {
 .timeline__row:first-child .timeline__spine { top: 1rem; }
 .timeline__row:last-child .timeline__spine { bottom: auto; height: 1rem; }
 
-.timeline__item { position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: .8rem; align-items: center; padding: .7rem .9rem; border-radius: 1rem; color: #4b3d60; text-decoration: none; transition: transform 220ms ease, background 220ms ease; }
-.timeline__item:hover { background: rgba(255, 255, 255, .68); transform: translateX(5px); }
-.timeline__item:hover strong { color: #e1799c; }
+.timeline__item { position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: .8rem; align-items: center; padding: .7rem .9rem; border-radius: 1rem; color: var(--bs-ink-body); text-decoration: none; transition: transform var(--bs-dur-base) ease, background var(--bs-dur-base) ease; }
+.timeline__item:hover { background: var(--bs-surface-strong); transform: translateX(5px); }
+.timeline__item:hover strong { color: var(--bs-accent-strong); }
 
-.timeline__dot { position: absolute; left: -1.55rem; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; box-shadow: 0 0 0 4px rgba(255, 250, 245, .9), 0 6px 14px rgba(95, 66, 118, .16); transition: transform 260ms cubic-bezier(.2, .9, .3, 1.4); }
+.timeline__dot { position: absolute; left: -1.55rem; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; box-shadow: 0 0 0 4px rgba(255, 250, 245, .9), 0 6px 14px rgba(95, 66, 118, .16); transition: transform var(--bs-dur-base) var(--bs-ease-pop); }
 .timeline__dot b { font-size: .8rem; line-height: 1; filter: drop-shadow(0 1px 2px rgba(57, 45, 79, .25)); }
 .timeline__item:hover .timeline__dot { transform: scale(1.22) rotate(-8deg); }
 
 .timeline__body { display: grid; gap: .2rem; min-width: 0; }
-.timeline__body strong { color: #392d4f; font-weight: 600; line-height: 1.5; }
-.timeline__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; color: #9485a3; font-size: .8rem; }
+.timeline__body strong { color: var(--bs-ink); font-weight: 600; line-height: 1.5; }
+.timeline__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; color: var(--bs-ink-muted); font-size: .8rem; }
 
-.timeline__index { color: #c9bfd6; font-size: .78rem; letter-spacing: .08em; opacity: 0; transition: opacity 220ms ease; }
+.timeline__index { color: var(--bs-ink-faint); font-size: .78rem; letter-spacing: .08em; opacity: 0; transition: opacity var(--bs-dur-base) ease; }
 .timeline__item:hover .timeline__index { opacity: 1; }
 
-.timeline__empty { margin: 0; color: #9485a3; }
+.timeline__empty { margin: 0; color: var(--bs-ink-muted); }
 
 @media (max-width: 640px) {
   .timeline__row { padding-left: 2rem; }

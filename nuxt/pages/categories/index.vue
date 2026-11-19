@@ -12,7 +12,7 @@ const totalArticles = computed(() => (categories.value || []).reduce((sum, item)
 
 // Each room gets its own doorway colour and a matching little mascot.
 const ROOMS = [
-  { emoji: '🧁', tint: 'rgba(255, 143, 179, .22)', ink: '#b1768c' },
+  { emoji: '🧁', tint: 'rgba(255, 143, 179, .22)', ink: 'var(--bs-accent-ink)' },
   { emoji: '🍵', tint: 'rgba(158, 230, 208, .24)', ink: '#4f6d67' },
   { emoji: '🌙', tint: 'rgba(185, 167, 255, .24)', ink: '#6b5a9e' },
   { emoji: '✨', tint: 'rgba(255, 228, 138, .32)', ink: '#8a6a2f' },
@@ -54,7 +54,7 @@ const roomOf = (index: number) => ROOMS[index % ROOMS.length]!;
 
 <style scoped>
 .rooms { display: grid; gap: 1.1rem; }
-.rooms__summary { display: inline-flex; align-items: center; gap: .45rem; margin: 0; color: #9485a3; font-size: .86rem; }
+.rooms__summary { display: inline-flex; align-items: center; gap: .45rem; margin: 0; color: var(--bs-ink-muted); font-size: .86rem; }
 .rooms__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; }
 
 .room {
@@ -64,13 +64,13 @@ const roomOf = (index: number) => ROOMS[index % ROOMS.length]!;
   gap: .9rem;
   align-items: center;
   padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, .82);
+  border: 1px solid var(--bs-border);
   border-radius: 1.25rem;
-  background: rgba(255, 255, 255, .6);
-  color: #4b3d60;
+  background: var(--bs-surface);
+  color: var(--bs-ink-body);
   text-decoration: none;
   overflow: hidden;
-  transition: transform 240ms cubic-bezier(.2, .9, .3, 1.2), box-shadow 240ms ease, border-color 240ms ease;
+  transition: transform var(--bs-dur-base) var(--bs-ease-pop), box-shadow var(--bs-dur-base) ease, border-color var(--bs-dur-base) ease;
 }
 .room::before {
   position: absolute;
@@ -81,9 +81,9 @@ const roomOf = (index: number) => ROOMS[index % ROOMS.length]!;
   background: radial-gradient(circle, var(--room-tint), transparent 70%);
   content: "";
   opacity: .9;
-  transition: transform 420ms ease;
+  transition: transform var(--bs-dur-mid) ease;
 }
-.room:hover { transform: translateY(-5px) rotate(-.4deg); border-color: rgba(255, 143, 179, .42); box-shadow: 0 22px 48px rgba(95, 66, 118, .16); }
+.room:hover { transform: translateY(-5px) rotate(-.4deg); border-color: rgba(255, 143, 179, .42); box-shadow: var(--bs-shadow-hover); }
 .room:hover::before { transform: scale(1.35) translate(6px, -6px); }
 
 .room__door {
@@ -96,21 +96,21 @@ const roomOf = (index: number) => ROOMS[index % ROOMS.length]!;
   background: linear-gradient(160deg, var(--room-tint), rgba(255, 255, 255, .7));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .8);
   transform-origin: 0 100%;
-  transition: transform 300ms ease;
+  transition: transform var(--bs-dur-mid) ease;
 }
 .room:hover .room__door { transform: perspective(220px) rotateY(-18deg); }
 .room__door b { font-size: 1.4rem; line-height: 1; }
 .room__knob { position: absolute; right: .42rem; top: 55%; width: .3rem; height: .3rem; border-radius: 50%; background: var(--room-ink); opacity: .7; }
 
 .room__text { display: grid; gap: .12rem; min-width: 0; }
-.room__text strong { color: #392d4f; font-size: 1.02rem; }
+.room__text strong { color: var(--bs-ink); font-size: 1.02rem; }
 .room__text small { color: var(--room-ink); font-size: .76rem; letter-spacing: .04em; }
-.room__text span { display: -webkit-box; overflow: hidden; color: #9485a3; font-size: .84rem; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.room__text span { display: -webkit-box; overflow: hidden; color: var(--bs-ink-muted); font-size: .84rem; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 
-.room__arrow { color: var(--room-ink); font-size: 1.05rem; opacity: 0; transform: translateX(-6px); transition: 260ms ease; }
+.room__arrow { color: var(--room-ink); font-size: 1.05rem; opacity: 0; transform: translateX(-6px); transition: var(--bs-dur-base) ease; }
 .room:hover .room__arrow { opacity: .85; transform: translateX(0); }
 
-.rooms__empty { margin: 0; color: #9485a3; }
+.rooms__empty { margin: 0; color: var(--bs-ink-muted); }
 
 @media (max-width: 640px) { .rooms__grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) {

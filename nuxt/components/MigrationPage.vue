@@ -31,8 +31,8 @@ defineProps<{
 .migration-page__orb--one { top: -1.2rem; left: -2rem; width: 9rem; height: 9rem; background: radial-gradient(circle, rgba(255, 143, 179, .55), transparent 70%); }
 .migration-page__orb--two { top: 1.6rem; right: -1.4rem; width: 11rem; height: 11rem; background: radial-gradient(circle, rgba(185, 167, 255, .45), transparent 70%); }
 
-.migration-page__eyebrow { display: inline-flex; align-items: center; gap: .4rem; margin: 0; padding: .3rem .8rem; border: 1px dashed rgba(177, 118, 140, .45); border-radius: 999px; background: rgba(255, 255, 255, .5); color: #b1768c; font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; }
-.migration-page__spark { color: #ffbd8a; }
+.migration-page__eyebrow { display: inline-flex; align-items: center; gap: .4rem; margin: 0; padding: .3rem .8rem; border: 1px dashed rgba(177, 118, 140, .45); border-radius: 999px; background: var(--bs-surface); color: var(--bs-accent-ink); font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; }
+.migration-page__spark { color: var(--bs-peach); }
 @media (prefers-reduced-motion: no-preference) {
   .migration-page__spark { animation: mp-spark 2.6s ease-in-out infinite; }
 }
@@ -41,11 +41,11 @@ defineProps<{
   50% { transform: rotate(20deg) scale(1.25); opacity: 1; }
 }
 
-.migration-page h1 { margin: .9rem 0 .2rem; color: #392d4f; font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: 1.08; }
+.migration-page h1 { margin: .9rem 0 .2rem; color: var(--bs-ink); font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: 1.08; }
 
-.migration-page__description { max-width: 620px; margin: .6rem 0 0; color: #746b86; font-size: 1.1rem; line-height: 1.8; }
+.migration-page__description { max-width: 620px; margin: .6rem 0 0; color: var(--bs-ink-soft); font-size: 1.1rem; line-height: 1.8; }
 
-.migration-page__squiggle { display: block; width: 7.5rem; height: .6rem; margin-top: 1.2rem; background: linear-gradient(90deg, #ff8fb3, #ffe48a, #b9a7ff, #9ee6d0); border-radius: 999px; opacity: .8; }
+.migration-page__squiggle { display: block; width: 7.5rem; height: .6rem; margin-top: 1.2rem; background: linear-gradient(90deg, var(--bs-pink), var(--bs-yellow), var(--bs-lilac), var(--bs-mint)); border-radius: 999px; opacity: .8; }
 
-.migration-page__slot { margin-top: 2rem; padding: 1.5rem; border: 1px solid rgba(255, 255, 255, .72); border-radius: 1.4rem; background: rgba(255, 255, 255, .56); box-shadow: 0 16px 44px rgba(95, 66, 118, .1); color: #4b3d60; line-height: 1.85; }
+.migration-page__slot { margin-top: 2rem; padding: 1.5rem; border: 1px solid var(--bs-border); border-radius: 1.4rem; background: var(--bs-surface); box-shadow: var(--bs-shadow); color: var(--bs-ink-body); line-height: 1.85; }
 </style>

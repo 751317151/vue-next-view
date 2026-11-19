@@ -26,6 +26,7 @@
         <NuxtLink to="/about">关于</NuxtLink>
         <NuxtLink to="/message">留言板</NuxtLink>
         <NuxtLink to="/search" class="site-shell__search">搜索 ✦</NuxtLink>
+        <ThemeToggle />
       </nav>
       <div class="site-shell__actions">
         <!-- The buttons render on the server so a phone on a slow connection
@@ -45,13 +46,15 @@
         </button>
       </div>
     </header>
+    <!-- 星愿瓶刻意放在 ClientOnly 之外：瓶子本身在 SSR 就能画出来（初始为空瓶），
+         水合后只是把本地收藏填进去，不会造成布局跳动或首屏空白。 -->
+    <StarJar />
     <main class="site-shell__main"><slot /></main>
     <ClientOnly>
       <BackToTop />
       <MobileDrawer v-model="drawerOpen" @settings="settingsOpen = true" />
       <SettingsSheet :open="settingsOpen" @close="settingsOpen = false" />
-      <!-- Mounted after the overlays so its z-index sits above them without
-           needing an inflated value. -->
+      <!-- 团子现在有 Nuxt 版实现了，走统一停靠区，叠在回到顶部上方。 -->
       <MochiCompanion />
     </ClientOnly>
     <footer class="site-shell__footer">
@@ -184,7 +187,7 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
     linear-gradient(135deg, rgba(255, 250, 245, .94), rgba(255, 240, 247, .88));
   box-shadow: 0 12px 40px rgba(95, 66, 118, .12), inset 0 1px 0 rgba(255, 255, 255, .7);
   backdrop-filter: blur(20px) saturate(1.1);
-  transition: transform 320ms cubic-bezier(.3, 0, .2, 1), box-shadow 240ms ease, background-color 240ms ease;
+  transition: transform var(--bs-dur-mid) var(--bs-ease-glide), box-shadow var(--bs-dur-base) ease, background-color var(--bs-dur-base) ease;
 }
 
 /* Scrolled a little: tighten the shadow so the bar separates from content. */
@@ -207,18 +210,18 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
    does not dominate the bar. */
 .site-shell__brand { display: inline-flex; align-items: center; gap: .4rem; color: var(--bs-ink); font-size: .95rem; font-weight: 700; letter-spacing: .01em; text-decoration: none; text-shadow: 1px 1px 0 rgba(255, 228, 138, .55); }
 :root.bs-dark .site-shell__brand { text-shadow: 1px 1px 0 rgba(255, 228, 138, .16); }
-.site-shell__brand-mark { font-size: 1rem; transition: transform 260ms ease; }
+.site-shell__brand-mark { font-size: 1rem; transition: transform var(--bs-dur-base) ease; }
 .site-shell__brand:hover .site-shell__brand-mark { transform: rotate(-14deg) scale(1.15); }
 .site-shell__header nav { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; justify-content: flex-end; }
-.site-shell__header nav a { position: relative; padding: .45rem .75rem; border-radius: 999px; color: var(--bs-ink-soft); font-size: .9rem; text-decoration: none; transition: 180ms ease; }
-.site-shell__header nav a::after { content: ''; position: absolute; inset: auto .8rem -1px; height: 2px; border-radius: 999px; background: linear-gradient(90deg, #ff8fb3, #ffbd8a, #b9a7ff); opacity: 0; transform: scaleX(.3); transition: 220ms ease; }
+.site-shell__header nav a { position: relative; padding: .45rem .75rem; border-radius: 999px; color: var(--bs-ink-soft); font-size: .9rem; text-decoration: none; transition: var(--bs-dur-quick) ease; }
+.site-shell__header nav a::after { content: ''; position: absolute; inset: auto .8rem -1px; height: 2px; border-radius: 999px; background: linear-gradient(90deg, var(--bs-pink), var(--bs-peach), var(--bs-lilac)); opacity: 0; transform: scaleX(.3); transition: var(--bs-dur-base) ease; }
 .site-shell__header nav a:hover, .site-shell__header nav a.router-link-active { color: var(--bs-ink); background: rgba(255, 143, 179, .16); transform: translateY(-2px); }
 :root.bs-dark .site-shell__header nav a:hover, :root.bs-dark .site-shell__header nav a.router-link-active { background: rgba(255, 143, 179, .22); }
 .site-shell__header nav a:hover::after, .site-shell__header nav a.router-link-active::after { opacity: 1; transform: scaleX(1); }
 .site-shell__header nav .site-shell__search { border: 1px dashed rgba(185, 167, 255, .6); }
 
 .site-shell__actions { display: flex; align-items: center; gap: .4rem; }
-.site-shell__icon-btn { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; padding: 0; border: 1px solid var(--bs-hairline); border-radius: 50%; background: var(--bs-surface-soft); color: var(--bs-ink); font-size: 1rem; line-height: 1; cursor: pointer; transition: 200ms cubic-bezier(.2, .9, .3, 1.2); }
+.site-shell__icon-btn { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; padding: 0; border: 1px solid var(--bs-hairline); border-radius: 50%; background: var(--bs-surface-soft); color: var(--bs-ink); font-size: 1rem; line-height: 1; cursor: pointer; transition: var(--bs-dur-quick) var(--bs-ease-pop); }
 .site-shell__icon-btn:hover { background: rgba(255, 143, 179, .18); transform: translateY(-2px) rotate(-6deg); }
 .site-shell__icon-btn:focus-visible { outline: 3px solid rgba(185, 167, 255, .72); outline-offset: 3px; }
 /* The drawer is the phone navigation; the hamburger only appears when the
@@ -230,9 +233,8 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
 .site-shell__footer-brand strong { color: var(--bs-ink); }
 .site-shell__footer-brand p { margin: .3rem 0 0; color: var(--bs-ink-soft); font-size: .9rem; }
 .site-shell__footer-links { display: flex; flex-wrap: wrap; gap: .35rem .5rem; margin: .9rem 0 .5rem; }
-.site-shell__footer-links a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .3rem .55rem; border-radius: 999px; color: #8b73c5; font-size: .88rem; text-decoration: none; transition: 180ms ease; }
-.site-shell__footer-links a:hover { color: #e1799c; background: rgba(255, 143, 179, .12); transform: translateY(-2px); }
-:root.bs-dark .site-shell__footer-links a { color: var(--bs-lilac); }
+.site-shell__footer-links a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .3rem .55rem; border-radius: 999px; color: var(--bs-link); font-size: .88rem; text-decoration: none; transition: var(--bs-dur-quick) ease; }
+.site-shell__footer-links a:hover { color: var(--bs-accent-strong); background: var(--bs-tint-pink); transform: translateY(-2px); }
 .site-shell__footer-note { margin: 0; color: var(--bs-ink-soft); font-size: .8rem; }
 
 @media (max-width: 860px) {

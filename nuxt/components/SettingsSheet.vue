@@ -111,7 +111,7 @@ onBeforeUnmount(() => {
 
 .sheet__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; }
 .sheet__head h2 { margin: 0; font-size: 1.1rem; color: var(--bs-ink); }
-.sheet__close { width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--bs-ink-soft); font-size: 1.25rem; line-height: 1; cursor: pointer; transition: 180ms ease; }
+.sheet__close { width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--bs-ink-soft); font-size: 1.25rem; line-height: 1; cursor: pointer; transition: var(--bs-dur-quick) ease; }
 .sheet__close:hover { background: rgba(255, 143, 179, 0.18); color: var(--bs-ink); transform: rotate(90deg); }
 
 .sheet__group { margin-top: 1.15rem; }
@@ -119,7 +119,7 @@ onBeforeUnmount(() => {
 .sheet__hint { margin: .55rem 0 0; color: var(--bs-ink-soft); font-size: .76rem; line-height: 1.6; }
 
 .segmented { display: flex; gap: .35rem; padding: .28rem; border-radius: 999px; background: var(--bs-surface-soft); }
-.segmented button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: .3rem; padding: .5rem .4rem; border: 0; border-radius: 999px; background: transparent; color: var(--bs-ink-soft); font-family: inherit; font-size: .84rem; cursor: pointer; transition: 200ms cubic-bezier(.2, .9, .3, 1.2); }
+.segmented button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: .3rem; padding: .5rem .4rem; border: 0; border-radius: 999px; background: transparent; color: var(--bs-ink-soft); font-family: inherit; font-size: .84rem; cursor: pointer; transition: var(--bs-dur-quick) var(--bs-ease-pop); }
 .segmented button:hover { color: var(--bs-ink); }
 .segmented button.is-active { background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: #392d4f; font-weight: 600; box-shadow: 0 8px 20px rgba(255, 143, 179, 0.28); transform: translateY(-1px); }
 
@@ -128,15 +128,15 @@ onBeforeUnmount(() => {
 .toggle strong { color: var(--bs-ink); font-size: .92rem; font-weight: 600; }
 .toggle small { color: var(--bs-ink-soft); font-size: .76rem; line-height: 1.55; }
 .toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.toggle__track { position: relative; flex: 0 0 auto; width: 2.7rem; height: 1.5rem; border-radius: 999px; background: var(--bs-surface-soft); box-shadow: inset 0 0 0 1px var(--bs-hairline); transition: background 220ms ease; }
-.toggle__thumb { position: absolute; top: .19rem; left: .19rem; width: 1.12rem; height: 1.12rem; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(57, 45, 79, 0.28); transition: transform 240ms cubic-bezier(.2, .9, .3, 1.3); }
+.toggle__track { position: relative; flex: 0 0 auto; width: 2.7rem; height: 1.5rem; border-radius: 999px; background: var(--bs-surface-soft); box-shadow: inset 0 0 0 1px var(--bs-hairline); transition: background var(--bs-dur-base) ease; }
+.toggle__thumb { position: absolute; top: .19rem; left: .19rem; width: 1.12rem; height: 1.12rem; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(57, 45, 79, 0.28); transition: transform var(--bs-dur-base) var(--bs-ease-pop); }
 .toggle input:checked + .toggle__track { background: linear-gradient(135deg, var(--bs-mint), var(--bs-lilac)); }
 .toggle input:checked + .toggle__track .toggle__thumb { transform: translateX(1.2rem); }
 .toggle input:focus-visible + .toggle__track { outline: 3px solid rgba(185, 167, 255, 0.72); outline-offset: 3px; }
 
 /* Mount-only entrance animations; closing removes the node immediately. */
-.sheet-scrim { animation: sheet-scrim-in 240ms ease; }
-.sheet { animation: sheet-panel-in 300ms cubic-bezier(.2, .9, .3, 1.2); }
+.sheet-scrim { animation: sheet-scrim-in var(--bs-dur-base) ease; }
+.sheet { animation: sheet-panel-in var(--bs-dur-mid) var(--bs-ease-pop); }
 
 @keyframes sheet-scrim-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes sheet-panel-in { from { opacity: 0; transform: translateY(1.5rem) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }

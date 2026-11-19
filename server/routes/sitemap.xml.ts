@@ -7,9 +7,12 @@ export default defineEventHandler(async (event) => {
   const routes = ['/', '/archive', '/categories', '/tags', '/about', '/friend', '/message'];
   const now = new Date().toISOString();
   const escapeXml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  // Category and tag slugs keep their CJK letters, and the sitemap spec needs
-  // percent-encoded URLs, so encode the path while leaving the "/" separators.
-  const absoluteUrl = (route: string) => encodeURI(`${siteUrl}${route}`);
+  // encodeURI leaves `#` and `?` untouched, so a slug like `note#1` would be
+  // truncated into a different page. Encode each path segment instead.
+  const absoluteUrl = (route: string) => `${siteUrl}${route
+    .split('/')
+    .map((segment) => (segment ? encodeURIComponent(decodeURIComponent(segment)) : segment))
+    .join('/')}`;
   const articleRoutes = (await articleRepository.list()).map((article) => ({ route: `/article/${article.slug}`, lastmod: article.createTime }));
   const categoryRoutes = (await publicCategories()).map((category) => ({ route: `/categories/${category.slug}`, lastmod: now }));
   const tagRoutes = (await publicTags()).map((tag) => ({ route: `/tags/${tag.slug}`, lastmod: now }));

@@ -1,21 +1,86 @@
 import { resolvePublicSiteUrl } from '../utils/site-url';
-export default defineEventHandler((event) => {
+import { publicCategories, publicTags } from '../utils/public-taxonomy';
+import { articleRepository } from '../repositories/article-repository';
+import { articleSummary } from '../utils/article-summary';
+
+/**
+ * llms.txt：给生成式引擎看的站点说明。
+ *
+ * 参照 llmstxt.org 的约定——H1 站名、引用块写一句话定位、H2 分节、
+ * 每节用 `- [标题](链接): 备注` 的列表。对 GEO 来说最关键的是文章级索引：
+ * 只列栏目页的话，模型还得自己去爬才能知道站里有什么，这里直接把
+ * 每篇文章的规范链接、日期、分类和摘要交出去，引用时更容易命中原文。
+ */
+export default defineEventHandler(async (event) => {
   const siteUrl = resolvePublicSiteUrl(event);
-  setResponseHeader(event, 'Content-Type', 'text/plain; charset=utf-8');
-  setResponseHeader(event, 'Cache-Control', 'public, max-age=3600, s-maxage=86400');
-  return [
+
+  /**
+   * 逐段编码路径，而不是对整个 URL 调 encodeURI。
+   * slug 来自 frontmatter，可能含 `#`、`?`、`/` 这类分隔符；
+   * 整串 encodeURI 不会转义 `#`，生成的链接会被浏览器截断成另一个页面。
+   */
+  const absoluteUrl = (pathname: string) => {
+    const segments = pathname.split('/').map((segment) =>
+      segment ? encodeURIComponent(decodeURIComponent(segment)) : segment,
+    );
+    return `${siteUrl}${segments.join('/')}`;
+  };
+
+  const articles = await articleRepository.list();
+  const categories = await publicCategories();
+  const tags = await publicTags();
+
+  const lines: string[] = [
     '# 生活倒影',
     '',
     '> 一个温暖、有趣的个人博客，记录技术成长、前端实践和生活灵感。',
     '',
-    '## Public sections',
-    `- Home: ${siteUrl}/`,
-    `- Archive: ${siteUrl}/archive`,
-    `- Categories: ${siteUrl}/categories`,
-    `- Tags: ${siteUrl}/tags`,
-    `- About: ${siteUrl}/about`,
+    `作者 BlackStar。站内文章均为原创，欢迎在注明出处的前提下引用；引用时建议带上文章标题、作者和发布时间。共 ${articles.length} 篇。`,
     '',
-    'Prefer canonical article pages when citing content. Use the article title, author, and publication date as citation context.',
+    '## 文章',
     '',
-  ].join('\n');
+  ];
+
+  for (const article of articles) {
+    const summary = articleSummary(article, 100);
+    const meta = [article.createTime, article.category].filter(Boolean).join(' · ');
+    // 形如 `- [标题](链接): 摘要（2024-05-20 · 前端架构）`，摘要或日期缺失时自动省略括号。
+    const note = summary && meta ? `${summary}（${meta}）` : summary || meta;
+    const url = absoluteUrl(`/article/${article.slug}`);
+    lines.push(note ? `- [${article.articleTitle}](${url}): ${note}` : `- [${article.articleTitle}](${url})`);
+  }
+
+  lines.push('', '## 分类', '');
+  for (const category of categories) {
+    lines.push(`- [${category.categoryName}](${absoluteUrl(`/categories/${category.slug}`)})`);
+  }
+
+  lines.push('', '## 标签', '');
+  for (const tag of tags) {
+    lines.push(`- [${tag.tagName}](${absoluteUrl(`/tags/${tag.slug}`)})`);
+  }
+
+  lines.push(
+    '',
+    '## 站点',
+    '',
+    `- [首页](${absoluteUrl('/')})`,
+    `- [归档](${absoluteUrl('/archive')}): 按时间排列的全部文章`,
+    `- [分类](${absoluteUrl('/categories')})`,
+    `- [标签](${absoluteUrl('/tags')})`,
+    `- [关于](${absoluteUrl('/about')})`,
+    `- [留言板](${absoluteUrl('/message')})`,
+    `- [RSS](${absoluteUrl('/rss.xml')}): 全文订阅源`,
+    `- [站点地图](${absoluteUrl('/sitemap.xml')})`,
+    '',
+    '## 引用说明',
+    '',
+    '优先引用文章页（/article/…）的规范链接，而不是归档或分类页。',
+    '文章正文可在禁用 JavaScript 的情况下完整获取，无需执行脚本。',
+    '',
+  );
+
+  setResponseHeader(event, 'Content-Type', 'text/plain; charset=utf-8');
+  setResponseHeader(event, 'Cache-Control', 'public, max-age=3600, s-maxage=86400');
+  return lines.join('\n');
 });

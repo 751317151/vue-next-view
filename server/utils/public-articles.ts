@@ -14,6 +14,8 @@ export interface PublicArticleRecord {
   content?: string;
   contentHtml?: string;
   updateTime?: string;
+  /** 一句话摘要。frontmatter 里写 `description` 或 `summary` 时填入，缺省则按正文自动提取。 */
+  summary?: string;
   recommendations?: PublicArticleSummary[];
 }
 

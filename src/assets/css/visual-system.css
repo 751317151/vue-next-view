@@ -1,49 +1,181 @@
-/* BlackStar visual system: warm, playful, and quietly magical. */
+/* BlackStar visual system: warm, playful, and quietly magical.
+   Every page colour comes from these tokens so the whole site can switch
+   between the daytime cream theme and the midnight star-sky theme at once. */
 :root {
+  /* Text */
   --bs-ink: #392d4f;
+  --bs-ink-body: #4b3d60;
   --bs-ink-soft: #746b86;
-  --bs-paper: #fffaf5;
-  --bs-paper-strong: rgba(255, 250, 245, 0.82);
+  --bs-ink-muted: #9485a3;
+  --bs-ink-subtle: #a99db8;
+  --bs-ink-faint: #c9bfd6;
+  /* Brand accents */
   --bs-pink: #ff8fb3;
   --bs-peach: #ffbd8a;
   --bs-lilac: #b9a7ff;
   --bs-mint: #9ee6d0;
   --bs-yellow: #ffe48a;
+  --bs-accent-ink: #b1768c;
+  --bs-accent-strong: #e1799c;
+  --bs-link: #8b73c5;
+  --bs-link-strong: #a464bc;
+  /* Paper and surfaces */
+  --bs-paper: #fffaf5;
+  --bs-paper-strong: rgba(255, 250, 245, 0.82);
+  --bs-surface: rgba(255, 255, 255, 0.6);
+  --bs-surface-strong: rgba(255, 255, 255, 0.72);
+  --bs-surface-solid: rgba(255, 255, 255, 0.84);
+  --bs-border: rgba(255, 255, 255, 0.7);
+  --bs-border-accent: rgba(255, 143, 179, 0.42);
+  --bs-tint-pink: rgba(255, 143, 179, 0.16);
+  --bs-tint-lilac: rgba(185, 167, 255, 0.18);
+  --bs-tint-yellow: rgba(255, 228, 138, 0.28);
+  --bs-code-bg: #392d4f;
+  --bs-code-ink: #fffaf5;
+  /* Structure */
   --bs-shadow: 0 18px 55px rgba(95, 66, 118, 0.14);
+  --bs-shadow-soft: 0 12px 30px rgba(95, 66, 118, 0.08);
+  --bs-shadow-hover: 0 24px 70px rgba(95, 66, 118, 0.2);
   --bs-radius-lg: 28px;
   --bs-radius-md: 18px;
   --bs-font-hand: "LXGW WenKai", "LXGW WenKai GB", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
-
-  /* Surfaces and borders flip with the theme; components reference these
-     instead of hard-coded whites so dark mode needs no per-component rules. */
-  --bs-surface: rgba(255, 255, 255, 0.6);
+  /* 远程新增：随主题翻转的表面与描边变量，组件统一引用这些而非硬编码白色。 */
   --bs-surface-soft: rgba(255, 255, 255, 0.42);
   --bs-hairline: rgba(255, 255, 255, 0.72);
   --bs-page-glow-a: rgba(255, 190, 205, 0.28);
   --bs-page-glow-b: rgba(185, 167, 255, 0.2);
-  --bs-page-bg: linear-gradient(135deg, #fffaf5 0%, #fff4f8 48%, #f6f3ff 100%);
   --bs-blur: 18px;
+  /* 页面背景已含光晕，无需在 body 上重复叠加 --bs-page-glow-*。 */
+  --bs-page-bg:
+    radial-gradient(circle at 12% 8%, rgba(255, 190, 205, 0.28), transparent 26rem),
+    radial-gradient(circle at 90% 16%, rgba(185, 167, 255, 0.2), transparent 24rem),
+    linear-gradient(135deg, #fffaf5 0%, #fff4f8 48%, #f6f3ff 100%);
+  --bs-orb-one: rgba(255, 143, 179, 0.32);
+  --bs-orb-two: rgba(158, 230, 208, 0.32);
+  --bs-selection: rgba(255, 143, 179, 0.28);
+  /* 给全屏 hero 底部渐变收口用的颜色。 */
+  --bs-page-bottom: #fff4f8;
+  --bs-blend-fade: rgba(255, 244, 248, 0.9);
+  --bs-art-filter: none;
 }
 
-/* Night palette: deep plum instead of black so the warm tones survive. */
-:root.bs-dark {
-  --bs-ink: #f4eefb;
-  --bs-ink-soft: #b7aac9;
-  --bs-paper: #241f33;
-  --bs-paper-strong: rgba(42, 35, 56, 0.86);
-  --bs-pink: #ff9dc0;
-  --bs-peach: #ffc79a;
-  --bs-lilac: #c4b4ff;
-  --bs-mint: #a6f0dc;
-  --bs-yellow: #ffe9a0;
-  --bs-shadow: 0 18px 55px rgba(0, 0, 0, 0.42);
+/* ---------------------------------------------------------------------------
+   动效语言：全站共用的时长档位与缓动曲线。
+   组件只写 var(--bs-dur-*) / var(--bs-ease-*)，动画节奏就不会各写各的。
+   --------------------------------------------------------------------------- */
+:root {
+  /* 时长：按"反馈→过渡→入场→氛围"分档，数字本身不重要，一致才重要。 */
+  --bs-dur-tick: 90ms;     /* 微反馈：色值、透明度轻变 */
+  --bs-dur-quick: 180ms;   /* 即时响应：hover、focus */
+  --bs-dur-base: 240ms;    /* 常规过渡：卡片、按钮、抽屉 */
+  --bs-dur-mid: 340ms;     /* 成组过渡：面板、路由、主题色 */
+  --bs-dur-slow: 620ms;    /* 入场/出场：弹跳、绽放 */
+  --bs-dur-drift: 2.4s;    /* 氛围循环：光球、星轨 */
+  /* 缓动：统一全站的"弹性回弹"家族（原本散落 8 个近似值）。 */
+  --bs-ease-pop: cubic-bezier(.2, .9, .3, 1.3);      /* 萌系回弹，默认 */
+  --bs-ease-soft: cubic-bezier(.22, .9, .3, 1.18);   /* 柔和落地 */
+  --bs-ease-glide: cubic-bezier(.3, 0, .2, 1);       /* 顺滑位移：抽屉/头部 */
+  --bs-ease-breathe: ease-in-out;                    /* 循环呼吸 */
+}
 
-  --bs-surface: rgba(58, 48, 76, 0.62);
-  --bs-surface-soft: rgba(58, 48, 76, 0.44);
-  --bs-hairline: rgba(255, 255, 255, 0.12);
-  --bs-page-glow-a: rgba(255, 143, 179, 0.16);
-  --bs-page-glow-b: rgba(185, 167, 255, 0.14);
-  --bs-page-bg: linear-gradient(135deg, #241f33 0%, #2b2340 48%, #221d31 100%);
+/* ---------------------------------------------------------------------------
+   悬浮控件停靠区：右下（回到顶部、团子）与左下（星愿瓶）共用一套坐标。
+   以前两个组件各自写 clamp(...)，结果团子和回到顶部完全重叠；
+   现在统一从这里取值，新增挂件只要按层往上叠即可。
+   --------------------------------------------------------------------------- */
+:root {
+  --bs-dock-edge: clamp(1rem, 3vw, 2.2rem);          /* 离屏幕边缘的距离 */
+  --bs-dock-gap: .75rem;                             /* 同一侧挂件之间的间隔 */
+  --bs-dock-size: 3.2rem;                            /* 基础圆形按钮直径 */
+  --bs-dock-z: 40;                                   /* 挂件层级，低于导航栏 */
+  --bs-dock-z-panel: 45;                             /* 展开的卡片/面板 */
+}
+
+/* 午夜星空：深靛蓝底色、月光色文字、柔化的点缀色。
+   与远程的 bs-dark 类机制合并，统一由 useAppearance 切换。 */
+:root.bs-dark {
+  --bs-ink: #f4ecff;
+  --bs-ink-body: #ded2f2;
+  --bs-ink-soft: #bdb0d6;
+  --bs-ink-muted: #9b8fb5;
+  --bs-ink-subtle: #837599;
+  --bs-ink-faint: #6b5f80;
+  --bs-pink: #ff9cc0;
+  --bs-peach: #ffc99b;
+  --bs-lilac: #c3b2ff;
+  --bs-mint: #a8ecd9;
+  --bs-yellow: #ffe9a0;
+  --bs-accent-ink: #e2a0b6;
+  --bs-accent-strong: #ff9fc0;
+  --bs-link: #c3b2ff;
+  --bs-link-strong: #d8b8ff;
+  --bs-paper: #191327;
+  --bs-paper-strong: rgba(33, 26, 54, 0.86);
+  --bs-surface: rgba(44, 35, 68, 0.62);
+  --bs-surface-soft: rgba(44, 35, 68, 0.5);
+  --bs-surface-strong: rgba(48, 38, 74, 0.76);
+  --bs-surface-solid: rgba(52, 41, 80, 0.9);
+  --bs-border: rgba(196, 178, 255, 0.16);
+  --bs-hairline: rgba(196, 178, 255, 0.16);
+  --bs-border-accent: rgba(255, 156, 192, 0.4);
+  --bs-tint-pink: rgba(255, 156, 192, 0.14);
+  --bs-tint-lilac: rgba(195, 178, 255, 0.16);
+  --bs-tint-yellow: rgba(255, 233, 160, 0.14);
+  --bs-code-bg: #0f0b1c;
+  --bs-code-ink: #e9e1ff;
+  --bs-shadow: 0 18px 55px rgba(0, 0, 0, 0.5);
+  --bs-shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.34);
+  --bs-shadow-hover: 0 24px 70px rgba(0, 0, 0, 0.62);
+  --bs-page-glow-a: rgba(126, 92, 200, 0.3);
+  --bs-page-glow-b: rgba(74, 116, 190, 0.22);
+  --bs-page-bg:
+    radial-gradient(circle at 14% 6%, rgba(126, 92, 200, 0.3), transparent 30rem),
+    radial-gradient(circle at 88% 14%, rgba(74, 116, 190, 0.22), transparent 26rem),
+    radial-gradient(circle at 50% 96%, rgba(255, 143, 179, 0.16), transparent 24rem),
+    linear-gradient(160deg, #120e1f 0%, #191327 45%, #221a38 100%);
+  --bs-orb-one: rgba(126, 92, 200, 0.34);
+  --bs-orb-two: rgba(74, 116, 190, 0.3);
+  --bs-selection: rgba(195, 178, 255, 0.3);
+  --bs-page-bottom: #1a1428;
+  --bs-blend-fade: rgba(26, 20, 40, 0.92);
+  /* 压低封面插画的饱和度，避免它在夜空背景下发光。 */
+  --bs-art-filter: saturate(0.78) brightness(0.82);
+  color-scheme: dark;
+}
+
+::selection {
+  background: var(--bs-selection);
+}
+
+/* 切到星空时页面颜色平滑过渡，顶部短暂绽放星光，让切换显得是有意为之。 */
+html.theme-switching body {
+  transition: color var(--bs-dur-mid) ease, background-color var(--bs-dur-mid) ease;
+}
+
+html.theme-switching::after {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, .85) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 62% 32%, rgba(255, 233, 160, .9) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 82% 14%, rgba(255, 255, 255, .8) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 38% 62%, rgba(195, 178, 255, .9) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 72% 74%, rgba(255, 255, 255, .7) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 12% 82%, rgba(255, 233, 160, .8) 0 1.2px, transparent 2px);
+  content: "";
+  animation: theme-stars-bloom var(--bs-dur-slow) ease-out forwards;
+}
+
+@keyframes theme-stars-bloom {
+  0% { opacity: 0; transform: scale(.96); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-switching::after { animation: none; opacity: 0; }
 }
 
 /* Hand-written warm font for the whole site; text stays readable while it swaps in. */
@@ -64,11 +196,11 @@ samp {
 
 /* Route transitions: pages float in like a soft mochi landing. */
 .page-mochi-enter-active {
-  transition: opacity 340ms cubic-bezier(0.22, 0.9, 0.3, 1.18), transform 340ms cubic-bezier(0.22, 0.9, 0.3, 1.18);
+  transition: opacity var(--bs-dur-mid) var(--bs-ease-soft), transform var(--bs-dur-mid) var(--bs-ease-soft);
 }
 
 .page-mochi-leave-active {
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition: opacity var(--bs-dur-quick) ease, transform var(--bs-dur-quick) ease;
 }
 
 .page-mochi-enter-from {
@@ -86,6 +218,14 @@ html {
   /* Firefox scrollbar, matched to the legacy WebKit styling below. */
   scrollbar-width: thin;
   scrollbar-color: var(--bs-scroll-thumb) transparent;
+}
+
+/* 路由切换期间临时关掉平滑滚动。
+   vue-router 复位滚动位置时调用的是不带 behavior 的 window.scrollTo()，
+   会继承 html 上的 smooth，导致每次换页都"慢慢滚回顶部"。
+   换页时由 route-scroll 插件加上这个类，滚完再摘掉。 */
+html.bs-scroll-instant {
+  scroll-behavior: auto;
 }
 
 :root {
@@ -113,7 +253,7 @@ html {
 ::-webkit-scrollbar-thumb {
   border-radius: 4px;
   background-color: var(--bs-scroll-thumb);
-  transition: background 0.3s ease;
+  transition: background var(--bs-dur-mid) ease;
   background-image: linear-gradient(
     45deg,
     rgba(255, 255, 255, 0.4) 25%,
@@ -143,12 +283,10 @@ body {
   font-family: var(--bs-font-hand);
   /* Full-bleed heroes use 100vw; clip the scrollbar-width overflow. */
   overflow-x: clip;
-  background:
-    radial-gradient(circle at 12% 8%, var(--bs-page-glow-a), transparent 26rem),
-    radial-gradient(circle at 90% 16%, var(--bs-page-glow-b), transparent 24rem),
-    var(--bs-page-bg);
+  /* 页面光晕已并入 --bs-page-bg，这里直接用它，避免重复叠加光晕。 */
+  background: var(--bs-page-bg);
   background-attachment: fixed;
-  transition: background-color 320ms ease, color 320ms ease;
+  transition: color var(--bs-dur-mid) ease, background-color var(--bs-dur-mid) ease;
 }
 
 body::before,
@@ -168,13 +306,13 @@ body::after {
 body::before {
   top: 12%;
   left: -8rem;
-  background: radial-gradient(circle, rgba(255, 143, 179, 0.32), transparent 68%);
+  background: radial-gradient(circle, var(--bs-orb-one), transparent 68%);
 }
 
 body::after {
   right: -8rem;
   bottom: 12%;
-  background: radial-gradient(circle, rgba(158, 230, 208, 0.32), transparent 68%);
+  background: radial-gradient(circle, var(--bs-orb-two), transparent 68%);
   animation-delay: -7s;
 }
 
@@ -191,17 +329,17 @@ body::after {
 .shadow-box,
 .my-card,
 .background-opacity {
-  border: 1px solid var(--bs-hairline);
+  border: 1px solid var(--bs-border);
   border-radius: var(--bs-radius-lg);
   box-shadow: var(--bs-shadow);
   backdrop-filter: blur(var(--bs-blur)) saturate(1.08);
 }
 
 .toolbar-content {
-  border: 1px solid var(--bs-hairline);
+  border: 1px solid var(--bs-border);
   border-radius: 999px;
   background: var(--bs-paper-strong);
-  box-shadow: 0 12px 40px rgba(95, 66, 118, 0.12);
+  box-shadow: var(--bs-shadow-soft);
   backdrop-filter: blur(20px) saturate(1.12);
 }
 
@@ -210,30 +348,29 @@ body::after {
   letter-spacing: 0.02em;
   text-shadow: 2px 2px 0 rgba(255, 228, 138, 0.6);
 }
-
 .toolbar-content a,
 .toolbar-content button,
 .toolbar-content .nav-item {
   border-radius: 999px;
-  transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+  transition: color var(--bs-dur-quick) ease, background-color var(--bs-dur-quick) ease, transform var(--bs-dur-quick) ease;
 }
 
 .toolbar-content a:hover,
 .toolbar-content button:hover,
 .toolbar-content .nav-item:hover {
   color: var(--bs-ink);
-  background: rgba(255, 143, 179, 0.16);
+  background: var(--bs-tint-pink);
   transform: translateY(-2px) rotate(-1deg);
 }
 
 .recent-post-item {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--bs-border);
   border-radius: var(--bs-radius-lg);
   background: var(--bs-paper-strong);
   box-shadow: var(--bs-shadow);
-  transition: transform 260ms cubic-bezier(.2, .8, .2, 1), box-shadow 260ms ease, border-color 260ms ease;
+  transition: transform var(--bs-dur-base) var(--bs-ease-soft), box-shadow var(--bs-dur-base) ease, border-color var(--bs-dur-base) ease;
 }
 
 .recent-post-item::after {
@@ -245,12 +382,12 @@ body::after {
   content: "";
   opacity: 0;
   transform: scaleX(0.2);
-  transition: opacity 260ms ease, transform 260ms ease;
+  transition: opacity var(--bs-dur-base) ease, transform var(--bs-dur-base) ease;
 }
 
 .recent-post-item:hover {
-  border-color: rgba(255, 143, 179, 0.42);
-  box-shadow: 0 26px 70px rgba(95, 66, 118, 0.2);
+  border-color: var(--bs-border-accent);
+  box-shadow: var(--bs-shadow-hover);
   transform: translateY(-7px) rotate(-0.35deg);
 }
 
@@ -261,8 +398,8 @@ body::after {
 
 .shadow-box:hover,
 .my-card:hover {
-  border-color: rgba(255, 143, 179, 0.42);
-  box-shadow: 0 24px 70px rgba(95, 66, 118, 0.2);
+  border-color: var(--bs-border-accent);
+  box-shadow: var(--bs-shadow-hover);
   transform: translateY(-4px);
 }
 
@@ -338,7 +475,7 @@ html.bs-reduced-motion *::after {
   border: 2px solid var(--bs-ink-line);
   border-radius: 999px;
   box-shadow: var(--bs-sticker-shadow);
-  transition: transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1.3), box-shadow 200ms ease;
+  transition: transform var(--bs-dur-quick) var(--bs-ease-pop), box-shadow var(--bs-dur-quick) ease;
 }
 
 .bs-sticker:hover {

@@ -47,7 +47,7 @@ const applyTheme = (mode: ThemeMode) => {
   root.dataset.themeMode = mode;
   // Keep the browser chrome (address bar) in sync with the page.
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', resolved === 'dark' ? '#241f33' : '#ffb6c8');
+  if (meta) meta.setAttribute('content', resolved === 'dark' ? '#191327' : '#ffb6c8');
 };
 
 /** Shared module-level state so every Settings panel instance agrees. */
@@ -62,6 +62,14 @@ export const useAppearance = () => {
     themeMode.value = mode;
     writeStored(THEME_KEY, mode);
     applyTheme(mode);
+    // 切换星夜时短暂绽放星光；仅在真正的切换触发，首屏由 boot 脚本处理，不放动画。
+    if (isBrowser()) {
+      const root = document.documentElement;
+      root.classList.remove('theme-switching');
+      void root.offsetWidth; // 强制回流，让动画类可以重新触发
+      root.classList.add('theme-switching');
+      window.setTimeout(() => root.classList.remove('theme-switching'), 760);
+    }
   };
 
   const cycleTheme = () => {

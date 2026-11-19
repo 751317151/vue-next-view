@@ -38,11 +38,85 @@ try {
 const { robots, sitemap, rss, llms } = sources;
 const errors = [];
 
-if (!/^Sitemap:\s*https:\/\//mi.test(robots)) {
-  errors.push('robots.txt must contain an absolute HTTPS Sitemap URL');
+const isHttpsUrl = (value) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && Boolean(url.hostname) && !/\s/.test(value);
+  } catch {
+    return false;
+  }
+};
+
+/** Parse robots.txt into per-agent rule groups so we judge the rules that apply. */
+const parseRobotsGroups = (text) => {
+  const groups = [];
+  let current = null;
+  for (const rawLine of text.split('\n')) {
+    const line = rawLine.replace(/#.*$/, '').trim();
+    if (!line) continue;
+    const match = line.match(/^([A-Za-z-]+)\s*:\s*(.*)$/);
+    if (!match) continue;
+    const field = match[1].toLowerCase();
+    const value = match[2].trim();
+    if (field === 'user-agent') {
+      // A User-agent line right after rules starts a new group.
+      if (!current || current.rules.length) {
+        current = { agents: [], rules: [] };
+        groups.push(current);
+      }
+      current.agents.push(value.toLowerCase());
+    } else if (field === 'allow' || field === 'disallow') {
+      if (!current) {
+        current = { agents: [], rules: [] };
+        groups.push(current);
+      }
+      current.rules.push({ type: field, path: value });
+    }
+  }
+  return groups;
+};
+
+/** Rules for one bot: its own group wins, otherwise the wildcard group applies. */
+const rulesForBot = (groups, bot) => {
+  const name = bot.toLowerCase();
+  const specific = groups.filter((group) => group.agents.some((agent) => agent === name));
+  if (specific.length) return specific.flatMap((group) => group.rules);
+  const wildcard = groups.filter((group) => group.agents.some((agent) => agent === '*'));
+  return wildcard.flatMap((group) => group.rules);
+};
+
+/** A bot may fetch "/" only when no rule blocks it; longer paths win over shorter. */
+const allowsRoot = (rules) => {
+  let decision = true;
+  let bestLength = -1;
+  for (const rule of rules) {
+    if (rule.path === '') continue;
+    const matches = '/'.startsWith(rule.path) || rule.path === '/';
+    if (!matches) continue;
+    if (rule.path.length > bestLength) {
+      bestLength = rule.path.length;
+      decision = rule.type === 'allow';
+    }
+  }
+  return decision;
+};
+
+const sitemapDirectives = [...robots.matchAll(/^Sitemap:\s*(\S+)\s*$/gim)].map((match) => match[1]);
+if (!sitemapDirectives.length) {
+  errors.push('robots.txt must contain a Sitemap directive');
+} else if (sitemapDirectives.some((url) => !isHttpsUrl(url))) {
+  errors.push('robots.txt Sitemap directives must be absolute HTTPS URLs');
 }
-if (!/User-agent:\s*OAI-SearchBot/im.test(robots)) {
-  errors.push('robots.txt should explicitly allow OAI-SearchBot');
+
+const robotsGroups = parseRobotsGroups(robots);
+for (const bot of ['OAI-SearchBot', 'GPTBot']) {
+  if (!robotsGroups.some((group) => group.agents.some((agent) => agent === bot.toLowerCase()))) {
+    errors.push(`robots.txt should state an explicit rule for ${bot}`);
+    continue;
+  }
+  if (!allowsRoot(rulesForBot(robotsGroups, bot))) {
+    errors.push(`robots.txt must not block ${bot} from crawling the site`);
+  }
 }
 
 const sitemapLocs = [...sitemap.matchAll(/<loc>([^<]*)<\/loc>/g)].map((match) => match[1]);
@@ -52,20 +126,34 @@ if (!sitemapLocs.length) {
 if (/Generated during deployment/i.test(sitemap)) {
   errors.push('sitemap.xml is still a placeholder');
 }
-if (sitemapLocs.some((loc) => !loc.startsWith('https://'))) {
-  errors.push('every sitemap.xml <loc> must be an absolute HTTPS URL');
+const badSitemapUrls = sitemapLocs.filter((loc) => !isHttpsUrl(loc));
+if (badSitemapUrls.length) {
+  errors.push(`every sitemap.xml <loc> must be an absolute HTTPS URL, found: ${badSitemapUrls.slice(0, 3).join(', ')}`);
 }
 
+// Check every link, not just whether one of them happens to be HTTPS.
 const rssLinks = [...rss.matchAll(/<link>([^<]*)<\/link>/g)].map((match) => match[1]);
-if (!rssLinks.some((link) => link.startsWith('https://'))) {
-  errors.push('rss.xml must contain an absolute HTTPS <link>');
+if (!rssLinks.length) {
+  errors.push('rss.xml contains no <link> entries');
+}
+const badRssUrls = rssLinks.filter((link) => !isHttpsUrl(link));
+if (badRssUrls.length) {
+  errors.push(`every rss.xml <link> must be an absolute HTTPS URL, found: ${badRssUrls.slice(0, 3).join(', ')}`);
 }
 if (/Generated during deployment/i.test(rss)) {
   errors.push('rss.xml is still a placeholder');
 }
 
-if (!/^#\s+/m.test(llms) || !/https:\/\//i.test(llms)) {
-  errors.push('llms.txt must contain a heading and absolute HTTPS links');
+if (!/^#\s+/m.test(llms)) {
+  errors.push('llms.txt must contain a Markdown heading');
+}
+const llmsLinks = [...llms.matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1]);
+if (!llmsLinks.length) {
+  errors.push('llms.txt contains no Markdown links');
+}
+const badLlmsUrls = llmsLinks.filter((link) => !isHttpsUrl(link));
+if (badLlmsUrls.length) {
+  errors.push(`every llms.txt link must be an absolute HTTPS URL, found: ${badLlmsUrls.slice(0, 3).join(', ')}`);
 }
 
 // A build that silently baked the local origin would otherwise ship canonical

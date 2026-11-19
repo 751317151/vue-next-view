@@ -41,14 +41,14 @@ const friendlyTitle = computed(() => {
 <style scoped>
 .nuxt-error-page { max-width: 680px; margin: 0 auto; padding: 9vh 1.2rem 12vh; text-align: center; }
 
-.nuxt-error-page__code { margin: 0; color: var(--bs-pink, #ff8fb3); font-size: 4.4rem; font-weight: 800; line-height: 1; text-shadow: 3px 3px 0 var(--bs-ink-line, #392d4f); }
-h1 { margin: .7rem 0 0; color: var(--bs-ink, #392d4f); font-size: clamp(1.3rem, 4vw, 1.8rem); }
-.nuxt-error-page__hint { max-width: 24rem; margin: .7rem auto 0; color: var(--bs-ink-soft, #746b86); line-height: 1.8; }
+.nuxt-error-page__code { margin: 0; color: var(--bs-pink); font-size: 4.4rem; font-weight: 800; line-height: 1; text-shadow: 3px 3px 0 var(--bs-ink-line, #392d4f); }
+h1 { margin: .7rem 0 0; color: var(--bs-ink); font-size: clamp(1.3rem, 4vw, 1.8rem); }
+.nuxt-error-page__hint { max-width: 24rem; margin: .7rem auto 0; color: var(--bs-ink-soft); line-height: 1.8; }
 
 .nuxt-error-page__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .7rem; margin-top: 1.6rem; }
-.nuxt-error-page__actions button { padding: .7rem 1.2rem; border: 2px solid var(--bs-ink-line, #392d4f); border-radius: 999px; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; transition: transform 200ms cubic-bezier(.2, .9, .3, 1.3), box-shadow 200ms ease; }
-.nuxt-error-page__actions .is-primary { background: linear-gradient(135deg, var(--bs-yellow, #ffe48a), var(--bs-pink, #ffb6c8)); color: #392d4f; box-shadow: 3px 3px 0 var(--bs-ink-line, #392d4f); }
-.nuxt-error-page__actions .is-ghost { background: var(--bs-surface, rgba(255, 255, 255, .6)); color: var(--bs-ink, #392d4f); box-shadow: 3px 3px 0 var(--bs-hairline, rgba(255, 255, 255, .8)); }
+.nuxt-error-page__actions button { padding: .7rem 1.2rem; border: 2px solid var(--bs-ink-line, #392d4f); border-radius: 999px; color: var(--bs-ink); font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; transition: transform var(--bs-dur-quick) var(--bs-ease-pop), box-shadow var(--bs-dur-quick) ease; }
+.nuxt-error-page__actions .is-primary { background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: #392d4f; box-shadow: 3px 3px 0 var(--bs-ink-line, #392d4f); }
+.nuxt-error-page__actions .is-ghost { background: var(--bs-surface); color: var(--bs-ink); box-shadow: 3px 3px 0 var(--bs-hairline, rgba(255, 255, 255, .8)); }
 .nuxt-error-page__actions button:hover { transform: translate(-2px, -3px) rotate(-1deg); box-shadow: 5px 6px 0 var(--bs-ink-line, #392d4f); }
 .nuxt-error-page__actions button:focus-visible { outline: 3px solid rgba(185, 167, 255, .8); outline-offset: 3px; }
 </style>

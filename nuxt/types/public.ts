@@ -11,6 +11,8 @@ export interface PublicArticle {
   updateTime?: string;
   category?: string;
   tags?: string[];
+  /** 一句话摘要，来自 frontmatter 的 summary/description，缺省时由正文首段提取。 */
+  summary?: string;
 }
 
 export interface PublicCategory {

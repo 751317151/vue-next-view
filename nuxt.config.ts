@@ -46,6 +46,16 @@ export default defineNuxtConfig({
   components: [
     { path: '~/components', pathPrefix: false },
   ],
+  // Nuxt 的 tsconfig 会带上仓库根的 *.d.ts，而其中 components.d.ts /
+  // auto-imports.d.ts 属于 Vite 应用，会把 src/ 下同名的 ReadingProgress、
+  // ThemeToggle 也声明进来，与 Nuxt 自动导入的组件打架。这里在生成类型时
+  // 把它们排除，让 Nuxt 只认自己 components/ 下的版本。
+  hooks: {
+    'prepare:types': ({ tsConfig }) => {
+      const excluded = ['../components.d.ts', '../auto-imports.d.ts'];
+      tsConfig.exclude = Array.from(new Set([...(tsConfig.exclude ?? []), ...excluded]));
+    },
+  },
   devtools: { enabled: false },
   css: ['~/../src/assets/css/visual-system.css'],
   app: {

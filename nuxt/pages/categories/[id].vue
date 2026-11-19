@@ -16,12 +16,14 @@ if (id !== currentCategory.slug) {
   await navigateTo(`/categories/${encodeURIComponent(currentCategory.slug)}`, { redirectCode: 301 });
 }
 
-usePageSeo({
+const relatedArticles = computed(() => (articles.value || []).filter((article) => article.category === currentCategory.categoryName));
+
+useCollectionSeo({
   path: `/categories/${currentCategory.slug}`,
   title: `${currentCategory.categoryName} | ${siteConfig.name}`,
   description: currentCategory.description || `浏览${currentCategory.categoryName}相关的文章。`,
+  items: relatedArticles,
 });
-const relatedArticles = computed(() => (articles.value || []).filter((article) => article.category === currentCategory.categoryName));
 
 const runtimeConfig = useRuntimeConfig();
 const siteUrl = String(runtimeConfig.public.siteUrl || useRequestURL().origin).replace(/\/$/, '');
@@ -52,8 +54,8 @@ useHead({
 </template>
 
 <style scoped>
-.collection-count { margin: 0 0 1rem; color: #9485a3; font-size: .88rem; }
+.collection-count { margin: 0 0 1rem; color: var(--bs-ink-muted); font-size: .88rem; }
 .collection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.collection-empty { color: #9485a3; }
+.collection-empty { color: var(--bs-ink-muted); }
 @media (max-width: 640px) { .collection-grid { grid-template-columns: 1fr; } }
 </style>

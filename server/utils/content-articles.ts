@@ -8,6 +8,9 @@ interface Frontmatter {
   date?: string;
   updatedAt?: string;
   slug?: string;
+  /** 一句话摘要。`summary` 优先于 `description`，用于 SEO/GEO 与 llms.txt。 */
+  summary?: string;
+  description?: string;
 }
 
 /**
@@ -28,11 +31,15 @@ const parseFrontmatter = (raw: string): { meta: Frontmatter; body: string } => {
     const match = line.match(/^(\w[\w-]*):\s*(.*)$/);
     if (!match) continue;
     const key = match[1]!;
-    const value = match[2]!.trim();
+    const value = match[2]!.trim().replace(/^["']|["']$/g, '');
     if (key === 'tags') {
       meta.tags = value.replace(/^\[|\]$/g, '').split(',').map((tag) => tag.trim()).filter(Boolean);
     } else if (key === 'title' || key === 'category' || key === 'date' || key === 'updatedAt' || key === 'slug') {
       meta[key] = value;
+    } else if (key === 'description' || key === 'summary') {
+      // 两个键都接受，但 `summary` 的优先级更高，所以先各存一份。
+      if (key === 'summary') meta.summary = value;
+      else meta.description = value;
     }
   }
   return { meta, body };
@@ -60,6 +67,7 @@ const loadArticles = async (): Promise<PublicArticleRecord[]> => {
       updateTime: meta.updatedAt || date,
       category: meta.category || '随笔',
       tags: meta.tags || [],
+      summary: meta.summary || meta.description || '',
     });
   }
 

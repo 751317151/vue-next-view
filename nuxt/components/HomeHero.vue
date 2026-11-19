@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
   /* translateX is driven by the same value, so the stack drifts with the
      pointer rather than only fading. */
   transform: translateX(calc((var(--progress) - 0.5) * 52px));
-  transition: transform 620ms cubic-bezier(.3, 0, .2, 1);
+  transition: transform var(--bs-dur-slow) var(--bs-ease-glide);
 }
 
 /* Left image: reaches full strength only at the far left, and is fully gone by
@@ -297,8 +297,8 @@ onBeforeUnmount(() => {
 }
 
 .home-hero__veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(57, 45, 79, .38), rgba(57, 45, 79, .1) 42%, rgba(57, 45, 79, .34)); }
-.home-hero__blend { position: absolute; inset: auto 0 0; height: 8.5rem; background: linear-gradient(180deg, rgba(255, 244, 248, 0), rgba(255, 244, 248, .9) 76%, #fff4f8); }
-:root.bs-dark .home-hero__blend { background: linear-gradient(180deg, rgba(36, 31, 51, 0), rgba(36, 31, 51, .9) 76%, #241f33); }
+/* 渐变收口用主题 token，浅色/星空色随 bs-dark 一起切换。 */
+.home-hero__blend { position: absolute; inset: auto 0 0; height: 8.5rem; background: linear-gradient(180deg, transparent, var(--bs-blend-fade) 76%, var(--bs-page-bottom)); }
 
 .home-hero__content { position: relative; z-index: 1; display: grid; justify-items: center; gap: .45rem; padding: 2rem 1.2rem; color: #fffaf5; text-align: center; }
 
@@ -345,21 +345,21 @@ onBeforeUnmount(() => {
 }
 @keyframes hero-caret-blink { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
 
-.home-hero__hitokoto { display: flex; align-items: center; gap: .55rem; max-width: 44rem; min-height: 2.6rem; margin: .8rem 0 0; padding: .5rem .6rem .5rem 1.1rem; border: 1px solid rgba(255, 250, 245, .35); border-radius: 1.1rem; background: rgba(57, 45, 79, .3); line-height: 1.75; text-shadow: 0 2px 10px rgba(57, 45, 79, .4); backdrop-filter: blur(8px); opacity: 0; transform: translateY(6px); transition: opacity 420ms ease, transform 420ms ease; }
+.home-hero__hitokoto { display: flex; align-items: center; gap: .55rem; max-width: 44rem; min-height: 2.6rem; margin: .8rem 0 0; padding: .5rem .6rem .5rem 1.1rem; border: 1px solid rgba(255, 250, 245, .35); border-radius: 1.1rem; background: rgba(57, 45, 79, .3); line-height: 1.75; text-shadow: 0 2px 10px rgba(57, 45, 79, .4); backdrop-filter: blur(8px); opacity: 0; transform: translateY(6px); transition: opacity var(--bs-dur-mid) ease, transform var(--bs-dur-mid) ease; }
 .home-hero__hitokoto.is-ready { opacity: 1; transform: none; }
 .home-hero__hitokoto-text { margin: 0; font-size: .92rem; }
 .home-hero__hitokoto-from { opacity: .85; }
 
-.home-hero__hitokoto-refresh { flex: 0 0 auto; display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 1px solid rgba(255, 250, 245, .3); border-radius: 50%; background: rgba(255, 250, 245, .12); color: #fffaf5; font-size: .95rem; line-height: 1; cursor: pointer; transition: 200ms ease; }
+.home-hero__hitokoto-refresh { flex: 0 0 auto; display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 1px solid rgba(255, 250, 245, .3); border-radius: 50%; background: rgba(255, 250, 245, .12); color: #fffaf5; font-size: .95rem; line-height: 1; cursor: pointer; transition: var(--bs-dur-quick) ease; }
 .home-hero__hitokoto-refresh:hover { background: rgba(255, 143, 179, .42); border-color: rgba(255, 250, 245, .6); transform: rotate(180deg); }
 .home-hero__hitokoto-refresh:focus-visible { outline: 3px solid rgba(255, 228, 138, .9); outline-offset: 2px; }
 .home-hero__hitokoto-refresh.is-busy { opacity: .55; cursor: wait; }
 @media (prefers-reduced-motion: no-preference) {
-  .home-hero__hitokoto-refresh.is-busy span { animation: hero-refresh-spin 900ms linear infinite; }
+  .home-hero__hitokoto-refresh.is-busy span { animation: hero-refresh-spin .9s linear infinite; }
 }
 @keyframes hero-refresh-spin { to { transform: rotate(360deg); } }
 
-.home-hero__scroll { position: absolute; bottom: 1.6rem; left: 50%; z-index: 1; display: grid; place-items: center; width: 2.7rem; height: 2.7rem; padding: 0; border: 1px solid rgba(255, 250, 245, .5); border-radius: 999px; background: rgba(255, 250, 245, .16); color: #fffaf5; font-size: 1.05rem; cursor: pointer; backdrop-filter: blur(8px); transform: translateX(-50%); transition: 200ms ease; }
+.home-hero__scroll { position: absolute; bottom: 1.6rem; left: 50%; z-index: 1; display: grid; place-items: center; width: 2.7rem; height: 2.7rem; padding: 0; border: 1px solid rgba(255, 250, 245, .5); border-radius: 999px; background: rgba(255, 250, 245, .16); color: #fffaf5; font-size: 1.05rem; cursor: pointer; backdrop-filter: blur(8px); transform: translateX(-50%); transition: var(--bs-dur-quick) ease; }
 .home-hero__scroll:hover { background: rgba(255, 143, 179, .38); transform: translateX(-50%) translateY(-3px); }
 @media (prefers-reduced-motion: no-preference) {
   .home-hero__scroll span { animation: hero-arrow-bounce 2.2s ease-in-out infinite; }

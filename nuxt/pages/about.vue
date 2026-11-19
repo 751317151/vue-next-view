@@ -52,19 +52,19 @@ const values = [
 
 <style scoped>
 .about { display: grid; gap: 1.6rem; }
-.about__profile { display: flex; gap: 1.1rem; align-items: center; padding: 1.2rem; border-radius: 1.4rem; background: rgba(255,255,255,.6); }
+.about__profile { display: flex; gap: 1.1rem; align-items: center; padding: 1.2rem; border-radius: 1.4rem; background: var(--bs-surface); }
 .about__avatar { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; box-shadow: 0 10px 26px rgba(95,66,118,.2); }
-.about__profile strong { color: #392d4f; font-size: 1.1rem; }
-.about__profile p { margin: .25rem 0 .5rem; color: #746b86; }
+.about__profile strong { color: var(--bs-ink); font-size: 1.1rem; }
+.about__profile p { margin: .25rem 0 .5rem; color: var(--bs-ink-soft); }
 .about__links { display: flex; flex-wrap: wrap; gap: .7rem; }
-.about__links a { color: #8b73c5; font-size: .88rem; text-decoration: none; transition: 180ms ease; }
-.about__links a:hover { color: #e1799c; transform: translateY(-2px); }
+.about__links a { color: var(--bs-link); font-size: .88rem; text-decoration: none; transition: var(--bs-dur-quick) ease; }
+.about__links a:hover { color: var(--bs-accent-strong); transform: translateY(-2px); }
 .about__values { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem; }
-.about__value { display: flex; gap: .7rem; padding: 1rem; border-radius: 1.2rem; background: rgba(255,255,255,.55); }
+.about__value { display: flex; gap: .7rem; padding: 1rem; border-radius: 1.2rem; background: var(--bs-surface); }
 .about__value span { font-size: 1.5rem; }
-.about__value strong { color: #392d4f; }
-.about__value p { margin: .3rem 0 0; color: #746b86; font-size: .9rem; line-height: 1.6; }
-.about__stack h2 { color: #392d4f; }
+.about__value strong { color: var(--bs-ink); }
+.about__value p { margin: .3rem 0 0; color: var(--bs-ink-soft); font-size: .9rem; line-height: 1.6; }
+.about__stack h2 { color: var(--bs-ink); }
 .about__stack ul { display: flex; flex-wrap: wrap; gap: .55rem; margin: .7rem 0 0; padding: 0; list-style: none; }
-.about__stack li { padding: .45rem .8rem; border-radius: 999px; background: rgba(185,167,255,.18); color: #624d72; font-size: .85rem; }
+.about__stack li { padding: .45rem .8rem; border-radius: 999px; background: var(--bs-tint-lilac); color: var(--bs-ink-body); font-size: .85rem; }
 </style>

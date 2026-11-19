@@ -10,6 +10,10 @@ import { siteConfig } from '../src/config/site';
 const runtimeConfig = useRuntimeConfig();
 const siteUrl = String(runtimeConfig.public.siteUrl || '').replace(/\/$/, '');
 
+// 浏览器/系统状态栏配色。useAppearance.applyTheme 会按当前主题更新这一个 meta；
+// 跟随系统时的首屏配色由 nuxt.config.ts 的 boot 脚本负责。
+const THEME_COLORS = { light: '#ffb6c8', dark: '#191327' } as const;
+
 const siteStructuredData = computed(() => [
   {
     '@context': 'https://schema.org',
@@ -37,7 +41,7 @@ useHead({
   titleTemplate: (title) => title || siteConfig.name,
   meta: [
     { name: 'author', content: siteConfig.author },
-    { name: 'theme-color', content: '#ffb6c8' },
+    { name: 'theme-color', content: THEME_COLORS.light },
     { property: 'og:site_name', content: siteConfig.name },
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
@@ -47,6 +51,7 @@ useHead({
   ],
   script: [
     {
+      key: 'site-ld',
       type: 'application/ld+json',
       innerHTML: JSON.stringify(siteStructuredData.value),
     },

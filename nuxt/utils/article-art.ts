@@ -35,7 +35,9 @@ export function articleArt(article: ArticleLike) {
     ...palette,
     emoji: CATEGORY_EMOJI[article.category || ''] || palette.emoji,
     style: {
+      // Colour stops are tokens so cover art dims with the star-sky theme.
       background: `radial-gradient(circle at 78% 18%, rgba(255,255,255,.55), transparent 42%), linear-gradient(135deg, ${palette.from}, ${palette.to})`,
+      filter: 'var(--bs-art-filter, none)',
     },
   };
 }

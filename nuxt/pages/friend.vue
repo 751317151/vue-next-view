@@ -40,15 +40,15 @@ const rules = ['站点可正常访问，内容原创为主', '互相添加友链
 <style scoped>
 .friends { display: grid; gap: 1.8rem; }
 .friends__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .9rem; }
-.friends__card { display: grid; gap: .4rem; padding: 1.1rem; border-radius: 1.2rem; background: rgba(255,255,255,.58); color: #4b3d60; text-decoration: none; transition: 220ms ease; }
+.friends__card { display: grid; gap: .4rem; padding: 1.1rem; border-radius: 1.2rem; background: var(--bs-surface); color: var(--bs-ink-body); text-decoration: none; transition: var(--bs-dur-base) ease; }
 .friends__card:hover { transform: translateY(-4px) rotate(-.3deg); box-shadow: 0 18px 42px rgba(95,66,118,.15); background: rgba(255,228,138,.3); }
-.friends__avatar { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: linear-gradient(135deg, #ffb6c8, #b9a7ff); color: #392d4f; font-weight: 700; }
-.friends__card strong { color: #392d4f; }
-.friends__card p { margin: 0; color: #746b86; font-size: .88rem; line-height: 1.6; }
-.friends__card small { color: #9485a3; }
-.friends__apply { padding: 1.2rem 1.3rem; border-radius: 1.2rem; background: rgba(255,255,255,.5); }
-.friends__apply h2 { color: #392d4f; }
-.friends__apply ul { margin: .7rem 0; padding-left: 1.2rem; color: #746b86; line-height: 1.8; }
-.friends__apply p { margin: 0; color: #746b86; }
-.friends__apply a { color: #8b73c5; }
+.friends__avatar { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: linear-gradient(135deg, var(--bs-pink), var(--bs-lilac)); color: var(--bs-ink); font-weight: 700; }
+.friends__card strong { color: var(--bs-ink); }
+.friends__card p { margin: 0; color: var(--bs-ink-soft); font-size: .88rem; line-height: 1.6; }
+.friends__card small { color: var(--bs-ink-muted); }
+.friends__apply { padding: 1.2rem 1.3rem; border-radius: 1.2rem; background: var(--bs-surface); }
+.friends__apply h2 { color: var(--bs-ink); }
+.friends__apply ul { margin: .7rem 0; padding-left: 1.2rem; color: var(--bs-ink-soft); line-height: 1.8; }
+.friends__apply p { margin: 0; color: var(--bs-ink-soft); }
+.friends__apply a { color: var(--bs-link); }
 </style>

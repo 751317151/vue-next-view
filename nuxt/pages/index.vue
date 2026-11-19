@@ -64,19 +64,19 @@ const totalWords = computed(() => (articles.value || []).reduce((sum, article) =
 .home-page { padding-bottom: 1rem; }
 .home { max-width: 820px; margin: 0 auto; padding: 1.2rem 0 3rem; }
 .home__stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; margin: 0 0 3.4rem; }
-.home__stats > div { padding: .8rem .5rem; border: 1px solid rgba(255,255,255,.7); border-radius: 1.1rem; background: rgba(255,255,255,.55); text-align: center; }
-.home__stats dt { color: #9485a3; font-size: .78rem; }
-.home__stats dd { margin: .15rem 0 0; color: #392d4f; font-size: 1.25rem; font-weight: 700; }
+.home__stats > div { padding: .8rem .5rem; border: 1px solid var(--bs-border); border-radius: 1.1rem; background: var(--bs-surface); text-align: center; }
+.home__stats dt { color: var(--bs-ink-muted); font-size: .78rem; }
+.home__stats dd { margin: .15rem 0 0; color: var(--bs-ink); font-size: 1.25rem; font-weight: 700; }
 .home__latest, .home__paths { margin-top: 3.4rem; }
 .home__latest { margin-top: 0; }
 .home__section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-.home__section-head h2 { color: #392d4f; }
-.home__section-head a { color: #8b73c5; text-decoration: none; }
+.home__section-head h2 { color: var(--bs-ink); }
+.home__section-head a { color: var(--bs-link); text-decoration: none; }
 .home__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.1rem; }
 .home__paths-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .7rem; margin-top: 1.1rem; }
-.home__path { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .85rem 1rem; border-radius: 1rem; background: rgba(255,255,255,.55); color: #4b3d60; text-decoration: none; transition: 200ms ease; }
-.home__path strong { color: #392d4f; }
-.home__path span { color: #9485a3; font-size: .8rem; }
+.home__path { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .85rem 1rem; border-radius: 1rem; background: var(--bs-surface); color: var(--bs-ink-body); text-decoration: none; transition: var(--bs-dur-quick) ease; }
+.home__path strong { color: var(--bs-ink); }
+.home__path span { color: var(--bs-ink-muted); font-size: .8rem; }
 .home__path:hover { background: rgba(255,228,138,.3); transform: translateY(-3px); }
 @media (max-width: 700px) { .home__grid { grid-template-columns: 1fr; } .home__stats { grid-template-columns: repeat(2, 1fr); } }
 </style>

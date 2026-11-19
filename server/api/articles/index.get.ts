@@ -11,4 +11,7 @@ export default defineEventHandler(async (): Promise<Omit<PublicArticleRecord, 'c
   updateTime: article.createTime,
   category: article.category,
   tags: article.tags,
+  // Author-written (or derived) summary travels with the list so cards show the
+  // same sentence as the detail page and llms.txt instead of re-excerpting.
+  summary: article.summary,
 })))

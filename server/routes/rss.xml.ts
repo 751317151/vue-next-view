@@ -11,9 +11,11 @@ export default defineEventHandler(async (event) => {
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? now : parsed.toUTCString();
   };
-  // Feed readers expect percent-encoded URLs when a slug contains CJK letters.
+  // Feed readers expect percent-encoded URLs. encodeURI leaves `#`/`?` intact,
+  // so encode each path segment to keep every slug addressable.
+  const articleUrl = (slug: string) => `${siteUrl}/article/${encodeURIComponent(slug)}`;
   const items = (await articleRepository.list()).map((article) => {
-    const url = escapeXml(encodeURI(`${siteUrl}/article/${article.slug}`));
+    const url = escapeXml(articleUrl(article.slug));
     return `\n<item><title>${escapeXml(article.articleTitle)}</title><link>${url}</link><guid>${url}</guid><pubDate>${formatDate(article.createTime)}</pubDate><description>${escapeXml(article.articleContent)}</description></item>`;
   }).join('');
   return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>生活倒影</title><link>${siteUrl}</link><description>记录技术成长，分享编程心得与生活灵感。</description><pubDate>${now}</pubDate>${items}</channel></rss>`;
