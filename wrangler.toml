@@ -5,3 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 NODE_VERSION = "24.15.0"
+# Public origin used for canonical URLs, og:url, sitemap.xml and rss.xml.
+# A production build refuses to run without it, so that a silent build cannot
+# bake http://localhost into crawler-facing output.
+NUXT_PUBLIC_SITE_URL = "https://blog.blackstar.cc.cd"
