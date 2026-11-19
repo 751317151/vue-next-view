@@ -58,12 +58,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <MigrationPage
-    eyebrow="MESSAGE"
-    title="留一句话，挂在星星下。"
-    description="这里是一面温柔的留言墙。写下想说的话，它会替你记住此刻的心情。"
-  >
-    <div class="board">
+  <div class="message-page">
+    <DanmakuLayer :messages="messages" />
+
+    <MigrationPage
+      eyebrow="MESSAGE"
+      title="留一句话，挂在星星下。"
+      description="这里是一面温柔的留言墙。写下想说的话，它会替你记住此刻的心情。"
+    >
+      <div class="board">
       <form class="note-form" @submit.prevent="submit">
         <span class="note-form__tape note-form__tape--left" aria-hidden="true"></span>
         <span class="note-form__tape note-form__tape--right" aria-hidden="true"></span>
@@ -136,7 +139,8 @@ onMounted(() => {
         留言只保存在你自己的浏览器里，是一份只属于你的心情记录。
       </p>
     </div>
-  </MigrationPage>
+    </MigrationPage>
+  </div>
 </template>
 
 <style scoped>

@@ -51,6 +51,18 @@ export default defineNuxtConfig({
   app: {
     // Unified, mochi-soft route transitions defined in visual-system.css.
     pageTransition: { name: 'page-mochi', mode: 'out-in' },
+    head: {
+      // Runs before first paint so a dark-mode visitor never sees a white
+      // flash. Kept inline and tiny on purpose: it must not be a request, and
+      // it must tolerate localStorage being unavailable.
+      script: [
+        {
+          key: 'bs-theme-boot',
+          tagPosition: 'head',
+          innerHTML: `(function(){try{var m=localStorage.getItem('blackstar-theme')||'system';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d)r.classList.add('bs-dark');r.dataset.themeMode=m;if(localStorage.getItem('blackstar-motion')==='reduced')r.classList.add('bs-reduced-motion');}catch(e){}})();`,
+        },
+      ],
+    },
   },
   runtimeConfig: {
     public: {

@@ -20,6 +20,9 @@ nuxt.schema.d.ts
 *.local
 tmp-*.mjs
 
+# Cloudflare Pages local preview artifacts (wrangler pages dev dist)
+.wrangler
+
 # Environment files
 #
 # `.env` is committed on purpose: Cloudflare Pages loads it while building, so
