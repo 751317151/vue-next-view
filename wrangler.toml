@@ -9,3 +9,18 @@ NODE_VERSION = "24.15.0"
 # A production build refuses to run without it, so that a silent build cannot
 # bake http://localhost into crawler-facing output.
 NUXT_PUBLIC_SITE_URL = "https://blog.blackstar.cc.cd"
+
+# 共享留言墙的存储。
+#
+# 数据库需要先建好并把 UUID 填到 database_id；留空时构建照常进行，
+# 但 /api/messages 会返回 503，前端自动退回"只存本地"的模式，
+# 页面不会因为缺绑定而报错。
+#
+#   npx wrangler d1 create blackstar-messages
+#   npx wrangler d1 execute blackstar-messages --remote --file server/database/schema.sql
+#
+# 本地开发：npx wrangler d1 execute blackstar-messages --local --file server/database/schema.sql
+[[d1_databases]]
+binding = "MESSAGE_DB"
+database_name = "blackstar-messages"
+database_id = ""

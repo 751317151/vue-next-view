@@ -6,7 +6,7 @@ usePageSeo({
   description: '在这里留下一句话，让路过的人看见一点温柔的光。',
 });
 
-const { messages, ready, load, add, remove, seed } = useMessageBoard();
+const { messages, ready, shared, pending, errorMessage, load, add, remove } = useMessageBoard();
 
 const draftName = ref('');
 const draftText = ref('');
@@ -15,7 +15,7 @@ const poppingId = ref('');
 const maxLength = 500;
 
 const remaining = computed(() => maxLength - draftText.value.length);
-const canSubmit = computed(() => draftText.value.trim().length > 0);
+const canSubmit = computed(() => draftText.value.trim().length > 0 && !pending.value);
 
 const timeLabel = (value: string) => {
   const time = new Date(value).getTime();
@@ -32,9 +32,9 @@ const timeLabel = (value: string) => {
   return `${date.getMonth() + 1} 月 ${date.getDate()} 日`;
 };
 
-const submit = () => {
+const submit = async () => {
   if (!canSubmit.value) return;
-  const created = add(draftName.value, draftText.value);
+  const created = await add(draftName.value, draftText.value);
   if (!created) return;
   justPostedId.value = created.id;
   draftText.value = '';
@@ -46,14 +46,13 @@ const pop = (id: string) => {
   window.setTimeout(() => { poppingId.value = ''; }, 380);
 };
 
-const removeMessage = (id: string) => {
+const removeMessage = async (id: string) => {
   pop(id);
-  window.setTimeout(() => remove(id), 260);
+  window.setTimeout(() => { void remove(id); }, 260);
 };
 
 onMounted(() => {
-  load();
-  seed();
+  void load();
 });
 </script>
 
@@ -122,6 +121,7 @@ onMounted(() => {
             </footer>
           </div>
           <button
+            v-if="message.mine"
             type="button"
             class="note__remove"
             :aria-label="`删除 ${message.name} 的留言`"
@@ -134,9 +134,18 @@ onMounted(() => {
         墙上还空着，写下第一张便利贴吧 ✧
       </p>
 
+      <p v-if="errorMessage" class="board__error" role="status" aria-live="polite">
+        <span aria-hidden="true">⚠</span> {{ errorMessage }}
+      </p>
+
       <p class="board__hint">
-        <span aria-hidden="true">🫧</span>
-        留言只保存在你自己的浏览器里，是一份只属于你的心情记录。
+        <span aria-hidden="true">{{ shared ? '🌏' : '🫧' }}</span>
+        <template v-if="shared">
+          留言会挂在大家都能看到的墙上；删除按钮只有你自己能看到。
+        </template>
+        <template v-else>
+          共享留言墙还没连上，现在写的内容只会留在这台浏览器里。
+        </template>
       </p>
     </div>
     </MigrationPage>
@@ -208,6 +217,8 @@ onMounted(() => {
 .board__empty { margin: 0; padding: 2rem 1rem; border: 1.5px dashed rgba(185, 167, 255, .5); border-radius: 1.1rem; color: var(--bs-ink-muted); text-align: center; }
 
 .board__hint { display: flex; align-items: center; gap: .45rem; margin: 0; color: var(--bs-ink-subtle); font-size: .8rem; }
+
+.board__error { display: flex; align-items: center; gap: .45rem; margin: 0; padding: .6rem .85rem; border: 1px dashed rgba(255, 143, 179, .5); border-radius: .9rem; background: var(--bs-tint-pink); color: var(--bs-accent-strong); font-size: .84rem; }
 
 @media (max-width: 560px) {
   .note-form { transform: none; }

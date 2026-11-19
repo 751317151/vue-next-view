@@ -96,6 +96,9 @@ export default defineNuxtConfig({
     '/api/tags/**': { cache: { maxAge: 900 } },
     '/api/search': { cache: false },
     '/api/health': { cache: false },
+    // 留言是用户生成内容，任何一层缓存都会让新留言迟迟不出现。
+    '/api/messages': { cache: false },
+    '/api/messages/**': { cache: false },
   },
   nitro: {
     serverAssets: [{ baseName: 'articles', dir: 'content/articles' }],
