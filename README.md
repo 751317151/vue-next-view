@@ -47,14 +47,24 @@ Vite 入口仍是当前默认部署入口。Nuxt 分支位于 `nuxt/`，使用 S
 ## Before switching production to Nuxt
 
 ```bash
-npm run validate:nuxt
-npm run typecheck
-npm run build:nuxt
+export NUXT_PUBLIC_SITE_URL=https://your-domain.example
+npm run release:check
+```
 
+`release:check` validates the scaffold and types, builds with the Cloudflare
+preset, then checks the crawler files that build produced. A Nuxt production
+build refuses to run without a public origin, so canonical URLs and
+`og:url` can never quietly point at `localhost`.
+
+Then inspect the public pages by hand: initial HTML, canonical, JSON-LD,
+sitemap, RSS, robots, a JavaScript-disabled visit, and Lighthouse scores.
 
 ## Cloudflare Pages deployment
 
-The repository pins the runtime with `.node-version` (22.23.4) and `engines.node` (>=22.12.0), matching Nuxt 4 and Vite 8. Set `NODE_VERSION=22.23.4` in the Pages project environment variables so the build image cannot fall back to Node 18.
+The repository pins the runtime with `.node-version` (22.23.4), `engines.node`
+(>=22.12.0) and `wrangler.toml` (`NODE_VERSION = "24.15.0"`). Set
+`NODE_VERSION` in the Pages project environment variables to match
+`wrangler.toml` so the build image cannot fall back to an unsupported Node.
 
 ### Option A: SSR pages (recommended)
 
@@ -62,6 +72,7 @@ Runs the Nuxt server on Cloudflare's edge runtime, so `?q=` search, SWR article 
 
 - Build command: `npm run build:cf`
 - Output directory: `dist`
+- Required variable: `NUXT_PUBLIC_SITE_URL=https://your-domain.example`
 
 The Nitro `cloudflare_pages` preset emits `dist/_worker.js` plus `dist/_routes.json`; prerendered pages (home, archive, crawler files) are served statically and everything else is handled by the worker. `wrangler.toml` at the repo root pins `nodejs_compat`.
 
@@ -72,11 +83,11 @@ Legacy Vite app without SSR:
 - Build command: `npm run build:with-seo`
 - Output directory: `dist`
 
-Remember to run `npm run generate:seo` with `SITE_URL` first so `dist` contains robots.txt, sitemap.xml, rss.xml and llms.txt.
+This generates the crawler files from `SITE_URL`, copies them into `dist`, and
+validates the copy.
 
+### One build owns dist
 
-# Vite release gate after setting SITE_URL and generating SEO files
-npm run release:check
-```
+Both paths publish to `dist/`, and each clears the other's output. Never deploy
+a directory left behind by two consecutive builds of different targets.
 
-然后检查公开页面的初始 HTML、canonical、JSON-LD、Sitemap、RSS、robots、JavaScript 禁用访问和 Lighthouse 指标。

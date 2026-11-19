@@ -2,23 +2,19 @@
 
 ## Before deployment
 
-- Set the final HTTPS origin in `NUXT_PUBLIC_SITE_URL` for Nuxt, or `VITE_SITE_URL` for the legacy Vite build.
-- Generate crawler files before a Vite release:
-
-  ```powershell
-  $env:SITE_URL = "https://your-domain.example"
-  npm run build:with-seo
-  npm run validate:seo
-  ```
-
-- `npm run generate:seo` writes into `public-seo/`, and `scripts/copy-seo-to-dist.mjs` copies the files into `dist/`. Keep these files out of `public/`: Nuxt serves the same URLs from Nitro routes, and static copies would shadow them during prerendering.
-- When an article index JSON is available, pass `SEO_ARTICLES_FILE=path/to/articles.json` so article URLs are included in the sitemap and RSS feed.
-- For Nuxt, set the site URL before building so prerendered files never contain `localhost`:
+- Set the final HTTPS origin in `NUXT_PUBLIC_SITE_URL` for Nuxt, or `VITE_SITE_URL` for the legacy Vite build. A Nuxt production build now **refuses to run** without it, because a silent build would bake `http://localhost` into every canonical and `og:url`. Set `NUXT_ALLOW_LOCAL_ORIGIN=1` only for a throwaway local build.
+- Run the whole gate in one command. It checks the scaffold and types, builds with the Cloudflare preset, then validates the crawler files it actually produced:
 
   ```powershell
   $env:NUXT_PUBLIC_SITE_URL = "https://your-domain.example"
-  npm run build:nuxt
+  npm run release:check
   ```
+
+- `npm run validate:seo` inspects `dist/`, the directory both build paths publish to. It fails on a local origin, a non-HTTPS `<loc>`, a placeholder feed, or an unencoded CJK URL, so it can only pass when the artifact a crawler receives is correct.
+- For a Vite release use `npm run build:with-seo`; it generates into the gitignored `public-seo/`, copies it into `dist/`, and validates the copy. Keep these files out of `public/`: Nuxt serves the same URLs from Nitro routes, and static copies would shadow them during prerendering.
+- When an article index JSON is available, pass `SEO_ARTICLES_FILE=path/to/articles.json` so article URLs are included in the sitemap and RSS feed.
+- Only one build may own `dist/` at a time. `build` (Vite) and `build:cf`/`build:nuxt` (Nuxt) both write there and each clears the other's output, so never deploy the directory left behind by two consecutive builds.
+- Category and tag URLs are derived from their display name, not their position in the article list, so publishing a new category never renumbers the existing ones. Numeric legacy URLs 301 to the canonical slug.
 
 - Confirm every public route has a stable title, description, canonical URL and one visible H1.
 - Confirm article pages include `BlogPosting` and `BreadcrumbList` JSON-LD; the site shell adds `WebSite` and `Person`.
