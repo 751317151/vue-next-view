@@ -1,27 +1,24 @@
 <template>
-  <section ref="heroEl" class="home-hero" aria-label="欢迎来到 BlackStar 的博客" @pointermove="onPointerMove">
-    <div class="home-hero__bg" aria-hidden="true">
-      <!-- Every layer stays mounted and fully painted. During a switch the
-           outgoing layer is faded/slid out while the incoming one fades/slides
-           in over the same window, so both images are visibly on screen at once
-           instead of one replacing the other. Opacity is driven inline so the
-           cross-fade cannot be defeated by class-order specificity. -->
+  <section
+    ref="heroEl"
+    class="home-hero"
+    aria-label="欢迎来到 BlackStar 的博客"
+    @pointermove="onPointerMove"
+    @pointerleave="onPointerLeave"
+  >
+    <div class="home-hero__bg" :style="{ '--progress': progress }" aria-hidden="true">
+      <!-- Three layers on a continuously-driven `--progress` value, ported from
+           the legacy hero: pointer movement slides the whole stack while each
+           layer's opacity is a function of that same number. Because nothing
+           is a discrete on/off state, the two images are always blended while
+           the pointer moves, and releasing the pointer eases back to the
+           middle where bg1 and bg3 remain partly visible over bg2. -->
       <span
         v-for="(image, index) in HERO_IMAGES"
         :key="image"
         class="home-hero__bg-layer"
-        :class="{ 'is-leaving': index === leavingImage }"
-        :style="{
-          backgroundImage: `url('${image}')`,
-          opacity: index === activeImage ? 1 : 0,
-          transform: index === activeImage
-            ? 'translate3d(0,0,0) scale(1)'
-            : index === pendingImage
-              ? 'translate3d(6%,0,0) scale(1.08)'
-              : index === leavingImage
-                ? 'translate3d(-5%,0,0) scale(1.05)'
-                : 'translate3d(6%,0,0) scale(1.08)',
-        }"
+        :class="`home-hero__bg-layer--${index + 1}`"
+        :style="{ backgroundImage: `url('${image}')` }"
       ></span>
       <span class="home-hero__bg-tint" aria-hidden="true"></span>
       <span class="home-hero__veil"></span>
@@ -77,20 +74,13 @@ const FALLBACK_HITOKOTO = [
 ];
 
 const heroEl = ref<HTMLElement | null>(null);
-const activeImage = ref(0);
-/** Index of the layer currently sliding out, so both images show at once. */
-const leavingImage = ref(-1);
-/** Layer staged off-stage for one frame before it becomes active. */
-const pendingImage = ref(-1);
 const typedSubtitle = ref(PHRASES[0]!);
 const hitokotoShown = ref(false);
 const hitokotoLoading = ref(false);
 const typedHitokoto = ref('');
 const hitokotoFrom = ref('');
 let alive = true;
-let autoRotateTimer = 0;
 let hitokotoRequest = 0;
-let leavingTimer = 0;
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
@@ -175,61 +165,55 @@ const refreshHitokoto = async () => {
 };
 
 /**
- * Run `fn` after the browser has painted the current style. rAF is preferred so
- * the intermediate frame is real, but it is throttled to nothing in background
- * tabs, so a timer fallback keeps switching working there too.
+ * Pointer position drives a single `--progress` value, and every layer's opacity
+ * derives from it. The mapping is absolute (position across the hero), not
+ * relative to where the pointer entered: a relative mapping saturates after a
+ * short travel and the later part of the gesture then does nothing.
+ *
+ * The usable band is deliberately narrower than the hero, so reaching a side
+ * image happens before the pointer leaves the section.
  */
-const nextFrames = (fn: () => void) => {
-  let done = false;
-  const run = () => {
-    if (done) return;
-    done = true;
-    fn();
-  };
-  window.requestAnimationFrame(() => window.requestAnimationFrame(run));
-  // Two frames is ~32ms; if rAF is throttled, this still lands after paint.
-  window.setTimeout(run, 60);
-};
+const progress = ref(0.5);
 
-/** Swap the hero art, keeping the previous layer painted long enough to overlap. */
-const switchTo = (next: number) => {
-  if (next === activeImage.value) return;
-  const previous = activeImage.value;
-
-  // Stage the incoming layer off-stage for one frame. Without this, Vue batches
-  // both style changes into the same tick and the browser jumps straight to the
-  // final value, skipping the cross-fade entirely.
-  leavingImage.value = -1;
-  pendingImage.value = next;
-
-  nextFrames(() => {
-    if (!alive) return;
-    leavingImage.value = previous;
-    activeImage.value = next;
-    pendingImage.value = -1;
-  });
-
-  // Drop the leaving layer only after its exit transition finishes.
-  window.clearTimeout(leavingTimer);
-  leavingTimer = window.setTimeout(() => { leavingImage.value = -1; }, 1250);
+const setProgress = (value: number) => {
+  // Clamp so a fast flick cannot overshoot the ends of the ramp.
+  progress.value = Math.min(1, Math.max(0, value));
 };
 
 const onPointerMove = (event: PointerEvent) => {
   if (prefersReducedMotion()) return;
-  const ratio = event.clientX / window.innerWidth;
-  switchTo(ratio < 1 / 3 ? 0 : ratio < 2 / 3 ? 1 : 2);
+  const hero = heroEl.value;
+  if (!hero) return;
+  const { left, width } = hero.getBoundingClientRect();
+  if (width <= 0) return;
+  // Map the inner 80% of the width onto 0..1 so both extremes are reachable
+  // without hugging the very edge of the screen.
+  const ratio = (event.clientX - left) / width;
+  setProgress((ratio - 0.1) / 0.8);
+};
+
+/** Back to the resting middle, where the side images stay partly blended in. */
+const onPointerLeave = () => {
+  setProgress(0.5);
 };
 
 const scrollToContent = () => {
   document.getElementById('home-body')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 };
 
+let touchSweepTimer = 0;
+
 onMounted(() => {
-  // Touch devices have no hover cursor: gently rotate the backgrounds instead.
+  // Touch devices have no hover pointer, so sweep `--progress` across the same
+  // range instead. That keeps the identical blend/overlap look rather than
+  // falling back to a different animation.
   if (!prefersReducedMotion() && !window.matchMedia('(hover: hover)').matches) {
-    autoRotateTimer = window.setInterval(() => {
-      switchTo((activeImage.value + 1) % HERO_IMAGES.length);
-    }, 7000);
+    let direction = 1;
+    touchSweepTimer = window.setInterval(() => {
+      const next = progress.value + direction * 0.25;
+      if (next >= 1 || next <= 0) direction *= -1;
+      setProgress(Math.min(1, Math.max(0, next)));
+    }, 2600);
   }
   void runSubtitleLoop();
   void fetchHitokoto().then((quote) => { if (alive) void presentHitokoto(quote); });
@@ -237,8 +221,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   alive = false;
-  if (autoRotateTimer) window.clearInterval(autoRotateTimer);
-  window.clearTimeout(leavingTimer);
+  if (touchSweepTimer) window.clearInterval(touchSweepTimer);
 });
 </script>
 
@@ -254,19 +237,45 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-.home-hero__bg { position: absolute; inset: 0; }
+/* `--progress` runs 0 → 1 as the pointer travels left → right, resting at 0.5.
+   Every layer's opacity is a function of that one number, so the images are
+   continuously blended instead of switching: at the resting middle state the
+   side layers are still partly visible over the centre one, which is the
+   overlap the pointer produces as it moves. */
+.home-hero__bg {
+  position: absolute;
+  inset: 0;
+  --progress: 0.5;
+}
 
-/* Layers are positioned and faded inline so a switch is guaranteed to animate:
-   the outgoing image slides left while the incoming one slides in from the
-   right, giving a visible overlap for the whole cross-fade. The class rule only
-   marks the outgoing layer for debugging and reduced-motion overrides. */
 .home-hero__bg-layer {
   position: absolute;
   inset: 0;
   background-position: center;
   background-size: cover;
-  will-change: opacity, transform;
-  transition: opacity 820ms ease, transform 1150ms cubic-bezier(.3, 0, .2, 1);
+  will-change: opacity;
+  /* translateX is driven by the same value, so the stack drifts with the
+     pointer rather than only fading. */
+  transform: translateX(calc((var(--progress) - 0.5) * 52px));
+  transition: transform 620ms cubic-bezier(.3, 0, .2, 1);
+}
+
+/* Left image: reaches full strength only at the far left, and is fully gone by
+   the time the pointer is a quarter of the way across. */
+.home-hero__bg-layer--1 {
+  opacity: calc(1 - (var(--progress) - 0.02) / 0.36);
+}
+
+/* Centre image is the default plate: opaque everywhere except the far edges,
+   where the side image takes over. Never drops below ~0.64 so it stays legible
+   underneath the side layer during a blend. */
+.home-hero__bg-layer--2 {
+  opacity: calc(1 - abs(var(--progress) - 0.5) / 1.4);
+}
+
+/* Right image: mirror of the left one. */
+.home-hero__bg-layer--3 {
+  opacity: calc((var(--progress) - 0.52) / 0.36);
 }
 
 /* Per-image colour wash that keeps the palette shifting as the art changes. */
@@ -278,6 +287,7 @@ onBeforeUnmount(() => {
     radial-gradient(circle at 82% 74%, rgba(185, 167, 255, .28), transparent 48%),
     linear-gradient(120deg, rgba(158, 230, 208, .18), rgba(255, 228, 138, .16));
   mix-blend-mode: soft-light;
+  pointer-events: none;
   animation: hero-tint-drift 18s ease-in-out infinite;
 }
 
@@ -307,7 +317,9 @@ onBeforeUnmount(() => {
     0 2px 16px rgba(57, 45, 79, .6);
 }
 
-.home-hero__title { margin: 0; font-size: clamp(2.8rem, 9vw, 5.4rem); line-height: 1.05; letter-spacing: .04em; }
+/* A wordmark, not a poster. Capped near 3rem so it reads as a name on top of
+   the artwork rather than a full-bleed headline. */
+.home-hero__title { margin: 0; font-size: clamp(1.9rem, 4.4vw, 3rem); line-height: 1.15; letter-spacing: .02em; }
 /* The name gets an animated gradient so the hero reads as alive even before the
    visitor moves the pointer. */
 .home-hero__title-text {

@@ -177,14 +177,25 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
   padding: .7rem 1.2rem;
   border: 1px solid var(--bs-hairline);
   border-radius: 999px;
-  background: var(--bs-paper-strong);
-  box-shadow: 0 12px 40px rgba(95, 66, 118, .12);
+  /* A flat translucent fill disappeared against the very light page gradient,
+     reading as an empty strip. A subtle two-stop gradient plus a stronger
+     opaque base gives the bar an edge to sit against. */
+  background:
+    linear-gradient(135deg, rgba(255, 250, 245, .94), rgba(255, 240, 247, .88));
+  box-shadow: 0 12px 40px rgba(95, 66, 118, .12), inset 0 1px 0 rgba(255, 255, 255, .7);
   backdrop-filter: blur(20px) saturate(1.1);
   transition: transform 320ms cubic-bezier(.3, 0, .2, 1), box-shadow 240ms ease, background-color 240ms ease;
 }
 
 /* Scrolled a little: tighten the shadow so the bar separates from content. */
-.site-shell__header.is-scrolled { box-shadow: 0 16px 44px rgba(95, 66, 118, .18); }
+.site-shell__header.is-scrolled { box-shadow: 0 16px 44px rgba(95, 66, 118, .18), inset 0 1px 0 rgba(255, 255, 255, .7); }
+
+/* Dark theme needs its own fill; the light gradient above would glow. */
+:root.bs-dark .site-shell__header {
+  background: linear-gradient(135deg, rgba(48, 40, 64, .94), rgba(40, 33, 55, .9));
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+:root.bs-dark .site-shell__header.is-scrolled { box-shadow: 0 16px 44px rgba(0, 0, 0, .48), inset 0 1px 0 rgba(255, 255, 255, .06); }
 
 /* Scrolling down tucks it above the viewport; scrolling up drops it back. */
 .site-shell__header.is-tucked { transform: translateX(-50%) translateY(calc(-100% - .8rem)); }
@@ -192,9 +203,11 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
 /* The fixed bar is out of flow, so the content needs its height back. */
 .site-shell__main { padding-top: 3.9rem; }
 
-.site-shell__brand { display: inline-flex; align-items: center; gap: .45rem; color: var(--bs-ink); font-weight: 800; text-decoration: none; text-shadow: 2px 2px 0 rgba(255, 228, 138, .6); }
-:root.bs-dark .site-shell__brand { text-shadow: 2px 2px 0 rgba(255, 228, 138, .18); }
-.site-shell__brand-mark { font-size: 1.1rem; transition: transform 260ms ease; }
+/* The brand is a wordmark, not a headline: keep it close to the nav text so it
+   does not dominate the bar. */
+.site-shell__brand { display: inline-flex; align-items: center; gap: .4rem; color: var(--bs-ink); font-size: .95rem; font-weight: 700; letter-spacing: .01em; text-decoration: none; text-shadow: 1px 1px 0 rgba(255, 228, 138, .55); }
+:root.bs-dark .site-shell__brand { text-shadow: 1px 1px 0 rgba(255, 228, 138, .16); }
+.site-shell__brand-mark { font-size: 1rem; transition: transform 260ms ease; }
 .site-shell__brand:hover .site-shell__brand-mark { transform: rotate(-14deg) scale(1.15); }
 .site-shell__header nav { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; justify-content: flex-end; }
 .site-shell__header nav a { position: relative; padding: .45rem .75rem; border-radius: 999px; color: var(--bs-ink-soft); font-size: .9rem; text-decoration: none; transition: 180ms ease; }

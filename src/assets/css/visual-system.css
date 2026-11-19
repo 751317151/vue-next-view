@@ -83,42 +83,55 @@ samp {
 
 html {
   scroll-behavior: smooth;
-  /* Firefox scrollbar: thin, on-palette, and theme-aware via the tokens. */
+  /* Firefox scrollbar, matched to the legacy WebKit styling below. */
   scrollbar-width: thin;
   scrollbar-color: var(--bs-scroll-thumb) transparent;
 }
 
 :root {
-  --bs-scroll-thumb: rgba(185, 167, 255, 0.75);
-  --bs-scroll-thumb-hover: var(--bs-pink);
+  /* Carried over from the previous site's scrollbar so the look is continuous. */
+  --bs-scroll-thumb: #49b1f5;
+  --bs-scroll-track: rgba(0, 0, 0, 0.05);
 }
 
 :root.bs-dark {
-  --bs-scroll-thumb: rgba(196, 180, 255, 0.5);
+  --bs-scroll-thumb: #5aa9dd;
+  --bs-scroll-track: rgba(255, 255, 255, 0.06);
 }
 
-/* WebKit/Blink scrollbar. Kept narrow so it reads as a ribbon rather than a
-   system chrome block; the track stays transparent to let the page show through. */
+/* Legacy scrollbar: 8px, rounded, with the 45° candy-stripe overlay. */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bs-scroll-track);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  border: 3px solid transparent;
-  border-radius: 999px;
-  background: linear-gradient(180deg, var(--bs-pink), var(--bs-lilac)) border-box;
-  background-clip: padding-box;
-  transition: background 200ms ease;
+  border-radius: 4px;
+  background-color: var(--bs-scroll-thumb);
+  transition: background 0.3s ease;
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.4) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.4) 75%,
+    transparent 75%,
+    transparent
+  );
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--bs-peach), var(--bs-pink)) border-box;
-  background-clip: padding-box;
+  background-color: #2d9cdb;
+}
+
+:root.bs-dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #7cc0ea;
 }
 
 ::-webkit-scrollbar-corner {
