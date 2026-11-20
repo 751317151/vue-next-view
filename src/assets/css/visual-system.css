@@ -215,9 +215,15 @@ samp {
 
 html {
   scroll-behavior: smooth;
-  /* Firefox scrollbar, matched to the legacy WebKit styling below. */
-  scrollbar-width: thin;
-  scrollbar-color: var(--bs-scroll-thumb) transparent;
+}
+
+/* Standard scrollbar properties override the legacy striped thumb in Chromium.
+   Keep them only as a fallback where WebKit scrollbar styling is unavailable. */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bs-scroll-thumb) var(--bs-scroll-track);
+  }
 }
 
 /* 路由切换期间临时关掉平滑滚动。

@@ -6,13 +6,10 @@
     @pointermove="onPointerMove"
     @pointerleave="onPointerLeave"
   >
-    <div class="home-hero__bg" :style="{ '--progress': progress }" aria-hidden="true">
-      <!-- Three layers on a continuously-driven `--progress` value, ported from
-           the legacy hero: pointer movement slides the whole stack while each
-           layer's opacity is a function of that same number. Because nothing
-           is a discrete on/off state, the two images are always blended while
-           the pointer moves, and releasing the pointer eases back to the
-           middle where bg1 and bg3 remain partly visible over bg2. -->
+    <div class="home-hero__bg" :class="{ 'is-tracking': pointerTracking }" :style="{ '--progress': progress }" aria-hidden="true">
+      <!-- Keep the middle image beneath both side layers. Pointer position
+           controls each side's opacity and travel, so pausing mid-gesture
+           preserves the overlap instead of completing a timed image switch. -->
       <span
         v-for="(image, index) in HERO_IMAGES"
         :key="image"
@@ -58,7 +55,7 @@ import type { Ref } from 'vue';
 import { siteConfig } from '../../src/config/site';
 
 // Swap or extend the hero backgrounds here (public/ paths, in mouse-zone order: left / middle / right).
-const HERO_IMAGES = ['/bg1.jpg', '/bg2.jpg', '/bg3.jpg'];
+const HERO_IMAGES = ['/bg2.jpg', '/bg1.jpg', '/bg3.jpg'];
 const PHRASES = [
   siteConfig.description,
   '把技术、生活和灵感，写成会发光的小故事。',
@@ -174,6 +171,7 @@ const refreshHitokoto = async () => {
  * image happens before the pointer leaves the section.
  */
 const progress = ref(0.5);
+const pointerTracking = ref(false);
 
 const setProgress = (value: number) => {
   // Clamp so a fast flick cannot overshoot the ends of the ramp.
@@ -181,7 +179,7 @@ const setProgress = (value: number) => {
 };
 
 const onPointerMove = (event: PointerEvent) => {
-  if (prefersReducedMotion()) return;
+  if (event.pointerType === 'touch' || prefersReducedMotion()) return;
   const hero = heroEl.value;
   if (!hero) return;
   const { left, width } = hero.getBoundingClientRect();
@@ -189,11 +187,13 @@ const onPointerMove = (event: PointerEvent) => {
   // Map the inner 80% of the width onto 0..1 so both extremes are reachable
   // without hugging the very edge of the screen.
   const ratio = (event.clientX - left) / width;
+  pointerTracking.value = true;
   setProgress((ratio - 0.1) / 0.8);
 };
 
-/** Back to the resting middle, where the side images stay partly blended in. */
+/** Ease back to the middle image when the pointer leaves the hero. */
 const onPointerLeave = () => {
+  pointerTracking.value = false;
   setProgress(0.5);
 };
 
@@ -201,27 +201,13 @@ const scrollToContent = () => {
   document.getElementById('home-body')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 };
 
-let touchSweepTimer = 0;
-
 onMounted(() => {
-  // Touch devices have no hover pointer, so sweep `--progress` across the same
-  // range instead. That keeps the identical blend/overlap look rather than
-  // falling back to a different animation.
-  if (!prefersReducedMotion() && !window.matchMedia('(hover: hover)').matches) {
-    let direction = 1;
-    touchSweepTimer = window.setInterval(() => {
-      const next = progress.value + direction * 0.25;
-      if (next >= 1 || next <= 0) direction *= -1;
-      setProgress(Math.min(1, Math.max(0, next)));
-    }, 2600);
-  }
   void runSubtitleLoop();
   void fetchHitokoto().then((quote) => { if (alive) void presentHitokoto(quote); });
 });
 
 onBeforeUnmount(() => {
   alive = false;
-  if (touchSweepTimer) window.clearInterval(touchSweepTimer);
 });
 </script>
 
@@ -237,45 +223,52 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-/* `--progress` runs 0 → 1 as the pointer travels left → right, resting at 0.5.
-   Every layer's opacity is a function of that one number, so the images are
-   continuously blended instead of switching: at the resting middle state the
-   side layers are still partly visible over the centre one, which is the
-   overlap the pointer produces as it moves. */
+/* The middle is the resting plate; each side slides in from its own edge.
+   A stationary pointer keeps the exact same blend and position. */
 .home-hero__bg {
   position: absolute;
   inset: 0;
+  z-index: 0;
   --progress: 0.5;
+  --left-reveal: clamp(0, (0.5 - var(--progress)) * 2, 1);
+  --right-reveal: clamp(0, (var(--progress) - 0.5) * 2, 1);
+  --hero-travel: clamp(32px, 5vw, 72px);
 }
 
 .home-hero__bg-layer {
   position: absolute;
-  inset: 0;
+  /* Overscan keeps the viewport covered throughout the horizontal travel. */
+  inset: 0 calc(-1 * var(--hero-travel));
+  z-index: 1;
   background-position: center;
   background-size: cover;
-  will-change: opacity;
-  /* translateX is driven by the same value, so the stack drifts with the
-     pointer rather than only fading. */
-  transform: translateX(calc((var(--progress) - 0.5) * 52px));
-  transition: transform var(--bs-dur-slow) var(--bs-ease-glide);
+  will-change: opacity, transform;
+  transition: opacity var(--bs-dur-mid) var(--bs-ease-glide), transform var(--bs-dur-mid) var(--bs-ease-glide);
 }
 
-/* Left image: reaches full strength only at the far left, and is fully gone by
-   the time the pointer is a quarter of the way across. */
+.home-hero__bg.is-tracking .home-hero__bg-layer {
+  transition: none;
+}
+
 .home-hero__bg-layer--1 {
-  opacity: calc(1 - (var(--progress) - 0.02) / 0.36);
+  opacity: var(--left-reveal);
+  transform: translateX(calc((var(--left-reveal) - 1) * var(--hero-travel)));
 }
 
-/* Centre image is the default plate: opaque everywhere except the far edges,
-   where the side image takes over. Never drops below ~0.64 so it stays legible
-   underneath the side layer during a blend. */
 .home-hero__bg-layer--2 {
-  opacity: calc(1 - abs(var(--progress) - 0.5) / 1.4);
+  z-index: 0;
+  opacity: 1;
 }
 
-/* Right image: mirror of the left one. */
 .home-hero__bg-layer--3 {
-  opacity: calc((var(--progress) - 0.52) / 0.36);
+  opacity: var(--right-reveal);
+  transform: translateX(calc((1 - var(--right-reveal)) * var(--hero-travel)));
+}
+
+.home-hero__bg-tint,
+.home-hero__veil,
+.home-hero__blend {
+  z-index: 2;
 }
 
 /* Per-image colour wash that keeps the palette shifting as the art changes. */

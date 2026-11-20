@@ -7,7 +7,7 @@ usePageSeo({
   description: siteConfig.description,
 });
 
-// The hero's first background is the LCP element; start fetching it immediately.
+// The resting middle image is bg1 after swapping the left and middle artwork.
 useHead({ link: [{ rel: 'preload', as: 'image', href: '/bg1.jpg', fetchpriority: 'high' }] });
 
 const [{ data: articles }, { data: categories }, { data: tags }] = await Promise.all([
