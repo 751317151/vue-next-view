@@ -83,7 +83,10 @@
 <script setup lang="ts">
 import AmbientConstellation from '../../src/components/common/AmbientConstellation.vue';
 import PointerGlow from '../../src/components/common/PointerGlow.vue';
-import MochiCompanion from '../../src/components/common/MochiCompanion.vue';
+// The Nuxt copy supersedes the legacy one: it reacts to the star jar and fixes
+// the orb/card layout. Auto-import would pick this up, but the explicit import
+// of the legacy path was shadowing it.
+import MochiCompanion from '../components/MochiCompanion.vue';
 import { siteConfig } from '../../src/config/site';
 
 const drawerOpen = ref(false);
