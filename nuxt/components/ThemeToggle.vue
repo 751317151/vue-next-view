@@ -51,19 +51,20 @@ const { cycleTheme } = useAppearance();
 .theme-toggle__stars { font-size: .5rem; color: #fffaf5; letter-spacing: .1em; opacity: 0; transform: scale(.5); }
 
 .theme-toggle__label > span { display: none; }
-.theme-toggle__label-system { display: inline !important; }
+html:not([data-theme-mode]) .theme-toggle__label-system { display: inline; }
 
-/* Icon state follows the canonical `bs-dark` class set by useAppearance. */
-:global(html.bs-dark) .theme-toggle__sky { background: linear-gradient(140deg, #3b2d63, #1a1430); }
-:global(html.bs-dark) .theme-toggle__sun { opacity: 0; transform: translateY(-140%) rotate(40deg); }
-:global(html.bs-dark) .theme-toggle__moon { opacity: 1; transform: translateY(0) rotate(0); }
-:global(html.bs-dark) .theme-toggle__stars { opacity: .85; transform: scale(1) translateY(-.42rem); }
+/* Keep the icon descendants scoped: wrapping only html in :global() drops
+   the descendants during compilation and applies their transforms to html. */
+html.bs-dark .theme-toggle__sky { background: linear-gradient(140deg, #3b2d63, #1a1430); }
+html.bs-dark .theme-toggle__sun { opacity: 0; transform: translateY(-140%) rotate(40deg); }
+html.bs-dark .theme-toggle__moon { opacity: 1; transform: translateY(0) rotate(0); }
+html.bs-dark .theme-toggle__stars { opacity: .85; transform: scale(1) translateY(-.42rem); }
 
-:global(html[data-theme-mode="light"]) .theme-toggle__label-light,
-:global(html[data-theme-mode="dark"]) .theme-toggle__label-dark,
-:global(html[data-theme-mode="system"]) .theme-toggle__label-system { display: inline !important; }
+html[data-theme-mode="light"] .theme-toggle__label-light,
+html[data-theme-mode="dark"] .theme-toggle__label-dark,
+html[data-theme-mode="system"] .theme-toggle__label-system { display: inline !important; }
 
-:global(html[data-theme-mode="system"]) .theme-toggle__sky { box-shadow: inset 0 0 0 1.5px rgba(185, 167, 255, .55); }
+html[data-theme-mode="system"] .theme-toggle__sky { box-shadow: inset 0 0 0 1.5px rgba(185, 167, 255, .55); }
 
 @media (max-width: 760px) { .theme-toggle__label { display: none; } .theme-toggle { padding: .3rem; } }
 

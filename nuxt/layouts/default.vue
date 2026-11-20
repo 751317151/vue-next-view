@@ -1,5 +1,5 @@
 <template>
-  <div class="site-shell">
+  <div class="site-shell" :class="{ 'site-shell--home': isHome }">
     <ClientOnly>
       <AmbientConstellation />
       <PointerGlow />
@@ -91,6 +91,8 @@ import { siteConfig } from '../../src/config/site';
 
 const drawerOpen = ref(false);
 const settingsOpen = ref(false);
+const route = useRoute();
+const isHome = computed(() => route.path === '/');
 
 // Apply the stored theme as soon as the client takes over. The inline boot
 // script already set the class before paint; this hydrates the reactive state
@@ -206,8 +208,9 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
 /* Scrolling down tucks it above the viewport; scrolling up drops it back. */
 .site-shell__header.is-tucked { transform: translateX(-50%) translateY(calc(-100% - .8rem)); }
 
-/* The fixed bar is out of flow, so the content needs its height back. */
+/* Content pages clear the fixed bar; the home hero sits underneath it. */
 .site-shell__main { padding-top: 3.9rem; }
+.site-shell--home .site-shell__main { padding-top: 0; }
 
 /* The brand is a wordmark, not a headline: keep it close to the nav text so it
    does not dominate the bar. */
@@ -253,6 +256,10 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
   .site-shell__brand span:last-child { font-size: .9rem; }
   .site-shell__header { padding: .45rem .55rem .45rem .85rem; }
 }
+
+/* Keep the artwork flush with the viewport on every breakpoint while the
+   navigation keeps its own floating inset. */
+.site-shell--home { padding-top: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .site-shell__header { transition: none; }

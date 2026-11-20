@@ -1,5 +1,5 @@
 <template>
-  <aside v-if="visible" class="mochi-companion" aria-label="小星星陪伴">
+  <aside class="mochi-companion" aria-label="小星星陪伴">
     <!-- DOM 里按钮在前，键盘 Tab 先到开关；CSS 用 row-reverse 让气泡视觉上展开在左边。 -->
     <button
       ref="orbEl"
@@ -20,8 +20,15 @@
 
     <!-- 刻意不用 <Transition>：离场节点会保留到 transitionend，和全局减少动效规则打架，
          容易出现卡片卡在展开状态。普通 v-if 配一个入场动画更可控。 -->
-    <div v-if="!collapsed" class="mochi-companion__card">
-      <button class="mochi-companion__close" type="button" aria-label="关闭陪伴提示" @click="dismiss">×</button>
+    <div
+      v-if="!collapsed"
+      ref="cardEl"
+      class="mochi-companion__card"
+      @pointerenter="keepOpen"
+      @focusin="keepOpen"
+      @keydown.esc="collapse"
+    >
+      <button class="mochi-companion__close" type="button" aria-label="收起陪伴提示" @click="collapse">×</button>
       <small>{{ face.label }}</small>
       <p aria-live="polite">{{ message }}</p>
       <div class="mochi-companion__actions">
@@ -77,7 +84,6 @@ const LINES: Record<Mood, string[]> = {
   ],
 };
 
-const visible = ref(false);
 const collapsed = ref(false);
 const unread = ref(false);
 const mood = ref<Mood>('afternoon');
@@ -88,6 +94,7 @@ const bonusMessage = ref('');
 const reacting = ref(false);
 
 const orbEl = ref<HTMLButtonElement | null>(null);
+const cardEl = ref<HTMLDivElement | null>(null);
 const face = computed<Face>(() => FACES[mood.value]);
 const lines = computed(() => LINES[mood.value]);
 const message = computed(() => bonusMessage.value || lines.value[messageIndex.value % lines.value.length]);
@@ -100,21 +107,23 @@ const moodFromClock = (): Mood => {
   return 'afternoon';
 };
 
-const show = () => {
-  visible.value = true;
-  unread.value = !collapsed.value;
-};
-
 let greetingTimer = 0;
 let bonusTimer = 0;
 let reactTimer = 0;
 
-const collapse = () => { collapsed.value = true; unread.value = true; };
+const keepOpen = () => { window.clearTimeout(greetingTimer); };
+const collapse = () => {
+  keepOpen();
+  const restoreFocus = cardEl.value?.contains(document.activeElement);
+  collapsed.value = true;
+  unread.value = true;
+  // 键盘收起气泡后把焦点交回入口，避免被移除的按钮丢掉焦点。
+  if (restoreFocus) orbEl.value?.focus({ preventScroll: true });
+};
 const toggle = () => {
+  keepOpen();
   collapsed.value = !collapsed.value;
   unread.value = false;
-  // 展开阅读就算互动，别再自动折回去。
-  if (!collapsed.value) window.clearTimeout(greetingTimer);
 };
 
 /** 同一心情下连点"换一句"不重复上一句，台词才像真的在聊天。 */
@@ -123,19 +132,10 @@ const advance = () => {
   messageIndex.value = (messageIndex.value + 1 + (Math.random() < 0.15 && total > 1 ? 1 : 0)) % total;
 };
 const nextMessage = () => {
+  keepOpen();
   bonusMessage.value = '';
   advance();
   mood.value = mood.value === 'reading' ? moodFromClock() : mood.value;
-};
-
-const dismiss = () => {
-  visible.value = false;
-  // 只按会话隐藏：永久标记会让一次误点再也召不回团子。
-  try {
-    window.sessionStorage.setItem('mochi-companion-hidden', '1');
-  } catch {
-    // 存储不可用时下次访问自然重新出现。
-  }
 };
 
 /** 星愿瓶收进一颗星时的联动。星星从卡片飞向瓶子，团子跟着冒一句话。 */
@@ -171,15 +171,16 @@ const onIdle = () => {
 };
 
 onMounted(() => {
-  // 清理旧版本写下的永久隐藏标记。
+  // 旧的关闭记录只收起气泡，入口始终保留；移除标记，避免整会话消失。
   try { window.localStorage.removeItem('mochi-companion-dismissed'); } catch { /* 忽略存储异常 */ }
   try {
-    if (window.sessionStorage.getItem('mochi-companion-hidden') === '1') return;
+    collapsed.value = window.sessionStorage.getItem('mochi-companion-hidden') === '1';
+    window.sessionStorage.removeItem('mochi-companion-hidden');
   } catch { /* 存储不可用时照常出现 */ }
 
   mood.value = moodFromClock();
   messageIndex.value = Math.floor(Math.random() * lines.value.length);
-  show();
+  unread.value = true;
   // 打完招呼自动收成团子并留一个未读点，避免小屏上气泡挡住正文。
   greetingTimer = window.setTimeout(() => {
     if (!collapsed.value) collapse();
@@ -285,7 +286,7 @@ onBeforeUnmount(() => {
 
 @media (max-width: 640px) {
   .mochi-companion__orb { width: 3rem; height: 3rem; }
-  .mochi-companion__card { width: min(15rem, calc(100vw - 5.5rem)); }
+  .mochi-companion__card { box-sizing: border-box; width: min(15rem, calc(100vw - 5.5rem)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .mochi-companion__orb,
