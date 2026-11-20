@@ -12,15 +12,19 @@ NUXT_PUBLIC_SITE_URL = "https://blog.blackstar.cc.cd"
 
 # 共享留言墙的存储。
 #
-# 数据库需要先建好并把 UUID 填到 database_id；留空时构建照常进行，
-# 但 /api/messages 会返回 503，前端自动退回"只存本地"的模式，
-# 页面不会因为缺绑定而报错。
+# 未配置数据库时，不声明 D1 绑定，前端会退回"只存本地"的模式。
+# 不要启用 database_id 为空的绑定：即使构建成功，Cloudflare 也会以
+# Invalid database UUID 拒绝发布 Function，运行时降级逻辑不会执行。
+#
+# 启用共享留言：先创建数据库（已有数据库可用 d1 list 查询 UUID），
+# 再取消下方四行注释，把 database_id 替换为真实 UUID，最后初始化表并重新部署。
 #
 #   npx wrangler d1 create blackstar-messages
+#   npx wrangler d1 list
 #   npx wrangler d1 execute blackstar-messages --remote --file server/database/schema.sql
 #
 # 本地开发：npx wrangler d1 execute blackstar-messages --local --file server/database/schema.sql
-[[d1_databases]]
-binding = "MESSAGE_DB"
-database_name = "blackstar-messages"
-database_id = ""
+# [[d1_databases]]
+# binding = "MESSAGE_DB"
+# database_name = "blackstar-messages"
+# database_id = "<D1_DATABASE_UUID>"

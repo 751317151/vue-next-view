@@ -83,6 +83,42 @@ needed, and anything set in the Cloudflare dashboard or the shell still wins.
 `wrangler.toml [vars]` is kept in sync, but note it is a **runtime** binding for
 Functions and does not satisfy the build-time check on its own.
 
+### Shared message board (optional D1 database)
+
+The default configuration leaves the D1 binding commented out. The site can be
+deployed without a database, and the message board stores messages only in each
+visitor's browser. To enable messages shared by all visitors:
+
+1. Log in to Cloudflare and create the database:
+
+   ```bash
+   npx wrangler login
+   npx wrangler d1 create blackstar-messages
+   ```
+
+   If the database already exists, run `npx wrangler d1 list` to find its UUID
+   instead of creating another one.
+
+2. Uncomment the four-line `[[d1_databases]]` block in `wrangler.toml`. Keep
+   `binding = "MESSAGE_DB"`, set `database_name` to the database's actual name,
+   and replace `<D1_DATABASE_UUID>` with the real database UUID. An active binding
+   with an empty or placeholder `database_id` causes Function publishing to fail
+   with `Invalid database UUID`, even if the build and asset upload succeed.
+   The Wrangler file is the source of truth for Pages bindings; configure the
+   database there when deploying this repository.
+
+3. Initialize the remote database tables (use the actual name if it differs):
+
+   ```bash
+   npx wrangler d1 execute blackstar-messages --remote --file server/database/schema.sql
+   ```
+
+   For local development, use `--local` instead of `--remote`.
+
+4. Redeploy the Pages project, then request `/api/messages`. A working database
+   returns `shared: true`; `shared: false` means the message board is using its
+   local fallback because the binding is missing or the database query failed.
+
 ### Environment file convention
 
 `.env`, `.env.development` and `.env.production` are committed, so treat their
