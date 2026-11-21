@@ -72,6 +72,7 @@ export default defineEventHandler(async (event) => {
     `- [关于](${absoluteUrl('/about')})`,
     `- [留言板](${absoluteUrl('/message')})`,
     `- [RSS](${absoluteUrl('/rss.xml')}): 全文订阅源`,
+    `- [全文语料](${absoluteUrl('/llms-full.txt')}): 全部文章的正文纯文本，供生成式引擎一次读取`,
     `- [站点地图](${absoluteUrl('/sitemap.xml')})`,
     '',
     '## 引用说明',

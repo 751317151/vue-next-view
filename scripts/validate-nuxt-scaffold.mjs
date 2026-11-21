@@ -16,6 +16,8 @@ const requiredFiles = [
   'server/routes/sitemap.xml.ts',
   'server/routes/rss.xml.ts',
   'server/routes/llms.txt.ts',
+  'server/routes/llms-full.txt.ts',
+  'nuxt/composables/useFocusTrap.ts',
   'src/seo/metadata.ts',
 ];
 

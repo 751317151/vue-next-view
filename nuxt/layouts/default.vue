@@ -33,13 +33,21 @@
         <!-- The buttons render on the server so a phone on a slow connection
              still has a way to open the menu before hydration finishes. Only
              the overlays themselves need ClientOnly. -->
-        <button type="button" class="site-shell__icon-btn" aria-label="主题与设置" @click="settingsOpen = true">
+        <button
+          type="button"
+          class="site-shell__icon-btn"
+          aria-label="主题与设置"
+          aria-haspopup="dialog"
+          :aria-expanded="settingsOpen"
+          @click="settingsOpen = true"
+        >
           <span aria-hidden="true">⚙</span>
         </button>
         <button
           type="button"
           class="site-shell__icon-btn site-shell__menu-btn"
           :aria-expanded="drawerOpen"
+          aria-haspopup="dialog"
           aria-label="打开菜单"
           @click="drawerOpen = true"
         >

@@ -4,6 +4,21 @@ usePageSeo({
   path: '/about',
   title: `关于 | ${siteConfig.name}`,
   description: '认识 BlackStar，以及这个博客为什么存在。',
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    name: `关于 ${siteConfig.author} | ${siteConfig.name}`,
+    description: '认识 BlackStar，以及这个博客为什么存在。',
+    inLanguage: siteConfig.locale,
+    mainEntity: {
+      '@type': 'Person',
+      name: siteConfig.author,
+      description: '前端工程师、二次元爱好者、夜猫子写作者。喜欢把复杂的技术写成温暖、清晰的小故事。',
+      url: 'https://github.com/751317151',
+      sameAs: ['https://github.com/751317151'],
+      knowsAbout: ['Vue 3', 'TypeScript', 'Nuxt 4', 'Vite', 'Node.js', 'Spring Boot'],
+    },
+  },
 });
 
 const stacks = ['Vue 3', 'TypeScript', 'Nuxt 4', 'Vite', 'Node.js', 'Spring Boot'];

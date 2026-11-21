@@ -2,10 +2,10 @@
   <ClientOnly>
     <!-- Same reasoning as MobileDrawer: no exit transition to get stuck on. -->
     <div v-if="open" class="sheet-scrim" @click.self="close">
-        <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <section ref="sheetEl" class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1">
           <header class="sheet__head">
             <h2 id="settings-title">设置 <span aria-hidden="true">✦</span></h2>
-            <button type="button" class="sheet__close" aria-label="关闭设置" @click="close">×</button>
+            <button ref="closeButton" type="button" class="sheet__close" aria-label="关闭设置" @click="close">×</button>
           </header>
 
           <div class="sheet__group">
@@ -75,6 +75,9 @@ import type { ThemeMode } from '../composables/useAppearance';
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ close: [] }>();
 
+const sheetEl = ref<HTMLElement | null>(null);
+const closeButton = ref<HTMLButtonElement | null>(null);
+
 const { themeMode, motionPreference, danmakuEnabled, setTheme, setMotion, setDanmaku } = useAppearance();
 
 const themeOptions: Array<{ value: ThemeMode; label: string; emoji: string }> = [
@@ -85,20 +88,11 @@ const themeOptions: Array<{ value: ThemeMode; label: string; emoji: string }> = 
 
 const close = () => emit('close');
 
-const onKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && props.open) close();
-};
-
-onMounted(() => window.addEventListener('keydown', onKeydown));
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
-
-// Lock background scrolling while the sheet is open.
-watch(() => props.open, (value) => {
-  if (typeof document === 'undefined') return;
-  document.body.style.overflow = value ? 'hidden' : '';
-});
-onBeforeUnmount(() => {
-  if (typeof document !== 'undefined') document.body.style.overflow = '';
+const isOpen = computed(() => props.open);
+useFocusTrap(isOpen, sheetEl, {
+  onEscape: close,
+  initialFocus: () => closeButton.value,
+  returnFocus: () => document.querySelector<HTMLElement>('.site-shell__actions .site-shell__icon-btn:not(.site-shell__menu-btn)'),
 });
 </script>
 

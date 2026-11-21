@@ -31,7 +31,7 @@ if (isBuildCommand && !hasSiteUrl && process.env.NUXT_ALLOW_LOCAL_ORIGIN !== '1'
 // Crawler files are served by Nitro at request time by default. When a public
 // site URL exists they can be prerendered safely; without one, prerendering
 // would bake http://localhost into the sitemap and robots.txt.
-const crawlerRoutes = ['/robots.txt', '/sitemap.xml', '/rss.xml', '/llms.txt'];
+const crawlerRoutes = ['/robots.txt', '/sitemap.xml', '/rss.xml', '/llms.txt', '/llms-full.txt'];
 const crawlerRouteRules = Object.fromEntries(
   crawlerRoutes.map((route) => [route, hasSiteUrl ? { prerender: true } : { cache: false }])
 );

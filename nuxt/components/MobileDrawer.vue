@@ -6,31 +6,40 @@
          the page after the visitor taps a link. A plain v-if plus a mount
          animation is deterministic. -->
     <div v-if="modelValue" class="drawer-scrim" @click.self="close">
-        <nav class="drawer" aria-label="移动端导航">
+        <div
+          ref="drawerEl"
+          class="drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="drawer-title"
+          tabindex="-1"
+        >
           <span class="drawer__spark drawer__spark--one" aria-hidden="true">✦</span>
           <span class="drawer__spark drawer__spark--two" aria-hidden="true">✧</span>
 
           <header class="drawer__head">
-            <span class="drawer__brand">🌙 生活倒影</span>
-            <button type="button" class="drawer__close" aria-label="关闭菜单" @click="close">×</button>
+            <h2 id="drawer-title" class="drawer__brand">🌙 生活倒影</h2>
+            <button ref="closeButton" type="button" class="drawer__close" aria-label="关闭菜单" @click="close">×</button>
           </header>
 
-          <ul class="drawer__list">
-            <li
-              v-for="(item, index) in items"
-              :key="item.to"
-              :style="{ '--i': index }"
-            >
-              <NuxtLink :to="item.to" class="drawer__link" @click="close">
-                <span class="drawer__emoji" aria-hidden="true">{{ item.emoji }}</span>
-                <span class="drawer__text">
-                  <strong>{{ item.label }}</strong>
-                  <small>{{ item.hint }}</small>
-                </span>
-                <span class="drawer__arrow" aria-hidden="true">→</span>
-              </NuxtLink>
-            </li>
-          </ul>
+          <nav aria-label="移动端导航">
+            <ul class="drawer__list">
+              <li
+                v-for="(item, index) in items"
+                :key="item.to"
+                :style="{ '--i': index }"
+              >
+                <NuxtLink :to="item.to" class="drawer__link" @click="navigate">
+                  <span class="drawer__emoji" aria-hidden="true">{{ item.emoji }}</span>
+                  <span class="drawer__text">
+                    <strong>{{ item.label }}</strong>
+                    <small>{{ item.hint }}</small>
+                  </span>
+                  <span class="drawer__arrow" aria-hidden="true">→</span>
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
 
           <footer class="drawer__foot">
             <button type="button" class="drawer__settings" @click="emit('settings'); close()">
@@ -38,7 +47,7 @@
             </button>
             <p class="drawer__note">把技术、生活和灵感，写成会发光的小故事。</p>
           </footer>
-        </nav>
+        </div>
     </div>
   </ClientOnly>
 </template>
@@ -46,6 +55,9 @@
 <script setup lang="ts">
 const props = defineProps<{ modelValue: boolean }>();
 const emit = defineEmits<{ 'update:modelValue': [boolean]; settings: [] }>();
+
+const drawerEl = ref<HTMLElement | null>(null);
+const closeButton = ref<HTMLButtonElement | null>(null);
 
 const items = [
   { to: '/explore', label: '灵感漫游', hint: '让心情和运气带路', emoji: '🌠' },
@@ -58,21 +70,24 @@ const items = [
   { to: '/about', label: '关于', hint: '认识写这些字的人', emoji: '🌿' },
 ];
 
+const restoreFocus = ref(true);
 const close = () => emit('update:modelValue', false);
-
-const onKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && props.modelValue) close();
+/** 点链接是"离开这一页"，焦点应交给新页面，而不是弹回菜单按钮。 */
+const navigate = () => {
+  restoreFocus.value = false;
+  close();
 };
 
-onMounted(() => window.addEventListener('keydown', onKeydown));
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
-
-watch(() => props.modelValue, (value) => {
-  if (typeof document === 'undefined') return;
-  document.body.style.overflow = value ? 'hidden' : '';
+const isOpen = computed(() => props.modelValue);
+useFocusTrap(isOpen, drawerEl, {
+  onEscape: close,
+  initialFocus: () => closeButton.value,
+  returnFocus: () => document.querySelector<HTMLElement>('.site-shell__menu-btn'),
+  shouldReturnFocus: () => restoreFocus.value,
 });
-onBeforeUnmount(() => {
-  if (typeof document !== 'undefined') document.body.style.overflow = '';
+
+watch(() => props.modelValue, (open) => {
+  if (open) restoreFocus.value = true;
 });
 </script>
 
@@ -87,7 +102,7 @@ onBeforeUnmount(() => {
 .drawer__spark--two { top: 8.5rem; right: 3.2rem; font-size: .75rem; color: var(--bs-lilac); animation: drawer-twinkle 4.1s ease-in-out infinite .7s; }
 
 .drawer__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.drawer__brand { font-weight: 700; color: var(--bs-ink); }
+.drawer__brand { margin: 0; font-weight: 700; color: var(--bs-ink); }
 .drawer__close { width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--bs-ink-soft); font-size: 1.3rem; line-height: 1; cursor: pointer; transition: var(--bs-dur-quick) ease; }
 .drawer__close:hover { background: rgba(255, 143, 179, 0.18); color: var(--bs-ink); transform: rotate(90deg); }
 
