@@ -4,9 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "nuxt dev",
+    "dev:vite": "vite",
     "dev:nuxt": "nuxt dev",
-    "build": "vite build",
+    "build": "node scripts/clean-build-output.mjs dist .output && cross-env NITRO_PRESET=cloudflare_pages nuxt build",
+    "build:vite": "vite build",
     "build:with-seo": "npm run generate:seo && vite build && node scripts/copy-seo-to-dist.mjs && npm run validate:seo",
     "build:nuxt": "nuxt build",
     "preview": "vite preview",
@@ -19,7 +21,7 @@
     "generate:seo": "node scripts/generate-seo.mjs",
     "check:static": "npm run validate:nuxt && npm run validate:env && npm run typecheck && npm run typecheck:nuxt",
     "release:check": "npm run check:static && npm run build:cf && npm run validate:seo",
-    "build:cf": "cross-env NITRO_PRESET=cloudflare_pages nuxt build"
+    "build:cf": "node scripts/clean-build-output.mjs dist .output && cross-env NITRO_PRESET=cloudflare_pages nuxt build"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",

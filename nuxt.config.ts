@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { tryUseNuxt } from '@nuxt/kit';
 
 const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || process.env.VITE_SITE_URL || process.env.SITE_URL || '';
 const hasSiteUrl = Boolean(siteUrl);
@@ -55,6 +56,26 @@ export default defineNuxtConfig({
       const excluded = ['../components.d.ts', '../auto-imports.d.ts'];
       tsConfig.exclude = Array.from(new Set([...(tsConfig.exclude ?? []), ...excluded]));
     },
+    // Nuxt's vue-router 5 ships the SFC route-block Volar plugin, but the
+    // legacy Vite app pins vue-router 4 at the repo root, so TypeScript
+    // resolves the bare specifier to a copy without that export and every
+    // typecheck prints "plugin is not a function". We never use `<route>`
+    // blocks, so drop only that entry; registering here (after modules are
+    // done) guarantees this runs after Nuxt has populated the list.
+    'modules:done': () => {
+      const nuxt = tryUseNuxt();
+      if (!nuxt) return;
+      nuxt.hook('prepare:types', ({ tsConfig }) => {
+        // drop only that entry and keep the rest of the generated options.
+        const vueOptions = tsConfig.vueCompilerOptions as { plugins?: Array<string | { name: string }> } | undefined;
+        if (!vueOptions?.plugins) return;
+        vueOptions.plugins = vueOptions.plugins.filter((plugin) => (
+          typeof plugin === 'string'
+            ? plugin !== 'vue-router/volar/sfc-route-blocks'
+            : plugin.name !== 'vue-router/volar/sfc-route-blocks'
+        ));
+      });
+    },
   },
   devtools: { enabled: false },
   css: ['~/../src/assets/css/visual-system.css'],
@@ -82,6 +103,7 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/': { prerender: true },
+    '/explore': { prerender: true },
     '/archive': { prerender: true },
     '/categories/**': { swr: 3600 },
     '/tags/**': { swr: 3600 },
@@ -105,6 +127,7 @@ export default defineNuxtConfig({
     prerender: {
       routes: [
         '/',
+        '/explore',
         '/archive',
         '/categories',
         '/tags',

@@ -22,20 +22,6 @@ if (/^\d+$/.test(slug) && articleData.slug) {
   await navigateTo(`/article/${articleData.slug}`, { redirectCode: 301 });
 }
 
-const articleSeo = {
-  title: articleData.articleTitle,
-  // 优先用后端统一算好的摘要；没有才退回正文，交给下游截断。
-  description: articleData.summary || articleData.articleContent,
-  url: `${siteUrl || ''}/article/${encodeURIComponent(articleData.slug || slug)}`,
-  image: articleData.articleCover,
-  publishedAt: articleData.createTime,
-  updatedAt: articleData.updateTime,
-  category: articleData.category,
-  tags: articleData.tags,
-  author: siteConfig.author,
-};
-const seo = useArticleSeo(articleSeo);
-
 // Resolve the real category slug instead of encoding the display name: names
 // like "Spring Boot" or "创意实验" do not survive a round-trip through the URL,
 // and the category page only matches on its own slug.
@@ -47,6 +33,29 @@ const categoryHref = computed(() => {
   const match = (categoryIndex.value || []).find((entry) => entry.categoryName === articleData.category);
   return match ? `/categories/${encodeURIComponent(match.slug)}` : null;
 });
+const { data: tagIndex } = await useAsyncData<Array<{ slug: string; tagName: string }>>(
+  'article-tag-index',
+  () => $fetch('/api/tags'),
+);
+const articleTags = computed(() => (articleData.tags || []).map((name) => ({
+  name,
+  slug: (tagIndex.value || []).find((entry) => entry.tagName === name)?.slug || '',
+})));
+
+const articleSeo = {
+  title: articleData.articleTitle,
+  // 优先用后端统一算好的摘要；没有才退回正文，交给下游截断。
+  description: articleData.summary || articleData.articleContent,
+  url: `${siteUrl || ''}/article/${encodeURIComponent(articleData.slug || slug)}`,
+  image: articleData.articleCover,
+  publishedAt: articleData.createTime,
+  updatedAt: articleData.updateTime,
+  category: articleData.category,
+  categoryUrl: categoryHref.value ? `${siteUrl || ''}${categoryHref.value}` : undefined,
+  tags: articleData.tags,
+  author: siteConfig.author,
+};
+const seo = useArticleSeo(articleSeo);
 const hero = articleArt({ id: articleData.id, category: articleData.category });
 const heroEmoji = hero.emoji;
 const heroStyle = hero.style;
@@ -211,7 +220,10 @@ onBeforeUnmount(() => {
     <div class="reading__body" v-html="articleData.contentHtml"></div>
 
     <ul v-if="articleData.tags?.length" class="reading__tags" aria-label="文章标签">
-      <li v-for="tag in articleData.tags" :key="tag">#{{ tag }}</li>
+      <li v-for="tag in articleTags" :key="tag.name">
+        <NuxtLink v-if="tag.slug" :to="`/tags/${encodeURIComponent(tag.slug)}`">#{{ tag.name }}</NuxtLink>
+        <span v-else>#{{ tag.name }}</span>
+      </li>
     </ul>
 
     <section class="reading__finale" aria-label="读完啦">
@@ -263,7 +275,11 @@ onBeforeUnmount(() => {
 .reading__body :deep(img) { max-width: 100%; border-radius: .9rem; }
 .reading__body :deep(blockquote) { margin: 1.2rem 0; padding: .8rem 1.1rem; border-left: 4px solid var(--bs-pink); border-radius: .8rem; background: var(--bs-tint-yellow); color: var(--bs-ink-body); }
 .reading__tags { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.8rem 0 0; padding: 0; list-style: none; }
-.reading__tags li { padding: .45rem .8rem; border-radius: 999px; background: rgba(158,230,208,.26); color: #4f6d67; font-size: .84rem; }
+.reading__tags li { padding: .45rem .8rem; border-radius: 999px; background: rgba(158,230,208,.26); color: #4f6d67; font-size: .84rem; transition: transform var(--bs-dur-quick) var(--bs-ease-pop), background-color var(--bs-dur-quick) ease; }
+.reading__tags a { display: inline-block; color: inherit; text-decoration: none; }
+.reading__tags li:hover { background: rgba(158,230,208,.44); transform: translateY(-2px) rotate(-1.5deg); }
+.reading__tags a:focus-visible { outline: 2px solid var(--bs-ink-line); outline-offset: 3px; border-radius: .4rem; }
+:root.bs-dark .reading__tags li { color: var(--bs-mint); }
 .reading__next { margin-top: 3.4rem; }
 .reading__next h2 { color: var(--bs-ink); }
 .reading__next-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; margin-top: 1rem; }
@@ -276,6 +292,7 @@ onBeforeUnmount(() => {
 
 /* Floating table of contents on wide screens. */
 .reading__toc { position: fixed; top: 50%; right: max(1rem, calc(50vw - 604px)); z-index: 5; display: none; width: 11.5rem; max-height: 62vh; overflow: auto; padding: .9rem .8rem .7rem; border: 1px solid var(--bs-border); border-radius: 1.1rem; background: rgba(255,250,245,.8); box-shadow: 0 14px 38px rgba(95,66,118,.14); backdrop-filter: blur(14px); transform: translateY(-50%); }
+:root.bs-dark .reading__toc { background: rgba(33, 26, 54, .86); box-shadow: 0 14px 38px rgba(0, 0, 0, .4); }
 @media (min-width: 1240px) { .reading__toc { display: block; } }
 .reading__toc-title { margin: 0 0 .45rem; color: var(--bs-accent-ink); font-size: .76rem; letter-spacing: .12em; }
 .reading__toc ul { margin: 0; padding: 0; list-style: none; }

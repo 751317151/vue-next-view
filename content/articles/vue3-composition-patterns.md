@@ -4,6 +4,8 @@ category: 前端开发
 tags: [Vue3, TypeScript, 组合式函数]
 date: 2024-03-12
 updatedAt: 2024-04-02
+id: 2
+summary: 一次真实的 Options API 迁移记录：按业务域拆分组合式函数，把副作用的清理写进约定，让类型从返回值自然推导。
 ---
 
 把一个跑了三年的 Options API 项目迁移到 Composition API，最难的不是语法，而是决定"状态放哪里"。这篇记录我最终沉淀下来的三条原则。

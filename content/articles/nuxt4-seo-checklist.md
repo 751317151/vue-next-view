@@ -4,6 +4,8 @@ category: 前端架构
 tags: [Nuxt, SEO, GEO]
 date: 2024-05-20
 updatedAt: 2024-06-11
+id: 1
+summary: 从服务端首屏 HTML、canonical 和结构化数据，到 sitemap、RSS 与爬虫策略，一份可以直接照着勾的 Nuxt 4 上线清单。
 ---
 
 纯客户端渲染的 SPA 对爬虫总是多一层不确定。把博客迁到 Nuxt 4 之后，我按这份清单逐项过了一遍，上线前心里就有底了。

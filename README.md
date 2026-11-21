@@ -16,29 +16,55 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
    1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
    2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
 2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-# BlackStar Blog
+# BlackStar Blog · 生活倒影
 
-这是一个 Vue 3 个人博客项目，当前采用 Vite 主应用与 Nuxt 4 并行迁移的方式持续演进。
+一个温暖、有趣的个人博客。公开站点由 Nuxt 4 提供 SSR、SWR 和 Nitro Server Routes，
+为读者、搜索引擎和生成式引擎交付同一份可抓取的 HTML。
 
-## Current entry points
+## 常用命令
 
 ```bash
-# Existing Vite application
-npm run dev
-npm run build
-
-# Nuxt 4 migration application
 npm install
-npm run dev:nuxt
-npm run validate:nuxt
-npm run build:nuxt
+
+npm run dev        # Nuxt 开发服务器（公开站点）
+npm run build      # Cloudflare Pages 生产构建，产物在 dist/
+npm run preview    # 预览 Nuxt 产物
 ```
 
-Vite 入口仍是当前默认部署入口。Nuxt 分支位于 `nuxt/`，使用 SSR、SWR 和 Nitro Server Routes，为公开页面提供可抓取 HTML、SEO、GEO、Sitemap、RSS 和 `llms.txt`。
+历史 Vite 单页应用仍保留在 `src/`，只用于兼容和对照，不再是默认入口：
+
+```bash
+npm run dev:vite
+npm run build:vite
+```
+
+## 内容源
+
+文章直接写在 `content/articles/*.md`，`nuxt.config.ts` 通过 Nitro serverAssets
+把它们打包进构建，因此开发和生产读取的是同一份 Markdown，不再依赖 Mock 数据。
+frontmatter 约定：
+
+```yaml
+---
+title: 文章标题               # 必填
+date: 2024-05-20             # 必填，YYYY-MM-DD
+updatedAt: 2024-06-11        # 选填，不能早于 date
+category: 前端架构
+tags: [Nuxt, SEO]
+slug: nuxt4-seo-checklist    # 选填；缺省用文件名
+id: 1                        # 选填；保留旧数字链接时使用
+draft: true                  # 选填；草稿不会进入列表、RSS、sitemap 或 llms.txt
+summary: 一句话摘要
+---
+```
+
+缺少标题或日期、日期格式错误、slug / id 重复都会让构建直接失败，而不是让一篇
+坏文章悄悄以“今天”的日期上线。
 
 ## Nuxt public content boundary
 
-- `server/repositories/`：生产数据访问边界，当前由 Mock repository 实现。
+- `content/articles/`：真实的 Markdown 内容源。
+- `server/repositories/`：生产数据访问边界，读取 content layer，仅在内容目录为空时回退到种子数据。
 - `server/api/`：文章、分类、标签、搜索和健康检查接口。
 - `server/routes/`：robots、Sitemap、RSS、llms.txt。
 - `src/seo/metadata.ts`：框架无关的文章 SEO 和 JSON-LD 契约。

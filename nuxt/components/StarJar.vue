@@ -2,9 +2,11 @@
   <aside class="star-jar" aria-label="星愿瓶">
     <!-- 飞行中的小星星传送到 body 上，否则会被 .star-jar 的层叠上下文困住，
          越过页面顶部的导航栏时会钻到它下面。 -->
-    <Teleport to="body">
-      <div ref="flightLayer" class="star-jar__flight" aria-hidden="true"></div>
-    </Teleport>
+    <ClientOnly>
+      <Teleport to="body">
+        <div ref="flightLayer" class="star-jar__flight" aria-hidden="true"></div>
+      </Teleport>
+    </ClientOnly>
 
     <button
       ref="jarButton"
@@ -62,20 +64,22 @@
 
 <script setup lang="ts">
 import { useStarJar } from '../composables/useStarJar';
+import { onReducedMotionChange, prefersReducedMotion } from '../utils/motion';
 
 const { stars, hydrate, remove, clear } = useStarJar();
 const open = ref(false);
 const bumping = ref(false);
 const jarButton = ref<HTMLElement | null>(null);
 const flightLayer = ref<HTMLElement | null>(null);
+const flights = new Map<Animation, HTMLElement>();
+let stopWatchingMotion: (() => void) | undefined;
 let bumpTimer = 0;
 
 /** 从点击坐标生成一颗小星星，用 Web Animations API 把它送进瓶子。 */
 const launchFlyingStar = (x: number, y: number, emoji: string) => {
   const layer = flightLayer.value;
   const jar = jarButton.value;
-  if (!layer || !jar) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!layer || !jar || typeof layer.animate !== 'function') return;
 
   const target = jar.getBoundingClientRect();
   const star = document.createElement('span');
@@ -95,12 +99,26 @@ const launchFlyingStar = (x: number, y: number, emoji: string) => {
     ],
     { duration: 720, easing: 'cubic-bezier(.2,.9,.3,1.2)' },
   );
-  anim.onfinish = () => star.remove();
+  flights.set(anim, star);
+  anim.onfinish = () => {
+    star.remove();
+    flights.delete(anim);
+  };
+};
+
+const stopJarMotion = () => {
+  for (const [flight, star] of flights) {
+    flight.cancel();
+    star.remove();
+  }
+  flights.clear();
+  window.clearTimeout(bumpTimer);
+  bumping.value = false;
 };
 
 const onFly = (event: Event) => {
   const detail = (event as CustomEvent<{ x: number; y: number; emoji: string }>).detail;
-  if (!detail) return;
+  if (!detail || prefersReducedMotion()) return;
   launchFlyingStar(detail.x, detail.y, detail.emoji);
   // 瓶子被"投喂"时轻轻一跳。
   bumping.value = true;
@@ -110,12 +128,14 @@ const onFly = (event: Event) => {
 
 onMounted(() => {
   hydrate();
+  stopWatchingMotion = onReducedMotionChange((reduced) => { if (reduced) stopJarMotion(); });
   window.addEventListener('star-jar:fly', onFly);
 });
 
 onBeforeUnmount(() => {
+  stopWatchingMotion?.();
   window.removeEventListener('star-jar:fly', onFly);
-  window.clearTimeout(bumpTimer);
+  stopJarMotion();
 });
 </script>
 

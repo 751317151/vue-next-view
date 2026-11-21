@@ -9,11 +9,8 @@ export const useArticleSeo = (article: SeoArticleInput) => {
   const runtimeConfig = useRuntimeConfig();
   const origin = String(runtimeConfig.public.siteUrl || '').replace(/\/$/, '') || requestUrl.origin;
 
-  const seo = buildArticleSeo({
-    ...article,
-    url: article.url || new URL(requestUrl.pathname, requestUrl.origin).toString(),
-  }, siteConfig.name);
-
+  // Resolve the social image first: JSON-LD `image` and `og:image` must point at
+  // the same absolute URL, otherwise rich results and share cards disagree.
   const image = (() => {
     try {
       return new URL(article.image || DEFAULT_SOCIAL_IMAGE, origin).toString();
@@ -21,6 +18,12 @@ export const useArticleSeo = (article: SeoArticleInput) => {
       return article.image || DEFAULT_SOCIAL_IMAGE;
     }
   })();
+
+  const seo = buildArticleSeo({
+    ...article,
+    image,
+    url: article.url || new URL(requestUrl.pathname, requestUrl.origin).toString(),
+  }, siteConfig.name);
 
   useSeoMeta({
     title: seo.title,

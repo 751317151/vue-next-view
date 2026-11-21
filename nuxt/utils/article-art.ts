@@ -50,6 +50,13 @@ export function readingMinutes(text?: string) {
 
 export function formatDate(value?: string) {
   if (!value) return '—';
+  // Date-only strings are calendar dates, not instants: `new Date('2024-05-20')`
+  // is parsed as UTC midnight, which renders as May 19 for visitors west of
+  // Greenwich and also makes the server/client HTML disagree during hydration.
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (dateOnly) {
+    return `${Number(dateOnly[1])} 年 ${Number(dateOnly[2])} 月 ${Number(dateOnly[3])} 日`;
+  }
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;

@@ -6,6 +6,8 @@ export interface SeoArticleInput {
   publishedAt?: string;
   updatedAt?: string;
   category?: string;
+  /** 分类页的规范链接；有值时面包屑第二级才是一个可点击的实体。 */
+  categoryUrl?: string;
   tags?: string[];
   author?: string;
 }
@@ -53,7 +55,9 @@ export const buildArticleSeo = (input: SeoArticleInput, siteName = '生活倒影
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: '首页', item: new URL('/', input.url).toString() },
-      ...(input.category ? [{ '@type': 'ListItem', position: 2, name: input.category }] : []),
+      ...(input.category
+        ? [{ '@type': 'ListItem', position: 2, name: input.category, ...(input.categoryUrl ? { item: input.categoryUrl } : {}) }]
+        : []),
       { '@type': 'ListItem', position: input.category ? 3 : 2, name: input.title, item: input.url },
     ],
   };

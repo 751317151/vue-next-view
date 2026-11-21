@@ -100,6 +100,7 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(14px);
   transition: transform var(--bs-dur-base) var(--bs-ease-pop), box-shadow var(--bs-dur-base) ease;
 }
+:root.bs-dark .to-top { background: rgba(33, 26, 54, .88); }
 
 .to-top:hover { transform: translateY(-4px) rotate(-6deg); box-shadow: 0 20px 44px rgba(255, 143, 179, .3); }
 .to-top:active { transform: translateY(-1px) scale(.94); }
@@ -122,7 +123,7 @@ onBeforeUnmount(() => {
   height: 2.35rem;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink) 60%, var(--bs-lilac));
-  color: var(--bs-ink);
+  color: var(--bs-ink-on-accent);
   font-size: .95rem;
   box-shadow: inset 0 -2px 6px rgba(57, 45, 79, .14);
 }

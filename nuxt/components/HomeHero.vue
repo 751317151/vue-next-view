@@ -29,7 +29,7 @@
       </h1>
       <p class="home-hero__subtitle">{{ typedSubtitle }}<span class="home-hero__caret" aria-hidden="true"></span></p>
       <div class="home-hero__hitokoto" :class="{ 'is-ready': hitokotoShown }">
-        <p class="home-hero__hitokoto-text" aria-live="polite">
+        <p class="home-hero__hitokoto-text" aria-live="polite" aria-atomic="true" :aria-busy="hitokotoLoading">
           {{ typedHitokoto }}<span v-if="hitokotoFrom" class="home-hero__hitokoto-from"> ——「{{ hitokotoFrom }}」</span>
         </p>
         <button
@@ -53,6 +53,12 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { siteConfig } from '../../src/config/site';
+import { onReducedMotionChange, prefersReducedMotion } from '../utils/motion';
+
+interface Quote {
+  text: string;
+  from: string;
+}
 
 // Swap or extend the hero backgrounds here (public/ paths, in mouse-zone order: left / middle / right).
 const HERO_IMAGES = ['/bg2.jpg', '/bg1.jpg', '/bg3.jpg'];
@@ -76,89 +82,114 @@ const hitokotoShown = ref(false);
 const hitokotoLoading = ref(false);
 const typedHitokoto = ref('');
 const hitokotoFrom = ref('');
-let alive = true;
-let hitokotoRequest = 0;
+let stopWatchingMotion: (() => void) | undefined;
+let subtitleAnimation: AbortController | undefined;
+let quoteAnimation: AbortController | undefined;
+let quoteRequest: AbortController | undefined;
+let currentQuote: Quote | undefined;
 
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+const wait = (ms: number, signal: AbortSignal) => {
+  if (signal.aborted) return Promise.resolve(false);
+  return new Promise<boolean>((resolve) => {
+    const stop = () => {
+      window.clearTimeout(timer);
+      resolve(false);
+    };
+    const timer = window.setTimeout(() => {
+      signal.removeEventListener('abort', stop);
+      resolve(true);
+    }, ms);
+    signal.addEventListener('abort', stop, { once: true });
+  });
+};
 
-const typeText = async (target: Ref<string>, full: string, speed: number) => {
+const typeText = async (target: Ref<string>, full: string, speed: number, signal: AbortSignal) => {
+  if (signal.aborted) return;
+  let partial = '';
   target.value = '';
-  for (let i = 1; i <= full.length; i += 1) {
-    if (!alive) return false;
-    target.value = full.slice(0, i);
-    await wait(speed);
+  for (const character of full) {
+    partial += character;
+    target.value = partial;
+    if (!(await wait(speed, signal)) || signal.aborted) return;
   }
-  return alive;
 };
 
-const runSubtitleLoop = async () => {
-  if (prefersReducedMotion()) {
-    typedSubtitle.value = PHRASES[0]!;
-    return;
-  }
-  await wait(2600);
+const runSubtitleLoop = async (signal: AbortSignal) => {
   let index = 0;
-  while (alive) {
+  while (await wait(2600, signal) && !signal.aborted) {
     index = (index + 1) % PHRASES.length;
-    for (let length = typedSubtitle.value.length; length > 0 && alive; length -= 1) {
-      typedSubtitle.value = typedSubtitle.value.slice(0, -1);
-      await wait(26);
+    const characters = [...typedSubtitle.value];
+    while (characters.length) {
+      characters.pop();
+      typedSubtitle.value = characters.join('');
+      if (!(await wait(26, signal)) || signal.aborted) return;
     }
-    if (!alive || !(await typeText(typedSubtitle, PHRASES[index]!, 130))) return;
-    await wait(2600);
+    await typeText(typedSubtitle, PHRASES[index]!, 130, signal);
   }
 };
 
-/** Show one quote, typed out. `quote` may come from the API or a local fallback. */
-const presentHitokoto = async (quote: { text: string; from: string }) => {
-  if (!alive) return;
+const showFullQuote = (quote: Quote) => {
+  typedHitokoto.value = quote.text;
+  hitokotoFrom.value = quote.from;
   hitokotoShown.value = true;
+};
 
+const presentHitokoto = async (quote: Quote) => {
+  currentQuote = quote;
   if (prefersReducedMotion()) {
-    typedHitokoto.value = quote.text;
-    hitokotoFrom.value = quote.from;
+    showFullQuote(quote);
     return;
   }
 
-  // Fade the current line out before typing the next one, so a refresh does not
-  // look like the same sentence mutating in place.
-  hitokotoShown.value = false;
-  await wait(240);
-  if (!alive) return;
-  typedHitokoto.value = '';
-  hitokotoFrom.value = '';
-  hitokotoShown.value = true;
-  if (!(await typeText(typedHitokoto, quote.text, 70))) return;
-  hitokotoFrom.value = quote.from;
+  const animation = new AbortController();
+  quoteAnimation = animation;
+  const { signal } = animation;
+  try {
+    // Fade the previous quote before typing its replacement.
+    if (hitokotoShown.value) {
+      hitokotoShown.value = false;
+      if (!(await wait(240, signal)) || signal.aborted) return;
+    }
+    hitokotoFrom.value = '';
+    hitokotoShown.value = true;
+    await typeText(typedHitokoto, quote.text, 70, signal);
+    if (!signal.aborted) hitokotoFrom.value = quote.from;
+  } finally {
+    if (quoteAnimation === animation) quoteAnimation = undefined;
+  }
 };
 
-const fetchHitokoto = async (): Promise<{ text: string; from: string }> => {
+const fetchHitokoto = async (request: AbortController): Promise<Quote> => {
+  const timer = window.setTimeout(() => request.abort(), 3500);
   try {
-    const controller = new AbortController();
-    const timer = window.setTimeout(() => controller.abort(), 3500);
-    const response = await fetch('https://v1.hitokoto.cn/?c=a&c=b&c=d&c=i&c=k&max_len=36', { signal: controller.signal });
-    window.clearTimeout(timer);
+    const response = await fetch('https://v1.hitokoto.cn/?c=a&c=b&c=d&c=i&c=k&max_len=36', { signal: request.signal });
     if (response.ok) {
       const data = (await response.json()) as { hitokoto?: string; from?: string };
       if (data.hitokoto) return { text: data.hitokoto, from: data.from || '' };
     }
   } catch {
     // Fall through to a local fallback when the service is unreachable.
+  } finally {
+    window.clearTimeout(timer);
   }
   const pick = FALLBACK_HITOKOTO[Math.floor(Math.random() * FALLBACK_HITOKOTO.length)]!;
   return { text: pick.text, from: pick.from };
 };
 
-/** Manual refresh from the button: guards against overlapping responses. */
 const refreshHitokoto = async () => {
   if (hitokotoLoading.value) return;
   hitokotoLoading.value = true;
-  const request = ++hitokotoRequest;
-  const quote = await fetchHitokoto();
-  // A slower earlier request must not overwrite a newer one.
-  if (request === hitokotoRequest && alive) await presentHitokoto(quote);
-  hitokotoLoading.value = false;
+  const request = new AbortController();
+  quoteRequest = request;
+  try {
+    const quote = await fetchHitokoto(request);
+    if (quoteRequest === request) await presentHitokoto(quote);
+  } finally {
+    if (quoteRequest === request) {
+      quoteRequest = undefined;
+      hitokotoLoading.value = false;
+    }
+  }
 };
 
 /**
@@ -201,13 +232,32 @@ const scrollToContent = () => {
   document.getElementById('home-body')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 };
 
+const applyMotionPreference = (reduced: boolean) => {
+  subtitleAnimation?.abort();
+  subtitleAnimation = undefined;
+  if (reduced) {
+    onPointerLeave();
+    typedSubtitle.value = PHRASES[0]!;
+    quoteAnimation?.abort();
+    if (currentQuote) showFullQuote(currentQuote);
+  } else {
+    subtitleAnimation = new AbortController();
+    void runSubtitleLoop(subtitleAnimation.signal);
+  }
+};
+
 onMounted(() => {
-  void runSubtitleLoop();
-  void fetchHitokoto().then((quote) => { if (alive) void presentHitokoto(quote); });
+  stopWatchingMotion = onReducedMotionChange(applyMotionPreference);
+  applyMotionPreference(prefersReducedMotion());
+  void refreshHitokoto();
 });
 
 onBeforeUnmount(() => {
-  alive = false;
+  stopWatchingMotion?.();
+  subtitleAnimation?.abort();
+  quoteAnimation?.abort();
+  quoteRequest?.abort();
+  quoteRequest = undefined;
 });
 </script>
 
@@ -364,12 +414,25 @@ onBeforeUnmount(() => {
   .home-hero__hitokoto-text { font-size: .85rem; }
 }
 
+html.bs-reduced-motion .home-hero__bg-layer,
+html.bs-reduced-motion .home-hero__hitokoto,
+html.bs-reduced-motion .home-hero__hitokoto-refresh,
+html.bs-reduced-motion .home-hero__scroll { transition: none; }
+html.bs-reduced-motion .home-hero__bg-tint,
+html.bs-reduced-motion .home-hero__title-text,
+html.bs-reduced-motion .home-hero__hitokoto-refresh span,
+html.bs-reduced-motion .home-hero__caret,
+html.bs-reduced-motion .home-hero__scroll span { animation: none; }
+html.bs-reduced-motion .home-hero__caret { visibility: hidden; }
+html.bs-reduced-motion .home-hero__hitokoto-refresh:hover { transform: none; }
+html.bs-reduced-motion .home-hero__scroll:hover { transform: translateX(-50%); }
+
 @media (prefers-reduced-motion: reduce) {
-  .home-hero__bg-layer { transition: none; }
-  .home-hero__bg-tint { animation: none; }
-  .home-hero__title-text { animation: none; }
-  .home-hero__hitokoto { transition: none; }
-  .home-hero__hitokoto-refresh span { animation: none; }
+  .home-hero__bg-layer, .home-hero__hitokoto, .home-hero__hitokoto-refresh, .home-hero__scroll { transition: none; }
+  .home-hero__bg-tint, .home-hero__title-text, .home-hero__hitokoto-refresh span,
   .home-hero__caret, .home-hero__scroll span { animation: none; }
+  .home-hero__caret { visibility: hidden; }
+  .home-hero__hitokoto-refresh:hover { transform: none; }
+  .home-hero__scroll:hover { transform: translateX(-50%); }
 }
 </style>

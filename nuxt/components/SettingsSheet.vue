@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
 .segmented { display: flex; gap: .35rem; padding: .28rem; border-radius: 999px; background: var(--bs-surface-soft); }
 .segmented button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: .3rem; padding: .5rem .4rem; border: 0; border-radius: 999px; background: transparent; color: var(--bs-ink-soft); font-family: inherit; font-size: .84rem; cursor: pointer; transition: var(--bs-dur-quick) var(--bs-ease-pop); }
 .segmented button:hover { color: var(--bs-ink); }
-.segmented button.is-active { background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: #392d4f; font-weight: 600; box-shadow: 0 8px 20px rgba(255, 143, 179, 0.28); transform: translateY(-1px); }
+.segmented button.is-active { background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink-on-accent); font-weight: 600; box-shadow: 0 8px 20px rgba(255, 143, 179, 0.28); transform: translateY(-1px); }
 
 .toggle { display: flex; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; }
 .toggle > span { display: grid; gap: .15rem; min-width: 0; }

@@ -9,6 +9,10 @@
   --bs-ink-muted: #9485a3;
   --bs-ink-subtle: #a99db8;
   --bs-ink-faint: #c9bfd6;
+  /* Text that sits on a saturated yellow/pink sticker in either theme. Keeping
+     it deep ink avoids the light-on-light clash the moonlight palette would
+     otherwise create for these fixed-bright fills. */
+  --bs-ink-on-accent: #392d4f;
   /* Brand accents */
   --bs-pink: #ff8fb3;
   --bs-peach: #ffbd8a;

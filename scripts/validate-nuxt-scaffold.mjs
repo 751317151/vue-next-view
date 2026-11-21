@@ -9,6 +9,7 @@ const requiredFiles = [
   'nuxt/pages/index.vue',
   'nuxt/pages/article/[slug].vue',
   'nuxt/pages/search.vue',
+  'nuxt/pages/explore.vue',
   'server/api/articles/index.get.ts',
   'server/api/articles/[slug].get.ts',
   'server/routes/robots.txt.ts',

@@ -157,6 +157,7 @@ onMounted(() => {
 
 /* --- Sticky-note composer --- */
 .note-form { position: relative; display: grid; gap: .4rem; padding: 1.5rem 1.35rem 1.15rem; border-radius: 1.2rem; background: linear-gradient(160deg, rgba(255, 250, 235, .95), rgba(255, 244, 246, .92)); box-shadow: var(--bs-shadow); transform: rotate(-.35deg); }
+:root.bs-dark .note-form { background: linear-gradient(160deg, rgba(48, 38, 74, .94), rgba(38, 30, 60, .92)); }
 .note-form__tape { position: absolute; top: -.55rem; width: 4.2rem; height: 1.25rem; background: rgba(255, 228, 138, .72); box-shadow: 0 2px 6px rgba(95, 66, 118, .12); }
 .note-form__tape--left { left: 1.4rem; transform: rotate(-6deg); }
 .note-form__tape--right { right: 1.4rem; transform: rotate(5deg); }
@@ -167,7 +168,7 @@ onMounted(() => {
 .note-form__foot { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-top: .35rem; }
 .note-form__count { color: var(--bs-ink-muted); font-size: .78rem; transition: color var(--bs-dur-quick) ease; }
 .note-form__count.is-tight { color: var(--bs-accent-strong); }
-.note-form__send { display: inline-flex; align-items: center; gap: .35rem; padding: .6rem 1.1rem; border: 0; border-radius: 999px; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink); font-family: inherit; font-weight: 600; cursor: pointer; box-shadow: 0 10px 24px rgba(255, 143, 179, .26); transition: transform var(--bs-dur-quick) ease, box-shadow var(--bs-dur-quick) ease, opacity var(--bs-dur-quick) ease; }
+.note-form__send { display: inline-flex; align-items: center; gap: .35rem; padding: .6rem 1.1rem; border: 0; border-radius: 999px; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink-on-accent); font-family: inherit; font-weight: 600; cursor: pointer; box-shadow: 0 10px 24px rgba(255, 143, 179, .26); transition: transform var(--bs-dur-quick) ease, box-shadow var(--bs-dur-quick) ease, opacity var(--bs-dur-quick) ease; }
 .note-form__send:hover:not(:disabled) { transform: translateY(-3px) rotate(-1deg); box-shadow: 0 16px 32px rgba(255, 143, 179, .32); }
 .note-form__send:disabled { opacity: .5; cursor: not-allowed; }
 

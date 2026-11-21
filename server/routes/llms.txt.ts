@@ -65,6 +65,7 @@ export default defineEventHandler(async (event) => {
     '## 站点',
     '',
     `- [首页](${absoluteUrl('/')})`,
+    `- [灵感星图](${absoluteUrl('/explore')}): 按心情、年份和主题漫游，或随机抽取一篇今日小笺`,
     `- [归档](${absoluteUrl('/archive')}): 按时间排列的全部文章`,
     `- [分类](${absoluteUrl('/categories')})`,
     `- [标签](${absoluteUrl('/tags')})`,
