@@ -22,6 +22,8 @@ const requiredFiles = [
   'nuxt/composables/useSiteSignals.ts',
   'nuxt/composables/useReadingTrail.ts',
   'nuxt/composables/useReadingPrefs.ts',
+  'nuxt/composables/useExcerpts.ts',
+  'nuxt/components/ExcerptShelf.vue',
   'src/seo/metadata.ts',
 ];
 

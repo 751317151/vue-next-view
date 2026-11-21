@@ -77,6 +77,7 @@
       <MobileDrawer v-model="drawerOpen" @settings="settingsOpen = true" @compass="openCompass('drawer')" />
       <SettingsSheet :open="settingsOpen" @close="settingsOpen = false" />
       <StarCompass :open="compassOpen" :source="compassSource" @close="compassOpen = false" @settings="openSettingsFromCompass" />
+      <ExcerptShelf />
       <!-- 团子现在有 Nuxt 版实现了，走统一停靠区，叠在回到顶部上方。 -->
       <MochiCompanion />
     </ClientOnly>

@@ -72,6 +72,7 @@ const heroStyle = hero.style;
 
 /** 自动记录阅读足迹：进入文章 4 秒或滚动后开始更新，读到结尾记满进度。 */
 const { track: trackReading, find: findReadingTrail } = useReadingTrail();
+const { add: addExcerpt } = useExcerpts();
 const { fontSize: readingSize, leading: readingLeading, setFontSize, setLeading, init: initReadingPrefs } = useReadingPrefs();
 const bodyEl = ref<HTMLElement | null>(null);
 const finaleEl = ref<HTMLElement | null>(null);
@@ -217,6 +218,162 @@ const jumpToHeading = (id: string) => {
 
 const backToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+/** 摘抄本跳回原文时，把"要找的那句话"暂存一次，避免把长句塞进 URL。 */
+const PENDING_EXCERPT_KEY = 'blackstar-excerpt-jump';
+
+/**
+ * 从摘抄本跳回来时，把原文里那句话轻轻点亮一次。
+ *
+ * 正文由 markdown 渲染，一句话可能被 <strong>/<code> 拆开，所以按纯文本
+ * 查找比按 HTML 结构更稳。找不到就只停在对应小节，不影响阅读。
+ */
+const flashExcerptTarget = (text: string) => {
+  const body = bodyEl.value;
+  if (!body || !text) return;
+  const probe = text.slice(0, 40);
+  // `window.find` 是非标准 API，TypeScript 的 DOM 类型里没有它。
+  const findInPage = (window as unknown as {
+    find?: (text: string, caseSensitive?: boolean, backwards?: boolean, wrapAround?: boolean, wholeWord?: boolean, searchInFrames?: boolean, showDialog?: boolean) => boolean;
+  }).find;
+  const found = typeof findInPage === 'function'
+    ? findInPage(probe, false, false, true, false, true, false)
+    : false;
+  if (!found) return;
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) return;
+  const range = selection.getRangeAt(0);
+  // 只点亮确认落在正文里的选区，避免误标页面其它位置。
+  if (!body.contains(range.commonAncestorContainer)) {
+    selection.removeAllRanges();
+    return;
+  }
+  selection.removeAllRanges();
+  // CSS Custom Highlight 直接给文字上色，不需要插节点，也不会被正文背景盖住。
+  const highlightCtor = (window as unknown as { Highlight?: new (r: Range) => unknown }).Highlight;
+  const highlights = (CSS as unknown as { highlights?: Map<string, unknown> }).highlights;
+  if (highlightCtor && highlights) {
+    const name = 'excerpt-jump';
+    highlights.set(name, new highlightCtor(range));
+    window.setTimeout(() => highlights.delete(name), 2600);
+    return;
+  }
+  // 老浏览器退化为给所在段落加一层淡黄底，同样两秒多后撤掉。
+  const block = (range.startContainer instanceof Element ? range.startContainer : range.startContainer.parentElement)
+    ?.closest<HTMLElement>('p, li, blockquote, td');
+  if (!block) return;
+  block.classList.add('is-excerpt-glance');
+  window.setTimeout(() => block.classList.remove('is-excerpt-glance'), 2600);
+};
+
+/**
+ * 划词摘抄：在正文里选中一段文字，浮出「夹进摘抄本」。
+ *
+ * 用 selectionchange 而不是 mouseup，触屏长按和键盘选区（Shift+方向键）
+ * 也能触发。工具栏固定在视口坐标里，正文滚动时立刻收起，不会跟着飘。
+ */
+const excerptBar = reactive({
+  visible: false,
+  x: 0,
+  y: 0,
+  text: '',
+  headingId: '' as string | undefined,
+  headingText: '' as string | undefined,
+});
+const excerptSaved = ref(false);
+let selectionFrame = 0;
+let excerptToastTimer = 0;
+
+/**
+ * 选区属于哪一小节：找选区起点"之前最近"的标题。
+ *
+ * 不能从起点节点向上 closest('h2')——起点几乎总在 <p> 或文本节点里，
+ * 祖先链上根本没有标题，结果会把所有摘抄都记成"无小节"。
+ */
+const headingForRange = (range: Range) => {
+  const body = bodyEl.value;
+  if (!body) return { headingId: undefined, headingText: undefined };
+  let current: HTMLElement | null = null;
+  for (const heading of body.querySelectorAll<HTMLElement>('h2[id], h3[id], h4[id]')) {
+    // 标题整体在选区起点之后 → 还没读到它，停在上一个。
+    if (range.comparePoint(heading, 0) > 0) break;
+    current = heading;
+  }
+  if (!current) return { headingId: undefined, headingText: undefined };
+  return {
+    headingId: current.id,
+    headingText: (current.textContent || '').trim().slice(0, 48) || undefined,
+  };
+};
+
+const readSelection = () => {
+  const body = bodyEl.value;
+  const selection = window.getSelection();
+  if (!body || !selection || selection.rangeCount === 0 || selection.isCollapsed) {
+    excerptBar.visible = false;
+    return;
+  }
+  const range = selection.getRangeAt(0);
+  if (!body.contains(range.commonAncestorContainer)) {
+    excerptBar.visible = false;
+    return;
+  }
+  const text = selection.toString().replace(/\s+/g, ' ').trim();
+  // 太短的选多半是误触（双击一个词也会选中），不打扰读者。
+  if (text.length < 6) {
+    excerptBar.visible = false;
+    return;
+  }
+  const rect = range.getBoundingClientRect();
+  if (!rect.width || !rect.height) {
+    excerptBar.visible = false;
+    return;
+  }
+  const { headingId, headingText } = headingForRange(range);
+  excerptBar.text = text.slice(0, 400);
+  excerptBar.headingId = headingId;
+  excerptBar.headingText = headingText;
+  // 工具栏宽约 15rem：贴着选区上方居中，碰到视口边缘就收回来。
+  excerptBar.x = Math.min(window.innerWidth - 132, Math.max(132, rect.left + rect.width / 2));
+  excerptBar.y = Math.max(72, rect.top - 12);
+  excerptBar.visible = true;
+};
+
+const onSelectionChange = () => {
+  if (selectionFrame) return;
+  selectionFrame = window.requestAnimationFrame(() => {
+    readSelection();
+    selectionFrame = 0;
+  });
+};
+
+const hideExcerptBar = () => {
+  excerptBar.visible = false;
+};
+
+const saveExcerpt = () => {
+  if (!excerptBar.text) return;
+  const saved = addExcerpt({
+    slug: articleData.slug || slug,
+    title: articleData.articleTitle,
+    text: excerptBar.text,
+    headingId: excerptBar.headingId,
+    headingText: excerptBar.headingText,
+  });
+  if (!saved) return;
+  excerptBar.visible = false;
+  window.getSelection()?.removeAllRanges();
+  pingExcerptShelf();
+  excerptSaved.value = true;
+  window.clearTimeout(excerptToastTimer);
+  excerptToastTimer = window.setTimeout(() => { excerptSaved.value = false; }, 2200);
+};
+
+const copySelection = async () => {
+  await copyText(excerptBar.text);
+  excerptBar.visible = false;
+  window.getSelection()?.removeAllRanges();
+};
+
 /** 从首页或罗盘回来时，把读者送回上次停下的段落。 */
 const resumeReading = () => {
   const mark = resume.value;
@@ -237,6 +394,18 @@ const resumeReading = () => {
 onMounted(() => {
   enhanceCodeBlocks();
   initReadingPrefs();
+  // 从摘抄本跳回来时，等页面落位再把那句话点亮；读完即清，刷新不会重放。
+  try {
+    const pending = window.sessionStorage.getItem(PENDING_EXCERPT_KEY);
+    if (pending) {
+      window.sessionStorage.removeItem(PENDING_EXCERPT_KEY);
+      window.setTimeout(() => flashExcerptTarget(pending), 700);
+    }
+  } catch {
+    // 存储不可用时跳过高亮，跳转本身仍然有效。
+  }
+  document.addEventListener('selectionchange', onSelectionChange);
+  window.addEventListener('scroll', hideExcerptBar, { passive: true });
   // 只在"读到一半"时提示；读完的、刚打开的文章不打扰。
   const saved = findReadingTrail(articleData.slug || slug);
   if (saved && saved.progress >= 0.05 && saved.progress <= 0.97 && !window.location.hash) {
@@ -263,11 +432,15 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  document.removeEventListener('selectionchange', onSelectionChange);
+  window.removeEventListener('scroll', hideExcerptBar);
   finaleObserver?.disconnect();
   finaleObserver = null;
   window.removeEventListener('scroll', onSpyScroll);
   window.removeEventListener('scroll', onReadingScroll);
   window.clearTimeout(readingTrailTimer);
+  window.clearTimeout(excerptToastTimer);
+  if (selectionFrame) window.cancelAnimationFrame(selectionFrame);
   if (spyFrame) window.cancelAnimationFrame(spyFrame);
 });
 </script>
@@ -275,6 +448,23 @@ onBeforeUnmount(() => {
 <template>
   <article class="reading">
     <!-- The progress bar is rendered once by the layout, so every page has it. -->
+
+    <!-- 划词工具栏：固定定位，跟着选区走。用 button 而不是 div，
+         键盘用户也能 Tab 到它；点完立刻收起。 -->
+    <div
+      v-if="excerptBar.visible"
+      class="reading__excerpt-bar"
+      :style="{ left: `${excerptBar.x}px`, top: `${excerptBar.y}px` }"
+      role="toolbar"
+      aria-label="摘抄工具栏"
+    >
+      <button type="button" class="is-primary" @click="saveExcerpt">夹进摘抄本 ✦</button>
+      <button type="button" @click="copySelection">复制</button>
+    </div>
+
+    <p v-if="excerptSaved" class="reading__excerpt-toast" role="status">
+      ✦ 夹好啦，想再看时掀开左下角的小本子
+    </p>
 
     <aside v-if="tocItems.length >= 2" class="reading__toc" aria-label="文章目录">
       <p class="reading__toc-title">目录 ✦</p>
@@ -435,6 +625,70 @@ onBeforeUnmount(() => {
 .reading__meta span { padding: .35rem .7rem; border-radius: 999px; background: rgba(185,167,255,.16); color: var(--bs-ink-body); font-size: .82rem; }
 .reading__star { align-self: center; margin-left: .1rem; }
 
+/* 划词工具栏：像一张从书页里抽出来的小票，阴影把动作和选区连在一起。 */
+.reading__excerpt-bar {
+  position: fixed;
+  z-index: 112;
+  display: flex;
+  gap: .25rem;
+  padding: .3rem;
+  border: 1px solid var(--bs-hairline);
+  border-radius: 999px;
+  background: var(--bs-paper-strong);
+  box-shadow: 0 12px 32px rgba(57, 45, 79, .22);
+  backdrop-filter: blur(16px) saturate(1.1);
+  transform: translate(-50%, -100%);
+  animation: excerpt-bar-in var(--bs-dur-base) var(--bs-ease-pop);
+}
+.reading__excerpt-bar button {
+  min-height: 2.35rem;
+  padding: .38rem .72rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bs-ink-soft);
+  font-family: inherit;
+  font-size: .78rem;
+  cursor: pointer;
+  transition: var(--bs-dur-quick) ease;
+}
+.reading__excerpt-bar button:hover { background: var(--bs-surface-soft); color: var(--bs-ink); }
+.reading__excerpt-bar button.is-primary {
+  border-color: var(--bs-ink-line);
+  background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink));
+  color: var(--bs-ink-on-accent);
+  font-weight: 700;
+  box-shadow: 2px 2px 0 var(--bs-ink-line);
+}
+.reading__excerpt-bar button.is-primary:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--bs-ink-line); }
+.reading__excerpt-bar button:focus-visible { outline: 3px solid rgba(185, 167, 255, .7); outline-offset: 2px; }
+
+/* 夹好后的确认条从视口底部浮出，不打断阅读正文。 */
+.reading__excerpt-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--bs-dock-edge) + 4.8rem);
+  z-index: 111;
+  margin: 0;
+  padding: .65rem 1rem;
+  border: 1.5px dashed rgba(158, 230, 208, .8);
+  border-radius: 999px;
+  background: var(--bs-paper-strong);
+  color: var(--bs-ink);
+  font-size: .82rem;
+  box-shadow: var(--bs-shadow);
+  backdrop-filter: blur(16px);
+  transform: translateX(-50%);
+  animation: excerpt-toast-in var(--bs-dur-mid) var(--bs-ease-pop);
+}
+@keyframes excerpt-bar-in { from { opacity: 0; transform: translate(-50%, -85%) scale(.92); } to { opacity: 1; transform: translate(-50%, -100%) scale(1); } }
+@keyframes excerpt-toast-in { from { opacity: 0; transform: translate(-50%, .6rem); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+@media (max-width: 640px) {
+  .reading__excerpt-bar { transform: translate(-50%, -112%); }
+  .reading__excerpt-toast { width: max-content; max-width: calc(100vw - 2rem); border-radius: 1rem; text-align: center; }
+}
+
 /* 回访提示做成一枚贴纸：虚线边框 + 轻微倾斜，和站内其它便利贴语气一致。 */
 .reading__resume { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-top: 1.3rem; padding: .85rem 1rem; border: 1.5px dashed rgba(255, 143, 179, .55); border-radius: 1.15rem; background: linear-gradient(135deg, rgba(255, 228, 138, .24), rgba(185, 167, 255, .14)); transform: rotate(-.35deg); }
 .reading__resume-star { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; flex: 0 0 auto; border: 1.5px solid var(--bs-ink-line); border-radius: 50%; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink-on-accent); box-shadow: var(--bs-sticker-shadow); font-size: .95rem; }
@@ -530,6 +784,31 @@ onBeforeUnmount(() => {
   .reading__comfort-group button { transition: none; }
 }
 html.bs-reduced-motion .reading__comfort-group button { transition: none; }
+html.bs-reduced-motion .reading__excerpt-bar,
+html.bs-reduced-motion .reading__excerpt-toast { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reading__excerpt-bar,
+  .reading__excerpt-toast { animation: none; }
+}
+
+/* 从摘抄本跳回来时的一句话高亮：淡黄荧光笔，2.6 秒后退场。
+   用 Custom Highlight 直接染文字，所以颜色要走 ::highlight() 伪元素。 */
+::highlight(excerpt-jump) {
+  background-color: rgba(255, 228, 138, .85);
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 143, 179, .9);
+  text-decoration-thickness: 2px;
+  text-underline-offset: .18em;
+}
+/* 老浏览器的退化方案：整段轻轻亮一下，读者至少知道停在哪。 */
+.reading__body :deep(.is-excerpt-glance) {
+  border-radius: .5rem;
+  box-shadow: 0 0 0 .35rem rgba(255, 228, 138, .45);
+  background: rgba(255, 228, 138, .22);
+  transition: background .4s ease, box-shadow .4s ease;
+}
 
 /* 上一篇 / 下一篇：两页并排，像翻开下一页的手账。 */
 .reading__step { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; margin-top: 1.6rem; }

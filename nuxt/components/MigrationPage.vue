@@ -9,8 +9,12 @@ defineProps<{
 <template>
   <section class="migration-page">
     <header class="migration-page__head">
-      <span class="migration-page__orb migration-page__orb--one" aria-hidden="true"></span>
-      <span class="migration-page__orb migration-page__orb--two" aria-hidden="true"></span>
+      <!-- 氛围光球不能参与页面横向尺寸：右侧那颗原本会超出视口，把整页撑出
+           13px 的横向滚动。交给一个裁剪容器，再用负 z-index 藏到文字后。 -->
+      <span class="migration-page__glow" aria-hidden="true">
+        <i class="migration-page__orb migration-page__orb--one"></i>
+        <i class="migration-page__orb migration-page__orb--two"></i>
+      </span>
       <p class="migration-page__eyebrow">
         <span class="migration-page__spark" aria-hidden="true">✦</span>
         {{ eyebrow }}
@@ -27,7 +31,8 @@ defineProps<{
 .migration-page { max-width: 820px; margin: 0 auto; padding: 2.4rem 0 6rem; }
 
 .migration-page__head { position: relative; padding: 1.6rem 0 .4rem; }
-.migration-page__orb { position: absolute; z-index: -1; border-radius: 50%; filter: blur(18px); opacity: .55; pointer-events: none; }
+.migration-page__glow { position: absolute; inset: -1.6rem 0 0; z-index: -1; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.migration-page__orb { position: absolute; display: block; border-radius: 50%; filter: blur(18px); opacity: .55; pointer-events: none; }
 .migration-page__orb--one { top: -1.2rem; left: -2rem; width: 9rem; height: 9rem; background: radial-gradient(circle, rgba(255, 143, 179, .55), transparent 70%); }
 .migration-page__orb--two { top: 1.6rem; right: -1.4rem; width: 11rem; height: 11rem; background: radial-gradient(circle, rgba(185, 167, 255, .45), transparent 70%); }
 

@@ -44,6 +44,8 @@
 </template>
 
 <script setup lang="ts">
+import { announceDockPanel, DOCK_PANEL_EVENT } from '../utils/dock-panels';
+
 type Mood = 'night' | 'morning' | 'afternoon' | 'lateNight' | 'reading';
 
 interface Face {
@@ -115,6 +117,12 @@ let greetingTimer = 0;
 let bonusTimer = 0;
 let reactTimer = 0;
 
+/** 星愿瓶或摘抄本展开时，团子把位置让出来。 */
+const onOtherPanel = (event: Event) => {
+  const detail = (event as CustomEvent<string>).detail;
+  if (detail !== 'companion') collapse();
+};
+
 /**
  * 只有窄屏才自动收气泡：手机上它会压住正文。
  * 桌面有足够空间，让访客自己决定什么时候收起，避免"提示怎么没了"。
@@ -134,6 +142,8 @@ const toggle = () => {
   keepOpen();
   collapsed.value = !collapsed.value;
   unread.value = false;
+  // 展开时让星愿瓶 / 摘抄本收起，底部只留一个面板说话。
+  if (!collapsed.value) announceDockPanel('companion');
 };
 
 /** 同一心情下连点"换一句"不重复上一句，台词才像真的在聊天。 */
@@ -200,12 +210,14 @@ onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('pointermove', onIdle, { passive: true });
   window.addEventListener('star-jar:fly', onStarCollected);
+  window.addEventListener(DOCK_PANEL_EVENT, onOtherPanel);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll);
   window.removeEventListener('pointermove', onIdle);
   window.removeEventListener('star-jar:fly', onStarCollected);
+  window.removeEventListener(DOCK_PANEL_EVENT, onOtherPanel);
   window.clearTimeout(idleTimer);
   window.clearTimeout(greetingTimer);
   window.clearTimeout(bonusTimer);

@@ -16,7 +16,7 @@
       :aria-expanded="open"
       aria-controls="star-jar-panel"
       :aria-label="stars.length ? `星愿瓶里有 ${stars.length} 颗星星，点击查看` : '星愿瓶还是空的'"
-      @click="open = !open"
+      @click="toggleOpen"
     >
       <span class="star-jar__glass" aria-hidden="true">
         <span class="star-jar__shine"></span>
@@ -65,6 +65,7 @@
 <script setup lang="ts">
 import { useStarJar } from '../composables/useStarJar';
 import { onReducedMotionChange, prefersReducedMotion } from '../utils/motion';
+import { announceDockPanel, DOCK_PANEL_EVENT } from '../utils/dock-panels';
 
 const { stars, hydrate, remove, clear } = useStarJar();
 const open = ref(false);
@@ -126,15 +127,28 @@ const onFly = (event: Event) => {
   bumpTimer = window.setTimeout(() => { bumping.value = false; }, 420);
 };
 
+/** 和摘抄本、团子互斥展开，避免几个底部面板叠成一团。 */
+const toggleOpen = () => {
+  open.value = !open.value;
+  if (open.value) announceDockPanel('star-jar');
+};
+
+const onOtherPanel = (event: Event) => {
+  const detail = (event as CustomEvent<string>).detail;
+  if (detail !== 'star-jar') open.value = false;
+};
+
 onMounted(() => {
   hydrate();
   stopWatchingMotion = onReducedMotionChange((reduced) => { if (reduced) stopJarMotion(); });
   window.addEventListener('star-jar:fly', onFly);
+  window.addEventListener(DOCK_PANEL_EVENT, onOtherPanel);
 });
 
 onBeforeUnmount(() => {
   stopWatchingMotion?.();
   window.removeEventListener('star-jar:fly', onFly);
+  window.removeEventListener(DOCK_PANEL_EVENT, onOtherPanel);
   stopJarMotion();
 });
 </script>
