@@ -25,6 +25,7 @@
         <NuxtLink to="/archive">归档</NuxtLink>
         <NuxtLink to="/categories">分类</NuxtLink>
         <NuxtLink to="/tags">标签</NuxtLink>
+        <NuxtLink to="/desk" class="site-shell__desk">书桌 ✦</NuxtLink>
         <NuxtLink to="/about">关于</NuxtLink>
         <NuxtLink to="/message">留言板</NuxtLink>
         <NuxtLink to="/search" class="site-shell__search">搜索 ✦</NuxtLink>
@@ -92,6 +93,7 @@
           <NuxtLink to="/archive">归档</NuxtLink>
           <NuxtLink to="/categories">分类</NuxtLink>
           <NuxtLink to="/tags">标签</NuxtLink>
+          <NuxtLink to="/desk">我的书桌</NuxtLink>
           <NuxtLink to="/about">关于</NuxtLink>
           <NuxtLink to="/message">留言板</NuxtLink>
           <a href="/rss.xml" target="_blank" rel="noopener">RSS</a>
@@ -292,6 +294,8 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
    content links, and its tilt is reset on hover so the label stays legible. */
 .site-shell__header nav .site-shell__explore { margin-right: .15rem; border: 1px solid rgba(255, 143, 179, .34); background: linear-gradient(135deg, rgba(255, 228, 138, .34), rgba(255, 143, 179, .18)); color: var(--bs-accent-ink); font-weight: 600; transform: rotate(-1.2deg); }
 .site-shell__header nav .site-shell__explore:hover, .site-shell__header nav .site-shell__explore.router-link-active { background: linear-gradient(135deg, rgba(255, 228, 138, .64), rgba(255, 143, 179, .3)); transform: rotate(0) translateY(-2px); }
+.site-shell__header nav .site-shell__desk { border: 1px dashed rgba(158, 230, 208, .75); background: rgba(158, 230, 208, .13); color: var(--bs-ink); font-weight: 600; }
+.site-shell__header nav .site-shell__desk:hover, .site-shell__header nav .site-shell__desk.router-link-active { background: rgba(158, 230, 208, .28); }
 
 .site-shell__actions { display: flex; align-items: center; gap: .4rem; }
 .site-shell__icon-btn { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; padding: 0; border: 1px solid var(--bs-hairline); border-radius: 50%; background: var(--bs-surface-soft); color: var(--bs-ink); font-size: 1rem; line-height: 1; cursor: pointer; transition: var(--bs-dur-quick) var(--bs-ease-pop); }

@@ -162,6 +162,7 @@ const PAGES = [
   { id: 'archive', label: '归档', hint: '按时间翻阅所有故事', emoji: '📚', to: '/archive', keywords: 'archive timeline 归档 时间' },
   { id: 'categories', label: '分类', hint: '每间小房间的主题', emoji: '🏠', to: '/categories', keywords: 'categories 分类 目录' },
   { id: 'tags', label: '标签', hint: '灵感串起的小线索', emoji: '🏷️', to: '/tags', keywords: 'tags 标签' },
+  { id: 'desk', label: '我的书桌', hint: '接着读、星愿瓶与摘抄本', emoji: '🕯️', to: '/desk', keywords: 'desk personal reading trail star jar excerpt 书桌 收藏 摘抄 足迹' },
   { id: 'message', label: '留言板', hint: '贴上一张温柔的便利贴', emoji: '✉️', to: '/message', keywords: 'message guestbook 留言 留言板' },
   { id: 'friend', label: '友人帐', hint: '一起发光的人', emoji: '🫧', to: '/friend', keywords: 'friends 友链 友人' },
   { id: 'about', label: '关于', hint: '认识写这些字的人', emoji: '🌿', to: '/about', keywords: 'about profile 关于 作者' },

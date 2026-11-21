@@ -72,7 +72,10 @@ onMounted(hydrateReadingTrail);
       <section class="home__latest" aria-labelledby="latest-articles-title">
         <div class="home__section-head">
           <h2 id="latest-articles-title">最近写下的故事</h2>
-          <NuxtLink to="/archive">查看全部 →</NuxtLink>
+          <span class="home__section-links">
+            <NuxtLink to="/desk" class="home__desk-link">我的书桌 ✦</NuxtLink>
+            <NuxtLink to="/archive">查看全部 →</NuxtLink>
+          </span>
         </div>
         <div class="home__grid">
           <ArticleCard v-for="article in latest" :key="article.id" :article="article" />
@@ -142,6 +145,10 @@ onMounted(hydrateReadingTrail);
 .home__section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 .home__section-head h2 { color: var(--bs-ink); }
 .home__section-head a { color: var(--bs-link); text-decoration: none; }
+.home__section-links { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: .75rem; }
+.home__section-head a.home__desk-link { padding: .18rem .6rem; border: 1px dashed rgba(158, 230, 208, .8); border-radius: 999px; background: rgba(158, 230, 208, .14); color: var(--bs-ink-body); font-size: .82rem; white-space: nowrap; transition: background var(--bs-dur-quick) ease, transform var(--bs-dur-quick) var(--bs-ease-pop), border-color var(--bs-dur-quick) ease; }
+.home__section-head a.home__desk-link:hover { border-color: var(--bs-mint); background: rgba(158, 230, 208, .3); color: var(--bs-ink); transform: translateY(-2px) rotate(-1deg); }
+:root.bs-dark .home__section-head a.home__desk-link { border-color: rgba(158, 230, 208, .42); background: rgba(158, 230, 208, .12); }
 .home__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.1rem; }
 .home__paths-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .7rem; margin-top: 1.1rem; }
 .home__explore { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.4rem; margin-top: 1rem; padding: clamp(1.1rem, 3vw, 1.6rem); overflow: hidden; border: 1px solid var(--bs-border); border-radius: 1.5rem; background: radial-gradient(circle at 88% 18%, rgba(255, 228, 138, .32), transparent 34%), linear-gradient(135deg, rgba(255, 240, 247, .7), rgba(246, 243, 255, .62)); box-shadow: var(--bs-shadow-soft); }

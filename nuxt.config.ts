@@ -105,6 +105,9 @@ export default defineNuxtConfig({
     '/': { prerender: true },
     '/explore': { prerender: true },
     '/archive': { prerender: true },
+    // 书桌内容全部来自 localStorage，服务端只需输出一张空桌面；
+    // 不能走 SWR 缓存，否则每次导航都可能读到别人构建时的空态。
+    '/desk': { prerender: true },
     '/categories/**': { swr: 3600 },
     '/tags/**': { swr: 3600 },
     '/article/**': { swr: 3600 },
@@ -129,6 +132,7 @@ export default defineNuxtConfig({
         '/',
         '/explore',
         '/archive',
+        '/desk',
         '/categories',
         '/tags',
         '/about',

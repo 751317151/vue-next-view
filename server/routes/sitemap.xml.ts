@@ -4,6 +4,8 @@ import { articleRepository } from '../repositories/article-repository';
 
 export default defineEventHandler(async (event) => {
   const siteUrl = resolvePublicSiteUrl(event);
+  // `/desk` 内容来自读者本机、且是空态落地页，没有可索引的公共内容；
+  // 放进 sitemap 只会让爬虫抓到一张空书桌，所以刻意不列。
   const routes = ['/', '/explore', '/archive', '/categories', '/tags', '/about', '/friend', '/message'];
   const escapeXml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   // encodeURI leaves `#` and `?` untouched, so a slug like `note#1` would be

@@ -72,6 +72,7 @@ const items = [
   { to: '/archive', label: '归档', hint: '按时间翻阅所有故事', emoji: '📚' },
   { to: '/categories', label: '分类', hint: '每间小房间的主题', emoji: '🏠' },
   { to: '/tags', label: '标签', hint: '灵感串起的小线索', emoji: '🏷️' },
+  { to: '/desk', label: '我的书桌', hint: '接着读、收藏与摘抄', emoji: '🕯️' },
   { to: '/search', label: '搜索', hint: '在星海里找一颗星', emoji: '🔍' },
   { to: '/message', label: '留言板', hint: '贴上你的便利贴', emoji: '✉️' },
   { to: '/friend', label: '友人帐', hint: '一起发光的人', emoji: '🫧' },

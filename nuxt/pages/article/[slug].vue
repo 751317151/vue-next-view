@@ -567,7 +567,8 @@ onBeforeUnmount(() => {
       <p class="reading__finale-text">谢谢你把这篇小故事读完。愿它给你的今天，加一点柔软的光。</p>
       <div class="reading__finale-actions">
         <button type="button" @click="backToTop">回到顶部 ☝</button>
-        <NuxtLink to="/archive" class="reading__finale-ghost">再读一篇 ✦</NuxtLink>
+        <NuxtLink to="/desk" class="reading__finale-ghost">回书桌看看 ✦</NuxtLink>
+        <NuxtLink to="/archive" class="reading__finale-ghost">再读一篇</NuxtLink>
       </div>
     </section>
 
