@@ -71,6 +71,7 @@
 
 <script setup lang="ts">
 import type { ThemeMode } from '../composables/useAppearance';
+import { useFocusTrap } from '../composables/useFocusTrap';
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ close: [] }>();

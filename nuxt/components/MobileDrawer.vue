@@ -42,6 +42,11 @@
           </nav>
 
           <footer class="drawer__foot">
+            <button type="button" class="drawer__compass" @click="openCompass">
+              <span aria-hidden="true">✦</span>
+              星海罗盘
+              <small>Ctrl K</small>
+            </button>
             <button type="button" class="drawer__settings" @click="emit('settings'); close()">
               <span aria-hidden="true">⚙</span> 主题与设置
             </button>
@@ -53,8 +58,11 @@
 </template>
 
 <script setup lang="ts">
+import { useFocusTrap } from '../composables/useFocusTrap';
+import { trackSiteSignal } from '../composables/useSiteSignals';
+
 const props = defineProps<{ modelValue: boolean }>();
-const emit = defineEmits<{ 'update:modelValue': [boolean]; settings: [] }>();
+const emit = defineEmits<{ 'update:modelValue': [boolean]; settings: []; compass: [] }>();
 
 const drawerEl = ref<HTMLElement | null>(null);
 const closeButton = ref<HTMLButtonElement | null>(null);
@@ -72,6 +80,10 @@ const items = [
 
 const restoreFocus = ref(true);
 const close = () => emit('update:modelValue', false);
+const openCompass = () => {
+  emit('compass');
+  close();
+};
 /** 点链接是"离开这一页"，焦点应交给新页面，而不是弹回菜单按钮。 */
 const navigate = () => {
   restoreFocus.value = false;
@@ -87,7 +99,10 @@ useFocusTrap(isOpen, drawerEl, {
 });
 
 watch(() => props.modelValue, (open) => {
-  if (open) restoreFocus.value = true;
+  if (open) {
+    restoreFocus.value = true;
+    trackSiteSignal('drawer:open');
+  }
 });
 </script>
 
@@ -119,6 +134,9 @@ watch(() => props.modelValue, (open) => {
 .drawer__link:hover .drawer__arrow { opacity: 1; transform: translateX(0); }
 
 .drawer__foot { margin-top: auto; padding-top: 1.4rem; }
+.drawer__compass { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; width: 100%; margin-bottom: .5rem; padding: .65rem 1rem; border: 1.5px solid var(--bs-ink-line); border-radius: 999px; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink-on-accent); font-family: inherit; font-size: .86rem; font-weight: 700; cursor: pointer; box-shadow: var(--bs-sticker-shadow); transition: transform var(--bs-dur-quick) var(--bs-ease-pop); }
+.drawer__compass small { padding: .05rem .3rem; border: 1px solid rgba(57, 45, 79, .35); border-radius: .3rem; font-size: .62rem; font-weight: 500; opacity: .72; }
+.drawer__compass:hover { transform: translate(-1px, -2px) rotate(-.6deg); }
 .drawer__settings { display: inline-flex; align-items: center; gap: .4rem; width: 100%; justify-content: center; padding: .65rem 1rem; border: 1px dashed var(--bs-hairline); border-radius: 999px; background: transparent; color: var(--bs-ink); font-family: inherit; font-size: .86rem; cursor: pointer; transition: var(--bs-dur-quick) ease; }
 .drawer__settings:hover { background: var(--bs-surface-soft); border-color: var(--bs-pink); }
 .drawer__note { margin: .9rem 0 0; color: var(--bs-ink-soft); font-size: .74rem; line-height: 1.7; }
@@ -135,7 +153,7 @@ watch(() => props.modelValue, (open) => {
 @keyframes drawer-twinkle { 0%, 100% { opacity: .3; transform: scale(.8) rotate(0); } 50% { opacity: 1; transform: scale(1.2) rotate(18deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .drawer, .drawer-scrim, .drawer__link, .drawer__close { transition: none; animation: none; }
+  .drawer, .drawer-scrim, .drawer__link, .drawer__close, .drawer__compass { transition: none; animation: none; }
   .drawer__spark { animation: none; }
   .drawer__list li { animation: none; opacity: 1; }
 }

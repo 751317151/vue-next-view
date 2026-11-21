@@ -157,16 +157,19 @@ export const useFocusTrap = (
 
     // Another modal may have opened in the same tick (drawer → settings).
     // In that case it owns focus now and we must not yank it back out.
+    // Same for a panel that opened later in the same tick and has not painted
+    // its aria-modal wrapper yet: check the caller's explicit open flag too.
     const activeModal = document.querySelector<HTMLElement>('[aria-modal="true"]');
-    if (activeModal) return;
+    if (activeModal || options.shouldReturnFocus?.() === false) {
+      previouslyFocused = null;
+      return;
+    }
 
     // The element that opened us may have been removed meanwhile (for example
     // the drawer's own "主题与设置" button). Only reuse it while still mounted.
-    const target = options.shouldReturnFocus?.() === false
-      ? null
-      : previouslyFocused?.isConnected
-        ? previouslyFocused
-        : options.returnFocus?.();
+    const target = previouslyFocused?.isConnected
+      ? previouslyFocused
+      : options.returnFocus?.();
     target?.focus({ preventScroll: true });
     previouslyFocused = null;
   }, { immediate: true });

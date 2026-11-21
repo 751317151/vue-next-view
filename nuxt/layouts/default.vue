@@ -35,6 +35,18 @@
              the overlays themselves need ClientOnly. -->
         <button
           type="button"
+          class="site-shell__icon-btn site-shell__compass-btn"
+          aria-label="打开星海罗盘（Ctrl+K 或 ⌘K）"
+          aria-haspopup="dialog"
+          :aria-expanded="compassOpen"
+          aria-keyshortcuts="Control+K Meta+K"
+          title="星海罗盘 · Ctrl+K / ⌘K"
+          @click="openCompass()"
+        >
+          <span class="site-shell__compass-glyph" aria-hidden="true">✦</span>
+        </button>
+        <button
+          type="button"
           class="site-shell__icon-btn"
           aria-label="主题与设置"
           aria-haspopup="dialog"
@@ -61,8 +73,9 @@
     <main class="site-shell__main"><slot /></main>
     <ClientOnly>
       <BackToTop />
-      <MobileDrawer v-model="drawerOpen" @settings="settingsOpen = true" />
+      <MobileDrawer v-model="drawerOpen" @settings="settingsOpen = true" @compass="openCompass('drawer')" />
       <SettingsSheet :open="settingsOpen" @close="settingsOpen = false" />
+      <StarCompass :open="compassOpen" :source="compassSource" @close="compassOpen = false" @settings="openSettingsFromCompass" />
       <!-- 团子现在有 Nuxt 版实现了，走统一停靠区，叠在回到顶部上方。 -->
       <MochiCompanion />
     </ClientOnly>
@@ -101,8 +114,40 @@ import { siteConfig } from '../../src/config/site';
 
 const drawerOpen = ref(false);
 const settingsOpen = ref(false);
+const compassOpen = ref(false);
+const compassSource = ref<'menu' | 'drawer'>('menu');
 const route = useRoute();
 const isHome = computed(() => route.path === '/');
+
+/** 打开罗盘时收起其它弹层，保证同一时间只有一个 aria-modal 接管焦点。 */
+const openCompass = (source: 'menu' | 'drawer' = 'menu') => {
+  drawerOpen.value = false;
+  settingsOpen.value = false;
+  compassSource.value = source;
+  compassOpen.value = true;
+};
+
+/** 罗盘里的"主题与设置"：先收起罗盘，再打开设置面板。 */
+const openSettingsFromCompass = () => {
+  compassOpen.value = false;
+  settingsOpen.value = true;
+};
+
+/** Ctrl/⌘+K 是桌面用户的主入口，`/` 则照顾习惯 Vim 式搜索的人。 */
+const isEditableTarget = (target: EventTarget | null) => {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+};
+
+const onCompassShortcut = (event: KeyboardEvent) => {
+  if (event.defaultPrevented || event.isComposing) return;
+  const key = event.key.toLowerCase();
+  const combo = (event.metaKey || event.ctrlKey) && !event.altKey && key === 'k';
+  const slash = key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey && !isEditableTarget(event.target);
+  if (!combo && !slash) return;
+  event.preventDefault();
+  openCompass();
+};
 
 // Apply the stored theme as soon as the client takes over. The inline boot
 // script already set the class before paint; this hydrates the reactive state
@@ -138,10 +183,12 @@ onMounted(() => {
   lastY = window.scrollY;
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('keydown', onCompassShortcut);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll);
+  window.removeEventListener('keydown', onCompassShortcut);
   if (frame) window.cancelAnimationFrame(frame);
 });
 
@@ -245,6 +292,9 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
 .site-shell__icon-btn { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; padding: 0; border: 1px solid var(--bs-hairline); border-radius: 50%; background: var(--bs-surface-soft); color: var(--bs-ink); font-size: 1rem; line-height: 1; cursor: pointer; transition: var(--bs-dur-quick) var(--bs-ease-pop); }
 .site-shell__icon-btn:hover { background: rgba(255, 143, 179, .18); transform: translateY(-2px) rotate(-6deg); }
 .site-shell__icon-btn:focus-visible { outline: 3px solid rgba(185, 167, 255, .72); outline-offset: 3px; }
+.site-shell__compass-btn { border-color: rgba(255, 228, 138, .7); background: linear-gradient(135deg, rgba(255, 228, 138, .3), rgba(255, 143, 179, .16)); }
+.site-shell__compass-glyph { color: var(--bs-accent-ink); transition: transform var(--bs-dur-base) var(--bs-ease-pop); }
+.site-shell__compass-btn:hover .site-shell__compass-glyph { transform: rotate(90deg) scale(1.15); }
 /* The drawer is the phone navigation; the hamburger only appears when the
    horizontal nav would wrap into an unreadable stack. */
 .site-shell__menu-btn { display: none; }
@@ -263,13 +313,15 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
   .site-shell__header { top: .45rem; gap: .5rem; padding: .5rem .7rem .5rem .95rem; }
   .site-shell__header .site-shell__desktop-nav { display: none; }
   .site-shell__header .site-shell__menu-btn { display: grid; }
+  .site-shell__actions { gap: .3rem; }
   .site-shell__brand { gap: .35rem; font-size: .95rem; }
-  .site-shell__icon-btn { width: 2.2rem; height: 2.2rem; }
+  .site-shell__icon-btn { width: 2.1rem; height: 2.1rem; }
 }
 @media (max-width: 480px) {
   .site-shell { padding: .5rem .6rem 0; }
-  .site-shell__brand span:last-child { font-size: .9rem; }
+  .site-shell__brand span:last-child { font-size: .86rem; }
   .site-shell__header { padding: .45rem .55rem .45rem .85rem; }
+  .site-shell__icon-btn { width: 2rem; height: 2rem; font-size: .92rem; }
 }
 
 /* Keep the artwork flush with the viewport on every breakpoint while the

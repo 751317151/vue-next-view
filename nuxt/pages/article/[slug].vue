@@ -60,6 +60,46 @@ const hero = articleArt({ id: articleData.id, category: articleData.category });
 const heroEmoji = hero.emoji;
 const heroStyle = hero.style;
 
+/** 自动记录阅读足迹：进入文章 4 秒或滚动后开始更新，读到结尾记满进度。 */
+const { track: trackReading } = useReadingTrail();
+const bodyEl = ref<HTMLElement | null>(null);
+const finaleEl = ref<HTMLElement | null>(null);
+let readingTrailReady = false;
+let readingTrailTimer = 0;
+let lastTrackedProgress = 0;
+let finaleObserver: IntersectionObserver | null = null;
+
+const recordProgress = (force = false) => {
+  if (!readingTrailReady && !force) return;
+  const body = bodyEl.value;
+  if (!body) return;
+  const rect = body.getBoundingClientRect();
+  // 以正文底边进入视口的位置估算进度；正文离开视口时才是真正读完，
+  // 短文章也不会一打开就被误判成“读完”。
+  const progress = rect.height > 0
+    ? Math.min(1, Math.max(0, (window.innerHeight - rect.top - window.innerHeight * 0.2) / rect.height))
+    : 1;
+  // 每 10% 才落一次盘，避免滚动时反复写 localStorage。
+  if (!force && Math.abs(progress - lastTrackedProgress) < 0.1) return;
+  lastTrackedProgress = progress;
+  trackAt(Math.min(1, progress));
+};
+
+const trackAt = (progress: number) => {
+  trackReading({
+    slug: articleData.slug || slug,
+    title: articleData.articleTitle,
+    category: articleData.category,
+    emoji: heroEmoji,
+    progress,
+  });
+};
+
+const onReadingScroll = () => {
+  if (!readingTrailReady) readingTrailReady = true;
+  recordProgress();
+};
+
 // Re-create the page per article path so switching between stories never shows stale content.
 definePageMeta({ key: (route) => route.fullPath });
 
@@ -149,12 +189,32 @@ const backToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
 onMounted(() => {
   enhanceCodeBlocks();
+  readingTrailTimer = window.setTimeout(() => {
+    readingTrailReady = true;
+    recordProgress(true);
+  }, 4000);
+  if (finaleEl.value) {
+    finaleObserver = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      readingTrailReady = true;
+      lastTrackedProgress = 1;
+      trackAt(1);
+      finaleObserver?.disconnect();
+      finaleObserver = null;
+    }, { threshold: 0.4 });
+    finaleObserver.observe(finaleEl.value);
+  }
   window.addEventListener('scroll', onSpyScroll, { passive: true });
+  window.addEventListener('scroll', onReadingScroll, { passive: true });
   runSpy();
 });
 
 onBeforeUnmount(() => {
+  finaleObserver?.disconnect();
+  finaleObserver = null;
   window.removeEventListener('scroll', onSpyScroll);
+  window.removeEventListener('scroll', onReadingScroll);
+  window.clearTimeout(readingTrailTimer);
   if (spyFrame) window.cancelAnimationFrame(spyFrame);
 });
 </script>
@@ -217,7 +277,7 @@ onBeforeUnmount(() => {
       decoding="async"
     />
 
-    <div class="reading__body" v-html="articleData.contentHtml"></div>
+    <div ref="bodyEl" class="reading__body" v-html="articleData.contentHtml"></div>
 
     <ul v-if="articleData.tags?.length" class="reading__tags" aria-label="文章标签">
       <li v-for="tag in articleTags" :key="tag.name">
@@ -226,7 +286,7 @@ onBeforeUnmount(() => {
       </li>
     </ul>
 
-    <section class="reading__finale" aria-label="读完啦">
+    <section ref="finaleEl" class="reading__finale" aria-label="读完啦">
       <p class="reading__finale-mark">✧･ﾟ</p>
       <strong>读到这里啦</strong>
       <p class="reading__finale-text">谢谢你把这篇小故事读完。愿它给你的今天，加一点柔软的光。</p>

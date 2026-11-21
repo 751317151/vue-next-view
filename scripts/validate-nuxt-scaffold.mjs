@@ -18,6 +18,9 @@ const requiredFiles = [
   'server/routes/llms.txt.ts',
   'server/routes/llms-full.txt.ts',
   'nuxt/composables/useFocusTrap.ts',
+  'nuxt/components/StarCompass.vue',
+  'nuxt/composables/useSiteSignals.ts',
+  'nuxt/composables/useReadingTrail.ts',
   'src/seo/metadata.ts',
 ];
 
