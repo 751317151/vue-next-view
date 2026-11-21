@@ -1,21 +1,3 @@
-# Vue 3 + TypeScript + Vite
-
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Type Support For `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
 # BlackStar Blog · 生活倒影
 
 一个温暖、有趣的个人博客。公开站点由 Nuxt 4 提供 SSR、SWR 和 Nitro Server Routes，
@@ -27,16 +9,32 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
 npm install
 
 npm run dev        # Nuxt 开发服务器（公开站点）
-npm run build      # Cloudflare Pages 生产构建，产物在 dist/
+npm run build      # Cloudflare Pages 自动分流构建，产物在 dist/
+npm run build:cf   # 明确构建 Nuxt 主站
+npm run build:vite # 明确构建旧版 Vite SPA
 npm run preview    # 预览 Nuxt 产物
 ```
 
-历史 Vite 单页应用仍保留在 `src/`，只用于兼容和对照，不再是默认入口：
+历史 Vite 单页应用仍保留在 `src/`，只用于兼容和对照：
 
 ```bash
 npm run dev:vite
 npm run build:vite
 ```
+
+### 两个 Pages 项目的构建分流
+
+仓库同时连接两个 Cloudflare Pages 项目。二者都会执行 `npm run build`，因此
+`scripts/pages-build.mjs` 会根据 Pages 自动注入的 `CF_PAGES_URL` 判断部署目标：
+
+| Pages 项目 | 构建命令 | 产物 |
+| --- | --- | --- |
+| `vue-next-view` | `npm run build:cf` | Nuxt 4 + Nitro，输出到 `dist/` |
+| `vue-next-view-spa` | `npm run build:vite` | 旧版 Vite SPA，输出到 `dist/` |
+
+本地直接运行 `npm run build` 时默认构建 Nuxt。若要在控制台显式指定，可设置
+`PAGES_TARGET=nuxt` 或 `PAGES_TARGET=spa`；它优先于自动判断。用
+`node scripts/pages-build.mjs --dry-run` 可以只查看将执行的目标，不启动构建。
 
 ## 内容源
 

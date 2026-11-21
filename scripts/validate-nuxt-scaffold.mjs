@@ -18,6 +18,8 @@ const requiredFiles = [
   'server/routes/rss.xml.ts',
   'server/routes/llms.txt.ts',
   'server/routes/llms-full.txt.ts',
+  'scripts/pages-build.mjs',
+  'scripts/validate-pages-build.mjs',
   'nuxt/composables/useFocusTrap.ts',
   'nuxt/components/StarCompass.vue',
   'nuxt/composables/useSiteSignals.ts',
