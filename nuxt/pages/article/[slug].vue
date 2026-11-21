@@ -42,6 +42,16 @@ const articleTags = computed(() => (articleData.tags || []).map((name) => ({
   slug: (tagIndex.value || []).find((entry) => entry.tagName === name)?.slug || '',
 })));
 
+/**
+ * 上一篇 / 下一篇。列表按发布时间从新到旧，所以"上一篇"是更早的那篇。
+ * 用整份文章列表算，而不是详情接口里的推荐：推荐会随分类权重变化，
+ * 翻页链接应该像书页一样稳定。数据已经在文章接口里带回来，不额外请求。
+ */
+const articleNeighbours = computed(() => {
+  const pair = articleData.neighbours;
+  return pair && (pair.previous || pair.next) ? pair : null;
+});
+
 const articleSeo = {
   title: articleData.articleTitle,
   // 优先用后端统一算好的摘要；没有才退回正文，交给下游截断。
@@ -61,13 +71,31 @@ const heroEmoji = hero.emoji;
 const heroStyle = hero.style;
 
 /** 自动记录阅读足迹：进入文章 4 秒或滚动后开始更新，读到结尾记满进度。 */
-const { track: trackReading } = useReadingTrail();
+const { track: trackReading, find: findReadingTrail } = useReadingTrail();
+const { fontSize: readingSize, leading: readingLeading, setFontSize, setLeading, init: initReadingPrefs } = useReadingPrefs();
 const bodyEl = ref<HTMLElement | null>(null);
 const finaleEl = ref<HTMLElement | null>(null);
+const resume = ref<{ progress: number; headingId?: string; headingText?: string } | null>(null);
+const resumeDismissed = ref(false);
 let readingTrailReady = false;
 let readingTrailTimer = 0;
 let lastTrackedProgress = 0;
 let finaleObserver: IntersectionObserver | null = null;
+
+/** 当前读到的小节：和目录高亮用同一个 160px 判定线，两处不会互相打架。 */
+const currentHeading = () => {
+  const body = bodyEl.value;
+  if (!body) return null;
+  let current: { id: string; text: string } | null = null;
+  for (const heading of body.querySelectorAll<HTMLElement>('h2[id], h3[id], h4[id]')) {
+    if (heading.getBoundingClientRect().top > 160) continue;
+    current = {
+      id: heading.id,
+      text: (heading.textContent || '').trim().slice(0, 48),
+    };
+  }
+  return current;
+};
 
 const recordProgress = (force = false) => {
   if (!readingTrailReady && !force) return;
@@ -82,16 +110,18 @@ const recordProgress = (force = false) => {
   // 每 10% 才落一次盘，避免滚动时反复写 localStorage。
   if (!force && Math.abs(progress - lastTrackedProgress) < 0.1) return;
   lastTrackedProgress = progress;
-  trackAt(Math.min(1, progress));
+  trackAt(Math.min(1, progress), currentHeading());
 };
 
-const trackAt = (progress: number) => {
+const trackAt = (progress: number, heading: { id: string; text: string } | null) => {
   trackReading({
     slug: articleData.slug || slug,
     title: articleData.articleTitle,
     category: articleData.category,
     emoji: heroEmoji,
     progress,
+    headingId: heading?.id,
+    headingText: heading?.text,
   });
 };
 
@@ -187,8 +217,31 @@ const jumpToHeading = (id: string) => {
 
 const backToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+/** 从首页或罗盘回来时，把读者送回上次停下的段落。 */
+const resumeReading = () => {
+  const mark = resume.value;
+  if (!mark) return;
+  resumeDismissed.value = true;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const target = mark.headingId ? document.getElementById(mark.headingId) : null;
+  if (target) {
+    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    return;
+  }
+  const body = bodyEl.value;
+  if (!body) return;
+  const top = body.getBoundingClientRect().top + window.scrollY + body.offsetHeight * mark.progress - 96;
+  window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
+};
+
 onMounted(() => {
   enhanceCodeBlocks();
+  initReadingPrefs();
+  // 只在"读到一半"时提示；读完的、刚打开的文章不打扰。
+  const saved = findReadingTrail(articleData.slug || slug);
+  if (saved && saved.progress >= 0.05 && saved.progress <= 0.97 && !window.location.hash) {
+    resume.value = { progress: saved.progress, headingId: saved.headingId, headingText: saved.headingText };
+  }
   readingTrailTimer = window.setTimeout(() => {
     readingTrailReady = true;
     recordProgress(true);
@@ -198,7 +251,7 @@ onMounted(() => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       readingTrailReady = true;
       lastTrackedProgress = 1;
-      trackAt(1);
+      trackAt(1, currentHeading());
       finaleObserver?.disconnect();
       finaleObserver = null;
     }, { threshold: 0.4 });
@@ -268,6 +321,20 @@ onBeforeUnmount(() => {
       />
     </div>
 
+    <!-- 回访提示：只在读到一半时出现，读完或刚打开都不打扰。 -->
+    <div v-if="resume && !resumeDismissed" class="reading__resume">
+      <span class="reading__resume-star" aria-hidden="true">✦</span>
+      <div class="reading__resume-copy">
+        <strong>欢迎回来，上次停在这里</strong>
+        <p v-if="resume.headingText">读到「{{ resume.headingText }}」 · {{ Math.round(resume.progress * 100) }}%</p>
+        <p v-else>读到 {{ Math.round(resume.progress * 100) }}% 的地方</p>
+      </div>
+      <div class="reading__resume-actions">
+        <button type="button" class="is-primary" @click="resumeReading">接着读 ✦</button>
+        <button type="button" class="is-ghost" @click="resumeDismissed = true">从头看</button>
+      </div>
+    </div>
+
     <img
       v-if="articleData.articleCover"
       class="reading__cover"
@@ -277,7 +344,12 @@ onBeforeUnmount(() => {
       decoding="async"
     />
 
-    <div ref="bodyEl" class="reading__body" v-html="articleData.contentHtml"></div>
+    <div
+      ref="bodyEl"
+      class="reading__body"
+      :style="{ '--bs-read-size': readingSize === 'sm' ? '.94rem' : readingSize === 'lg' ? '1.12rem' : '1rem', '--bs-read-leading': readingLeading === 'snug' ? '1.7' : readingLeading === 'loose' ? '2.15' : '1.9' }"
+      v-html="articleData.contentHtml"
+    ></div>
 
     <ul v-if="articleData.tags?.length" class="reading__tags" aria-label="文章标签">
       <li v-for="tag in articleTags" :key="tag.name">
@@ -286,6 +358,19 @@ onBeforeUnmount(() => {
       </li>
     </ul>
 
+    <!-- 上一篇 / 下一篇：按发布时间给出确定性的内部链接，比随机推荐更好翻。 -->
+    <nav v-if="articleNeighbours" class="reading__step" aria-label="相邻文章">
+      <NuxtLink v-if="articleNeighbours.previous" :to="`/article/${articleNeighbours.previous.slug}`" class="reading__step-link">
+        <small>上一篇</small>
+        <strong>{{ articleNeighbours.previous.articleTitle }}</strong>
+      </NuxtLink>
+      <span v-else class="reading__step-link is-empty" aria-hidden="true"></span>
+      <NuxtLink v-if="articleNeighbours.next" :to="`/article/${articleNeighbours.next.slug}`" class="reading__step-link is-next">
+        <small>下一篇</small>
+        <strong>{{ articleNeighbours.next.articleTitle }}</strong>
+      </NuxtLink>
+    </nav>
+
     <section ref="finaleEl" class="reading__finale" aria-label="读完啦">
       <p class="reading__finale-mark">✧･ﾟ</p>
       <strong>读到这里啦</strong>
@@ -293,6 +378,31 @@ onBeforeUnmount(() => {
       <div class="reading__finale-actions">
         <button type="button" @click="backToTop">回到顶部 ☝</button>
         <NuxtLink to="/archive" class="reading__finale-ghost">再读一篇 ✦</NuxtLink>
+      </div>
+    </section>
+
+    <!-- 阅读排版条：长文时把正文调成自己舒服的样子，偏好下次自动记住。 -->
+    <section class="reading__comfort" aria-label="阅读排版">
+      <div class="reading__comfort-copy">
+        <span aria-hidden="true">✎</span>
+        <div>
+          <strong>把这一段读舒服一点</strong>
+          <p>字号和行距会记住，下次打开还是你习惯的样子。</p>
+        </div>
+      </div>
+      <div class="reading__comfort-controls">
+        <div class="reading__comfort-group" role="radiogroup" aria-label="正文字号">
+          <span class="reading__comfort-label">字号</span>
+          <button type="button" role="radio" :aria-checked="readingSize === 'sm'" :class="{ 'is-active': readingSize === 'sm' }" @click="setFontSize('sm')">小</button>
+          <button type="button" role="radio" :aria-checked="readingSize === 'md'" :class="{ 'is-active': readingSize === 'md' }" @click="setFontSize('md')">中</button>
+          <button type="button" role="radio" :aria-checked="readingSize === 'lg'" :class="{ 'is-active': readingSize === 'lg' }" @click="setFontSize('lg')">大</button>
+        </div>
+        <div class="reading__comfort-group" role="radiogroup" aria-label="正文行距">
+          <span class="reading__comfort-label">行距</span>
+          <button type="button" role="radio" :aria-checked="readingLeading === 'snug'" :class="{ 'is-active': readingLeading === 'snug' }" @click="setLeading('snug')">紧</button>
+          <button type="button" role="radio" :aria-checked="readingLeading === 'cozy'" :class="{ 'is-active': readingLeading === 'cozy' }" @click="setLeading('cozy')">适中</button>
+          <button type="button" role="radio" :aria-checked="readingLeading === 'loose'" :class="{ 'is-active': readingLeading === 'loose' }" @click="setLeading('loose')">松</button>
+        </div>
       </div>
     </section>
 
@@ -324,6 +434,20 @@ onBeforeUnmount(() => {
 .reading__meta { display: flex; flex-wrap: wrap; gap: .55rem; }
 .reading__meta span { padding: .35rem .7rem; border-radius: 999px; background: rgba(185,167,255,.16); color: var(--bs-ink-body); font-size: .82rem; }
 .reading__star { align-self: center; margin-left: .1rem; }
+
+/* 回访提示做成一枚贴纸：虚线边框 + 轻微倾斜，和站内其它便利贴语气一致。 */
+.reading__resume { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-top: 1.3rem; padding: .85rem 1rem; border: 1.5px dashed rgba(255, 143, 179, .55); border-radius: 1.15rem; background: linear-gradient(135deg, rgba(255, 228, 138, .24), rgba(185, 167, 255, .14)); transform: rotate(-.35deg); }
+.reading__resume-star { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; flex: 0 0 auto; border: 1.5px solid var(--bs-ink-line); border-radius: 50%; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink-on-accent); box-shadow: var(--bs-sticker-shadow); font-size: .95rem; }
+.reading__resume-copy { min-width: 0; flex: 1; }
+.reading__resume-copy strong { color: var(--bs-ink); font-size: .92rem; }
+.reading__resume-copy p { margin: .15rem 0 0; color: var(--bs-ink-soft); font-size: .8rem; line-height: 1.6; }
+.reading__resume-actions { display: flex; gap: .45rem; }
+.reading__resume-actions button { padding: .45rem .85rem; border: 1.5px solid var(--bs-ink-line); border-radius: 999px; font-family: inherit; font-size: .8rem; font-weight: 600; color: var(--bs-ink); cursor: pointer; transition: transform var(--bs-dur-quick) var(--bs-ease-pop), box-shadow var(--bs-dur-quick) ease; }
+.reading__resume-actions .is-primary { background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); box-shadow: 2px 2px 0 var(--bs-ink-line); }
+.reading__resume-actions .is-ghost { background: var(--bs-surface-strong); }
+.reading__resume-actions button:hover { transform: translate(-1px, -2px) rotate(-1deg); box-shadow: 4px 5px 0 var(--bs-ink-line); }
+.reading__resume-actions button:focus-visible { outline: 3px solid rgba(185, 167, 255, .72); outline-offset: 3px; }
+
 .reading__cover { display: block; width: 100%; max-height: 26rem; margin-top: 1.8rem; border-radius: 1.5rem; object-fit: cover; box-shadow: 0 18px 50px rgba(95,66,118,.16); }
 .reading__body { margin-top: 2rem; padding: 1.6rem 1.7rem; border: 1px solid var(--bs-border); border-radius: 1.5rem; background: var(--bs-surface); color: var(--bs-ink-body); line-height: 1.9; }
 .reading__body :deep(h2), .reading__body :deep(h3), .reading__body :deep(h4) { margin: 1.7rem 0 .7rem; color: var(--bs-ink); }
@@ -383,6 +507,40 @@ onBeforeUnmount(() => {
 .reading__finale-actions button, .reading__finale-actions a { padding: .55rem 1rem; border: 0; border-radius: 999px; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink); font-weight: 600; text-decoration: none; cursor: pointer; transition: var(--bs-dur-quick) ease; }
 .reading__finale-actions .reading__finale-ghost { background: var(--bs-surface-strong); box-shadow: 0 10px 26px rgba(95,66,118,.1); }
 .reading__finale-actions button:hover, .reading__finale-actions a:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 0 14px 34px rgba(255,143,179,.28); }
+
+/* 阅读排版条：轻量、不抢正文，只在文章末尾出现。 */
+.reading__comfort { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1.2rem; margin-top: 1.6rem; padding: .9rem 1.05rem; border: 1px solid var(--bs-hairline); border-radius: 1.1rem; background: var(--bs-surface-soft); }
+.reading__comfort-copy { display: flex; align-items: center; gap: .65rem; min-width: 0; }
+.reading__comfort-copy > span { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; flex: 0 0 auto; border-radius: .6rem; background: var(--bs-tint-lilac); color: var(--bs-accent-ink); }
+.reading__comfort-copy strong { display: block; color: var(--bs-ink); font-size: .86rem; }
+.reading__comfort-copy p { margin: .1rem 0 0; color: var(--bs-ink-soft); font-size: .74rem; line-height: 1.55; }
+.reading__comfort-controls { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+.reading__comfort-group { display: inline-flex; align-items: center; gap: .2rem; padding: .18rem; border-radius: 999px; background: var(--bs-surface); }
+.reading__comfort-label { padding: 0 .35rem 0 .45rem; color: var(--bs-ink-muted); font-size: .7rem; }
+.reading__comfort-group button { min-width: 2rem; padding: .3rem .55rem; border: 0; border-radius: 999px; background: transparent; color: var(--bs-ink-soft); font-family: inherit; font-size: .76rem; cursor: pointer; transition: background var(--bs-dur-quick) ease, color var(--bs-dur-quick) ease, transform var(--bs-dur-quick) var(--bs-ease-pop); }
+.reading__comfort-group button:hover { color: var(--bs-ink); }
+.reading__comfort-group button.is-active { background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink-on-accent); font-weight: 600; box-shadow: 0 6px 14px rgba(255, 143, 179, .22); transform: translateY(-1px); }
+.reading__comfort-group button:focus-visible { outline: 3px solid rgba(185, 167, 255, .7); outline-offset: 2px; }
+
+/* 字号 / 行距偏好挂在 html 上，这里只读不写，切换不会触发 Markdown 重渲染。 */
+.reading__body { font-size: var(--bs-read-size, 1rem); transition: font-size var(--bs-dur-base) ease; }
+.reading__body :deep(p), .reading__body :deep(li) { line-height: var(--bs-read-leading, 1.9); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reading__comfort-group button { transition: none; }
+}
+html.bs-reduced-motion .reading__comfort-group button { transition: none; }
+
+/* 上一篇 / 下一篇：两页并排，像翻开下一页的手账。 */
+.reading__step { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; margin-top: 1.6rem; }
+.reading__step-link { display: grid; gap: .18rem; padding: .8rem .95rem; border: 1px solid var(--bs-border); border-radius: 1rem; background: var(--bs-surface); color: var(--bs-ink-body); text-decoration: none; transition: transform var(--bs-dur-base) var(--bs-ease-pop), border-color var(--bs-dur-base) ease, box-shadow var(--bs-dur-base) ease; }
+.reading__step-link small { color: var(--bs-accent-ink); font-size: .68rem; letter-spacing: .12em; }
+.reading__step-link strong { overflow: hidden; color: var(--bs-ink); font-size: .88rem; line-height: 1.5; text-overflow: ellipsis; white-space: nowrap; }
+.reading__step-link:hover { border-color: var(--bs-border-accent); transform: translateY(-3px) rotate(-.3deg); box-shadow: 0 14px 30px rgba(255, 143, 179, .18); }
+.reading__step-link.is-next { text-align: right; }
+.reading__step-link.is-empty { border-style: dashed; background: transparent; box-shadow: none; }
+.reading__step-link:focus-visible { outline: 3px solid rgba(185, 167, 255, .7); outline-offset: 3px; }
+@media (max-width: 560px) { .reading__step { grid-template-columns: 1fr; } .reading__step-link.is-empty { display: none; } }
 
 @media (max-width: 640px) { .reading__next-grid { grid-template-columns: 1fr; } }
 </style>

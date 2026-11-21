@@ -17,9 +17,14 @@ export interface PublicArticleRecord {
   /** 一句话摘要。frontmatter 里写 `description` 或 `summary` 时填入，缺省则按正文自动提取。 */
   summary?: string;
   recommendations?: PublicArticleSummary[];
+  /** 文章页的上一篇 / 下一篇；详情接口按发布时间算好再返回。 */
+  neighbours?: {
+    previous: PublicArticleSummary | null;
+    next: PublicArticleSummary | null;
+  };
 }
 
-export type PublicArticleSummary = Omit<PublicArticleRecord, 'articleContent' | 'recommendations'>;
+export type PublicArticleSummary = Omit<PublicArticleRecord, 'articleContent' | 'recommendations' | 'neighbours'>;
 
 export const publicArticles = (): PublicArticleRecord[] => mockArticles.map((article) => ({
   ...article,

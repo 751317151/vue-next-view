@@ -1,5 +1,6 @@
 <template>
   <div class="site-shell" :class="{ 'site-shell--home': isHome }">
+    <a class="site-shell__skip" href="#main-content">跳到正文 ✦</a>
     <ClientOnly>
       <AmbientConstellation />
       <PointerGlow />
@@ -70,7 +71,7 @@
     <!-- 星愿瓶刻意放在 ClientOnly 之外：瓶子本身在 SSR 就能画出来（初始为空瓶），
          水合后只是把本地收藏填进去，不会造成布局跳动或首屏空白。 -->
     <StarJar />
-    <main class="site-shell__main"><slot /></main>
+    <main id="main-content" class="site-shell__main" tabindex="-1"><slot /></main>
     <ClientOnly>
       <BackToTop />
       <MobileDrawer v-model="drawerOpen" @settings="settingsOpen = true" @compass="openCompass('drawer')" />
@@ -277,6 +278,9 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
 .site-shell__brand:hover .site-shell__brand-mark { transform: rotate(-14deg) scale(1.15); }
 .site-shell__header nav { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; justify-content: flex-end; }
 .site-shell__header nav a { position: relative; padding: .45rem .75rem; border-radius: 999px; color: var(--bs-ink-soft); font-size: .9rem; text-decoration: none; transition: var(--bs-dur-quick) ease; }
+.site-shell__skip { position: fixed; top: .45rem; left: 1rem; z-index: 130; padding: .48rem .8rem; border: 1.5px solid var(--bs-ink-line); border-radius: 999px; background: var(--bs-yellow); color: var(--bs-ink-on-accent); font-size: .8rem; font-weight: 700; text-decoration: none; box-shadow: var(--bs-sticker-shadow); transform: translateY(-.4rem); opacity: 0; pointer-events: none; transition: opacity var(--bs-dur-quick) ease, transform var(--bs-dur-quick) var(--bs-ease-pop); }
+.site-shell__skip:focus-visible { opacity: 1; pointer-events: auto; transform: none; outline: 3px solid rgba(185, 167, 255, .72); outline-offset: 3px; }
+.site-shell__main:focus { outline: none; }
 .site-shell__header nav a::after { content: ''; position: absolute; inset: auto .8rem -1px; height: 2px; border-radius: 999px; background: linear-gradient(90deg, var(--bs-pink), var(--bs-peach), var(--bs-lilac)); opacity: 0; transform: scaleX(.3); transition: var(--bs-dur-base) ease; }
 .site-shell__header nav a:hover, .site-shell__header nav a.router-link-active { color: var(--bs-ink); background: rgba(255, 143, 179, .16); transform: translateY(-2px); }
 :root.bs-dark .site-shell__header nav a:hover, :root.bs-dark .site-shell__header nav a.router-link-active { background: rgba(255, 143, 179, .22); }

@@ -21,6 +21,7 @@ const requiredFiles = [
   'nuxt/components/StarCompass.vue',
   'nuxt/composables/useSiteSignals.ts',
   'nuxt/composables/useReadingTrail.ts',
+  'nuxt/composables/useReadingPrefs.ts',
   'src/seo/metadata.ts',
 ];
 

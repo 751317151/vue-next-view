@@ -263,7 +263,9 @@ const continueCommands = computed<CompassCommand[]>(() => readingTrail.value
       label: item.title,
       hint: [
         item.category,
-        finished ? '读完了 · 随时再翻一遍' : `读到 ${percent}% · ${readingTimeLabel(item.at)}`,
+        finished
+          ? '读完了 · 随时再翻一遍'
+          : `读到 ${percent}%${item.headingText ? `「${item.headingText}」` : ''} · ${readingTimeLabel(item.at)}`,
       ].filter(Boolean).join(' · '),
       emoji: finished ? '🌟' : item.emoji || '📖',
       to: `/article/${item.slug}`,

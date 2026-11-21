@@ -7,6 +7,11 @@ export interface PublicArticle {
   content?: string;
   contentHtml?: string;
   recommendations?: Array<Pick<PublicArticle, 'id' | 'slug' | 'articleTitle' | 'articleCover' | 'createTime' | 'category'>>;
+  /** 相邻文章，用于文章页的上一篇 / 下一篇。 */
+  neighbours?: {
+    previous?: Pick<PublicArticle, 'id' | 'slug' | 'articleTitle' | 'articleCover' | 'createTime' | 'category'> | null;
+    next?: Pick<PublicArticle, 'id' | 'slug' | 'articleTitle' | 'articleCover' | 'createTime' | 'category'> | null;
+  };
   createTime: string;
   updateTime?: string;
   category?: string;

@@ -71,6 +71,9 @@ export const useFocusTrap = (
 ) => {
   let previouslyFocused: HTMLElement | null = null;
   let locked = false;
+  /** 只在真正打开过之后才归还焦点；初次挂载时 active 已经是 false，
+   *  若照样走归还逻辑，会把首屏焦点从文档开头抢到某个触发按钮上。 */
+  let wasOpen = false;
 
   /** Only the last modal in DOM order may handle keys, so stacked overlays
    *  do not both close on one Escape press. */
@@ -143,6 +146,7 @@ export const useFocusTrap = (
     if (typeof document === 'undefined') return;
 
     if (open) {
+      wasOpen = true;
       previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       lockBodyScroll();
       locked = true;
@@ -154,6 +158,9 @@ export const useFocusTrap = (
 
     release();
     await nextTick();
+
+    if (!wasOpen) return;
+    wasOpen = false;
 
     // Another modal may have opened in the same tick (drawer → settings).
     // In that case it owns focus now and we must not yank it back out.

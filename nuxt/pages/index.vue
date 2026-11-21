@@ -18,6 +18,25 @@ const [{ data: articles }, { data: categories }, { data: tags }] = await Promise
 
 const latest = computed(() => (articles.value || []).slice(0, 6));
 const totalWords = computed(() => (articles.value || []).reduce((sum, article) => sum + (article.articleContent || '').length, 0));
+
+/**
+ * 「接着读」只在客户端出现：localStorage 里没有记录时整块不渲染，
+ * SSR 和首次水合都不会多出一块占位，首页不会跳。
+ */
+const { items: readingTrail, hydrate: hydrateReadingTrail } = useReadingTrail();
+const nextRead = computed(() => {
+  const inProgress = readingTrail.value
+    .filter((item) => item.progress >= 0.03 && item.progress < 0.97)
+    .sort((a, b) => b.at - a.at);
+  const picked = inProgress[0];
+  if (!picked) return null;
+  return {
+    ...picked,
+    percent: Math.min(99, Math.max(1, Math.round(picked.progress * 100))),
+  };
+});
+
+onMounted(hydrateReadingTrail);
 </script>
 
 <template>
@@ -31,6 +50,24 @@ const totalWords = computed(() => (articles.value || []).reduce((sum, article) =
         <div><dt>标签</dt><dd>{{ tags?.length ?? 0 }}</dd></div>
         <div><dt>写下</dt><dd>{{ Math.round(totalWords / 1000) }}k 字</dd></div>
       </dl>
+
+      <ClientOnly>
+        <NuxtLink v-if="nextRead" :to="`/article/${nextRead.slug}`" class="home__continue">
+          <span class="home__continue-art" aria-hidden="true">{{ nextRead.emoji }}</span>
+          <span class="home__continue-copy">
+            <small>接着读 · 上次停在这里</small>
+            <strong>{{ nextRead.title }}</strong>
+            <span class="home__continue-track" aria-hidden="true">
+              <span :style="{ width: `${nextRead.percent}%` }"></span>
+            </span>
+            <em>
+              读到 {{ nextRead.percent }}%
+              <template v-if="nextRead.headingText"> ·「{{ nextRead.headingText }}」</template>
+            </em>
+          </span>
+          <span class="home__continue-arrow" aria-hidden="true">→</span>
+        </NuxtLink>
+      </ClientOnly>
 
       <section class="home__latest" aria-labelledby="latest-articles-title">
         <div class="home__section-head">
@@ -81,6 +118,25 @@ const totalWords = computed(() => (articles.value || []).reduce((sum, article) =
 .home__stats > div { padding: .8rem .5rem; border: 1px solid var(--bs-border); border-radius: 1.1rem; background: var(--bs-surface); text-align: center; }
 .home__stats dt { color: var(--bs-ink-muted); font-size: .78rem; }
 .home__stats dd { margin: .15rem 0 0; color: var(--bs-ink); font-size: 1.25rem; font-weight: 700; }
+
+/* 接着读：一张横放的旧书签，压在统计和最新文章之间。 */
+.home__continue { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .85rem; align-items: center; margin: 0 0 2.6rem; padding: .9rem 1.1rem; overflow: hidden; border: 1.5px dashed rgba(255, 143, 179, .5); border-radius: 1.2rem; background: linear-gradient(135deg, rgba(255, 228, 138, .26), rgba(185, 167, 255, .16)); color: var(--bs-ink-body); text-decoration: none; transition: transform var(--bs-dur-base) var(--bs-ease-pop), box-shadow var(--bs-dur-base) ease, border-color var(--bs-dur-base) ease; }
+.home__continue::after { position: absolute; right: -2.2rem; bottom: -2.6rem; width: 7rem; height: 7rem; border: 1px dashed rgba(185, 167, 255, .38); border-radius: 50%; content: ""; pointer-events: none; }
+.home__continue:hover { border-color: var(--bs-pink); transform: translateY(-3px) rotate(-.35deg); box-shadow: 0 16px 36px rgba(255, 143, 179, .22); }
+.home__continue:focus-visible { outline: 3px solid rgba(185, 167, 255, .72); outline-offset: 3px; }
+.home__continue-art { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; flex: 0 0 auto; border: 1.5px solid var(--bs-ink-line); border-radius: .85rem; background: var(--bs-surface-strong); font-size: 1.2rem; box-shadow: 2px 2px 0 var(--bs-ink-line); transform: rotate(-4deg); transition: transform var(--bs-dur-base) var(--bs-ease-pop); }
+.home__continue:hover .home__continue-art { transform: rotate(3deg) scale(1.06); }
+.home__continue-copy { position: relative; z-index: 1; display: grid; gap: .12rem; min-width: 0; }
+.home__continue-copy small { color: var(--bs-accent-ink); font-size: .66rem; letter-spacing: .14em; }
+.home__continue-copy strong { overflow: hidden; color: var(--bs-ink); font-size: .95rem; text-overflow: ellipsis; white-space: nowrap; }
+.home__continue-track { display: block; width: 100%; height: .26rem; margin-top: .25rem; overflow: hidden; border-radius: 999px; background: rgba(57, 45, 79, .12); }
+.home__continue-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--bs-lilac), var(--bs-pink), var(--bs-yellow)); transition: width var(--bs-dur-slow) var(--bs-ease-pop); }
+.home__continue-copy em { overflow: hidden; color: var(--bs-ink-soft); font-size: .72rem; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.home__continue-arrow { color: var(--bs-accent-ink); font-size: 1.05rem; transition: transform var(--bs-dur-quick) ease; }
+.home__continue:hover .home__continue-arrow { transform: translateX(4px); }
+:root.bs-dark .home__continue { background: linear-gradient(135deg, rgba(255, 228, 138, .12), rgba(185, 167, 255, .16)); }
+:root.bs-dark .home__continue-track { background: rgba(244, 236, 255, .16); }
+
 .home__latest, .home__paths { margin-top: 3.4rem; }
 .home__latest { margin-top: 0; }
 .home__section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }

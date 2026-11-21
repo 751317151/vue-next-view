@@ -24,9 +24,27 @@ export default defineEventHandler(async (event): Promise<PublicArticleRecord> =>
     .slice(0, 4)
     .map(({ score: _score, ...candidate }) => candidate);
 
+  // 上一篇 / 下一篇按发布时间从新到旧排，跟归档页看到的顺序一致。
+  // 放在接口里算，客户端就不必为了两条链接再拉一遍全部文章。
+  const pick = (candidate: PublicArticleRecord | undefined) => candidate
+    ? {
+      id: candidate.id,
+      slug: candidate.slug,
+      articleTitle: candidate.articleTitle,
+      articleCover: candidate.articleCover,
+      createTime: candidate.createTime,
+      category: candidate.category,
+    }
+    : null;
+  const index = articles.findIndex((candidate) => candidate.id === article.id);
+
   return {
     ...article,
     recommendations,
+    neighbours: {
+      previous: pick(articles[index + 1]),
+      next: pick(articles[index - 1]),
+    },
     updateTime: article.updateTime || article.createTime,
   };
 });
