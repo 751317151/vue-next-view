@@ -23,11 +23,12 @@ const read = async (file) => {
 
 const sources = {};
 try {
-  [sources.robots, sources.sitemap, sources.rss, sources.llms] = await Promise.all([
+  [sources.robots, sources.sitemap, sources.rss, sources.llms, sources.llmsFull] = await Promise.all([
     read('robots.txt'),
     read('sitemap.xml'),
     read('rss.xml'),
     read('llms.txt'),
+    read('llms-full.txt'),
   ]);
 } catch (error) {
   console.error('Public SEO validation failed:');
@@ -35,7 +36,7 @@ try {
   process.exit(1);
 }
 
-const { robots, sitemap, rss, llms } = sources;
+const { robots, sitemap, rss, llms, llmsFull } = sources;
 const errors = [];
 
 const isHttpsUrl = (value) => {
@@ -156,10 +157,27 @@ if (badLlmsUrls.length) {
   errors.push(`every llms.txt link must be an absolute HTTPS URL, found: ${badLlmsUrls.slice(0, 3).join(', ')}`);
 }
 
+// llms-full.txt 是喂给生成式引擎的整站语料，一旦坏掉，模型引用到的就是
+// 残缺内容。它此前完全没有被校验，所以单独检查：标题、站点绝对地址、
+// 以及每篇文章是否真的带上了正文（而不仅仅是标题）。
+if (!/^#\s+/m.test(llmsFull)) {
+  errors.push('llms-full.txt must contain a Markdown heading');
+}
+if (llmsFull.trim().length < 800) {
+  errors.push(`llms-full.txt looks truncated (${llmsFull.trim().length} chars); it should carry the full article bodies`);
+}
+
+const allCorpus = { 'llms.txt': llms, 'llms-full.txt': llmsFull };
+for (const [file, content] of Object.entries(allCorpus)) {
+  if (/\{\{[^}]*\}\}/.test(content)) {
+    errors.push(`${file} contains an unresolved template placeholder`);
+  }
+}
+
 // A build that silently baked the local origin would otherwise ship canonical
 // URLs and crawler files pointing at a machine nobody else can reach.
 const localOrigin = /https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?/i;
-for (const [file, content] of [['robots.txt', robots], ['sitemap.xml', sitemap], ['rss.xml', rss], ['llms.txt', llms]]) {
+for (const [file, content] of [['robots.txt', robots], ['sitemap.xml', sitemap], ['rss.xml', rss], ...Object.entries(allCorpus)]) {
   if (localOrigin.test(content)) {
     errors.push(`${file} contains a local origin; set NUXT_PUBLIC_SITE_URL to the public HTTPS origin and rebuild`);
   }
@@ -168,9 +186,38 @@ for (const [file, content] of [['robots.txt', robots], ['sitemap.xml', sitemap],
 // Non-ASCII characters are legal XML but invalid in a URL. CJK taxonomy slugs
 // must be percent-encoded, so flag them rather than letting crawlers guess.
 const rawNonAsciiUrl = (urls) => urls.filter((url) => /[^\x20-\x7E]/.test(url));
-const unencoded = rawNonAsciiUrl(sitemapLocs).concat(rawNonAsciiUrl(rssLinks));
+const llmsAllLinks = [...llms.matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1])
+  .concat([...llmsFull.matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1]));
+const unencoded = rawNonAsciiUrl(sitemapLocs).concat(rawNonAsciiUrl(rssLinks), rawNonAsciiUrl(llmsAllLinks));
 if (unencoded.length) {
   errors.push(`URLs must be percent-encoded, found: ${unencoded.slice(0, 3).join(', ')}`);
+}
+
+// 文章页是 GEO 的主入口：抽查构建产物里的一篇文章，确认文章级 Open Graph
+// 真的落在了 HTML 里，而不是只在浏览器水合后才存在（爬虫看不到后者）。
+const articleDir = path.join(dir, 'article');
+let articleFiles = [];
+try {
+  articleFiles = (await fs.readdir(articleDir, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(articleDir, entry.name, 'index.html'));
+} catch {
+  articleFiles = [];
+}
+// SWR 路由可能不预渲染文章页；那种情况下无法从静态产物取证，跳过而不是误报。
+if (articleFiles.length) {
+  const sample = articleFiles[0];
+  const html = await fs.readFile(sample, 'utf8');
+  const requiredArticleMeta = ['article:published_time', 'article:section', 'og:image:alt'];
+  const missing = requiredArticleMeta.filter((property) => !new RegExp(`property="${property}"`).test(html));
+  if (missing.length) {
+    errors.push(`${path.relative(dir, sample)} is missing article Open Graph metadata: ${missing.join(', ')}`);
+  }
+  // 同名 meta 重复会让分享卡片的标题/描述互相覆盖。
+  for (const property of ['og:title', 'og:image', 'article:published_time']) {
+    const count = [...html.matchAll(new RegExp(`property="${property}"`, 'g'))].length;
+    if (count > 1) errors.push(`${path.relative(dir, sample)} repeats ${property} ${count} times`);
+  }
 }
 
 if (errors.length) {

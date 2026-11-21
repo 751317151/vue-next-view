@@ -18,6 +18,10 @@
       <span v-if="unread" class="mochi-companion__pip" aria-hidden="true"></span>
     </button>
 
+    <!-- 收起后留一枚会呼吸的小提示：团子还在，只是话少了。
+         否则第一次自动收起后，访客只会看到一个圆点，以为提示消失了。 -->
+    <span v-if="collapsed" class="mochi-companion__whisper" aria-hidden="true">悄悄话 ✦</span>
+
     <!-- 刻意不用 <Transition>：离场节点会保留到 transitionend，和全局减少动效规则打架，
          容易出现卡片卡在展开状态。普通 v-if 配一个入场动画更可控。 -->
     <div
@@ -111,6 +115,12 @@ let greetingTimer = 0;
 let bonusTimer = 0;
 let reactTimer = 0;
 
+/**
+ * 只有窄屏才自动收气泡：手机上它会压住正文。
+ * 桌面有足够空间，让访客自己决定什么时候收起，避免"提示怎么没了"。
+ */
+const shouldAutoCollapse = () => window.matchMedia('(max-width: 768px)').matches;
+
 const keepOpen = () => { window.clearTimeout(greetingTimer); };
 const collapse = () => {
   keepOpen();
@@ -181,10 +191,12 @@ onMounted(() => {
   mood.value = moodFromClock();
   messageIndex.value = Math.floor(Math.random() * lines.value.length);
   unread.value = true;
-  // 打完招呼自动收成团子并留一个未读点，避免小屏上气泡挡住正文。
-  greetingTimer = window.setTimeout(() => {
-    if (!collapsed.value) collapse();
-  }, 9000);
+  // 小屏打完招呼自动收成团子（留一个未读点）；桌面保持展开。
+  if (shouldAutoCollapse()) {
+    greetingTimer = window.setTimeout(() => {
+      if (!collapsed.value) collapse();
+    }, 9000);
+  }
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('pointermove', onIdle, { passive: true });
   window.addEventListener('star-jar:fly', onStarCollected);
@@ -250,6 +262,29 @@ onBeforeUnmount(() => {
 
 .mochi-companion__pip { position: absolute; top: .1rem; left: .1rem; width: .6rem; height: .6rem; border: 2px solid var(--bs-paper); border-radius: 50%; background: var(--bs-pink); animation: mochi-pip 1.9s var(--bs-ease-breathe) infinite; }
 
+/* 收起态的小标签：贴着团子左侧，轻轻上下浮动，像在招手。 */
+.mochi-companion__whisper {
+  align-self: center;
+  padding: .22rem .6rem;
+  border: 1px dashed rgba(255, 143, 179, .6);
+  border-radius: 999px;
+  background: var(--bs-paper-strong);
+  color: var(--bs-accent-ink);
+  font-size: .7rem;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  box-shadow: var(--bs-shadow-soft);
+  animation: mochi-whisper 4.4s var(--bs-ease-breathe) infinite;
+}
+@keyframes mochi-whisper {
+  0%, 100% { opacity: .72; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(-.18rem); }
+}
+@media (max-width: 640px) {
+  /* 手机上正文优先，标签不再占一行。 */
+  .mochi-companion__whisper { display: none; }
+}
+
 .mochi-companion__card {
   position: relative;
   z-index: var(--bs-dock-z-panel);
@@ -291,10 +326,12 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) {
   .mochi-companion__orb,
   .mochi-companion__pip,
+  .mochi-companion__whisper,
   .mochi-companion__card { animation: none; }
 }
 /* 应用内的"减少动效"开关也要管到团子，和系统的 reduce 行为一致。 */
 html.bs-reduced-motion .mochi-companion__orb,
 html.bs-reduced-motion .mochi-companion__pip,
+html.bs-reduced-motion .mochi-companion__whisper,
 html.bs-reduced-motion .mochi-companion__card { animation: none; }
 </style>

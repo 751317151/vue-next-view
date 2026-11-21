@@ -28,11 +28,21 @@ export const useArticleSeo = (article: SeoArticleInput) => {
   useSeoMeta({
     title: seo.title,
     description: seo.description,
-    ogTitle: seo.title,
+    // 原标题不带站名后缀：社交卡片已经有 og:site_name，标题里再重复一次
+    // 会把正文标题挤成两行。页面 <title> 仍由 seo.title 负责。
+    ogTitle: article.title,
     ogDescription: seo.description,
     ogUrl: seo.canonical,
     ogType: 'article',
     ogImage: image,
+    // 文章级 Open Graph：发布时间 / 修改时间让分享卡片和聚合器知道
+    // 这是一篇有日期的长文，而不是普通落地页。
+    articlePublishedTime: article.publishedAt,
+    articleModifiedTime: article.updatedAt || article.publishedAt,
+    articleSection: article.category,
+    articleTag: article.tags?.length ? article.tags : undefined,
+    articleAuthor: [article.author || siteConfig.author],
+    ogImageAlt: article.title,
     twitterCard: 'summary_large_image',
     twitterTitle: seo.title,
     twitterDescription: seo.description,
