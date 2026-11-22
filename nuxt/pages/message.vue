@@ -62,7 +62,7 @@ onMounted(() => {
 
     <MigrationPage
       eyebrow="MESSAGE"
-      title="留一句话，挂在星星下。"
+      title="留言板"
       description=""
     >
       <div class="board">

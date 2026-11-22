@@ -192,7 +192,7 @@ onBeforeUnmount(() => {
         <b>✎</b>
       </span>
       <p class="desk__eyebrow"><span aria-hidden="true">✦</span> MY DESK</p>
-      <h1>你的书桌，<br /><em>只属于你。</em></h1>
+      <h1>我的书桌</h1>
 
       <dl class="desk__stats">
         <div>
@@ -386,9 +386,7 @@ onBeforeUnmount(() => {
 
 .desk__eyebrow { margin: 0; color: var(--bs-accent-ink); font-size: .72rem; letter-spacing: .2em; }
 .desk__eyebrow span { color: var(--bs-peach); }
-.desk h1 { margin: .75rem 0 0; color: var(--bs-ink); font-size: clamp(2.1rem, 6vw, 3.9rem); line-height: 1.12; }
-.desk h1 em { color: var(--bs-accent-strong); font-style: normal; text-decoration: underline; text-decoration-color: rgba(255, 143, 179, .4); text-decoration-thickness: .12em; text-underline-offset: .12em; }
-.desk__intro { max-width: 36rem; margin: .9rem 0 0; color: var(--bs-ink-soft); line-height: 1.85; }
+.desk h1 { margin: .75rem 0 0; color: var(--bs-ink); font-size: clamp(1.6rem, 3.2vw, 2.25rem); line-height: 1.2; }
 
 .desk__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; margin: 1.4rem 0 0; }
 .desk__stats > div { padding: .7rem .8rem; border: 1px solid var(--bs-hairline); border-radius: 1.1rem; background: var(--bs-surface); }

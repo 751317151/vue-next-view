@@ -242,7 +242,7 @@ const selectedTags = computed(() => {
         <i></i><i></i><i></i>
       </span>
       <p class="explore__eyebrow"><span aria-hidden="true">✦</span> STAR MAP</p>
-      <h1>今晚，去一颗<br /><em>没读过的星星</em>那里。</h1>
+      <h1>灵感星图</h1>
       <div class="explore__quick">
         <button type="button" class="explore__draw" :disabled="!yearFiltered.length" @click="randomDraw">
           <span aria-hidden="true">{{ drawState === 'drawing' ? '✦' : '🎐' }}</span>
@@ -435,9 +435,7 @@ const selectedTags = computed(() => {
 .explore__orbit i:nth-child(3) { bottom: 10%; left: 13%; background: var(--bs-pink); }
 .explore__eyebrow { margin: 0; color: var(--bs-accent-ink); font-size: .74rem; letter-spacing: .2em; }
 .explore__eyebrow span { color: var(--bs-peach); }
-.explore h1 { margin: .8rem 0 0; color: var(--bs-ink); font-size: clamp(2.2rem, 6.4vw, 4.6rem); line-height: 1.1; letter-spacing: -.01em; }
-.explore h1 em { color: var(--bs-accent-strong); font-style: normal; text-decoration: underline; text-decoration-color: rgba(255, 143, 179, .45); text-decoration-thickness: .14em; text-underline-offset: .12em; }
-.explore__intro { max-width: 39rem; margin: 1rem 0 0; color: var(--bs-ink-soft); font-size: 1.02rem; line-height: 1.85; }
+.explore h1 { margin: .8rem 0 0; color: var(--bs-ink); font-size: clamp(1.6rem, 3.2vw, 2.25rem); line-height: 1.2; letter-spacing: -.01em; }
 .explore__quick { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.1rem; margin-top: 1.4rem; }
 .explore__draw { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; padding: .6rem 1.2rem; border: 2px solid var(--bs-ink-line); border-radius: 999px; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink-on-accent); font-family: inherit; font-weight: 700; cursor: pointer; box-shadow: var(--bs-sticker-shadow); transition: transform var(--bs-dur-quick) var(--bs-ease-pop), box-shadow var(--bs-dur-quick) ease; }
 .explore__draw:hover:not(:disabled) { transform: translate(-2px, -3px) rotate(-1deg); box-shadow: 5px 6px 0 var(--bs-ink-line); }

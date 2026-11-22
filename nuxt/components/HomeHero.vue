@@ -27,7 +27,6 @@
       <h1 class="home-hero__title">
         <span class="home-hero__title-text">{{ siteConfig.author }}</span>
       </h1>
-      <p class="home-hero__subtitle">{{ typedSubtitle }}<span class="home-hero__caret" aria-hidden="true"></span></p>
       <div class="home-hero__hitokoto" :class="{ 'is-ready': hitokotoShown }">
         <p class="home-hero__hitokoto-text" aria-live="polite" aria-atomic="true" :aria-busy="hitokotoLoading">
           {{ typedHitokoto }}<span v-if="hitokotoFrom" class="home-hero__hitokoto-from"> ——「{{ hitokotoFrom }}」</span>
@@ -62,12 +61,6 @@ interface Quote {
 
 // Swap or extend the hero backgrounds here (public/ paths, in mouse-zone order: left / middle / right).
 const HERO_IMAGES = ['/bg2.jpg', '/bg1.jpg', '/bg3.jpg'];
-const PHRASES = [
-  siteConfig.description,
-  '把技术、生活和灵感，写成会发光的小故事。',
-  '在星光与代码之间，慢慢写。',
-  '今天也要，元气满满地写代码 ✧',
-];
 const FALLBACK_HITOKOTO = [
   { text: '星星发亮是为了让每一个人，有一天都能找到属于自己的星星。', from: '小王子' },
   { text: '慢慢来，比较快。', from: '生活倒影' },
@@ -77,13 +70,11 @@ const FALLBACK_HITOKOTO = [
 ];
 
 const heroEl = ref<HTMLElement | null>(null);
-const typedSubtitle = ref(PHRASES[0]!);
 const hitokotoShown = ref(false);
 const hitokotoLoading = ref(false);
 const typedHitokoto = ref('');
 const hitokotoFrom = ref('');
 let stopWatchingMotion: (() => void) | undefined;
-let subtitleAnimation: AbortController | undefined;
 let quoteAnimation: AbortController | undefined;
 let quoteRequest: AbortController | undefined;
 let currentQuote: Quote | undefined;
@@ -111,20 +102,6 @@ const typeText = async (target: Ref<string>, full: string, speed: number, signal
     partial += character;
     target.value = partial;
     if (!(await wait(speed, signal)) || signal.aborted) return;
-  }
-};
-
-const runSubtitleLoop = async (signal: AbortSignal) => {
-  let index = 0;
-  while (await wait(2600, signal) && !signal.aborted) {
-    index = (index + 1) % PHRASES.length;
-    const characters = [...typedSubtitle.value];
-    while (characters.length) {
-      characters.pop();
-      typedSubtitle.value = characters.join('');
-      if (!(await wait(26, signal)) || signal.aborted) return;
-    }
-    await typeText(typedSubtitle, PHRASES[index]!, 130, signal);
   }
 };
 
@@ -248,16 +225,10 @@ const scrollToContent = () => {
 };
 
 const applyMotionPreference = (reduced: boolean) => {
-  subtitleAnimation?.abort();
-  subtitleAnimation = undefined;
   if (reduced) {
     onPointerLeave();
-    typedSubtitle.value = PHRASES[0]!;
     quoteAnimation?.abort();
     if (currentQuote) showFullQuote(currentQuote);
-  } else {
-    subtitleAnimation = new AbortController();
-    void runSubtitleLoop(subtitleAnimation.signal);
   }
 };
 
@@ -269,7 +240,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   stopWatchingMotion?.();
-  subtitleAnimation?.abort();
   quoteAnimation?.abort();
   quoteRequest?.abort();
   quoteRequest = undefined;
@@ -415,13 +385,6 @@ onBeforeUnmount(() => {
   to { background-position: 260% 50%; }
 }
 
-.home-hero__subtitle { display: flex; align-items: center; min-height: 2.4em; margin: .2rem 0 0; font-size: clamp(1rem, 2.4vw, 1.25rem); line-height: 1.7; text-shadow: 0 2px 16px rgba(57, 45, 79, .55); }
-.home-hero__caret { display: inline-block; width: 3px; height: 1.15em; margin-left: .18em; border-radius: 999px; background: #ffe48a; box-shadow: 0 0 10px rgba(255, 228, 138, .85); }
-@media (prefers-reduced-motion: no-preference) {
-  .home-hero__caret { animation: hero-caret-blink 1.1s ease-in-out infinite; }
-}
-@keyframes hero-caret-blink { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
-
 .home-hero__hitokoto { display: flex; align-items: center; gap: .55rem; max-width: 44rem; min-height: 2.6rem; margin: .8rem 0 0; padding: .5rem .6rem .5rem 1.1rem; border: 1px solid rgba(255, 250, 245, .38); border-radius: 1.1rem; background: rgba(43, 32, 62, .62); line-height: 1.75; text-shadow: 0 2px 10px rgba(37, 28, 54, .55); opacity: 0; transform: translateY(6px); transition: opacity var(--bs-dur-mid) ease, transform var(--bs-dur-mid) ease; }
 .home-hero__hitokoto.is-ready { opacity: 1; transform: none; }
 .home-hero__hitokoto-text { margin: 0; font-size: .92rem; }
@@ -455,17 +418,14 @@ html.bs-reduced-motion .home-hero__scroll { transition: none; }
 html.bs-reduced-motion .home-hero__bg-tint,
 html.bs-reduced-motion .home-hero__title-text,
 html.bs-reduced-motion .home-hero__hitokoto-refresh span,
-html.bs-reduced-motion .home-hero__caret,
 html.bs-reduced-motion .home-hero__scroll span { animation: none; }
-html.bs-reduced-motion .home-hero__caret { visibility: hidden; }
 html.bs-reduced-motion .home-hero__hitokoto-refresh:hover { transform: none; }
 html.bs-reduced-motion .home-hero__scroll:hover { transform: translateX(-50%); }
 
 @media (prefers-reduced-motion: reduce) {
   .home-hero__bg-layer, .home-hero__hitokoto, .home-hero__hitokoto-refresh, .home-hero__scroll { transition: none; }
   .home-hero__bg-tint, .home-hero__title-text, .home-hero__hitokoto-refresh span,
-  .home-hero__caret, .home-hero__scroll span { animation: none; }
-  .home-hero__caret { visibility: hidden; }
+  .home-hero__scroll span { animation: none; }
   .home-hero__hitokoto-refresh:hover { transform: none; }
   .home-hero__scroll:hover { transform: translateX(-50%); }
 }

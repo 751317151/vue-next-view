@@ -91,7 +91,7 @@ onMounted(hydrateReadingTrail);
       <section class="home__explore" aria-labelledby="home-explore-title">
         <div class="home__explore-copy">
           <p class="home__explore-kicker">STAR MAP · 灵感星图</p>
-          <h2 id="home-explore-title">不知道读什么？让星星替你决定。</h2>
+          <h2 id="home-explore-title">去星图漫游</h2>
         </div>
         <NuxtLink to="/explore" class="home__explore-link">
           <span class="home__explore-orbit" aria-hidden="true"><i></i><i></i></span>
@@ -101,7 +101,7 @@ onMounted(hydrateReadingTrail);
 
       <section v-if="categories?.length" class="home__paths" aria-labelledby="home-paths-title">
         <div class="home__section-head">
-          <h2 id="home-paths-title">选一条小路继续逛</h2>
+          <h2 id="home-paths-title">分类</h2>
           <NuxtLink to="/categories">全部分类 →</NuxtLink>
         </div>
         <div class="home__paths-grid">

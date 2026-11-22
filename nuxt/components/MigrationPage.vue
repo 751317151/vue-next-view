@@ -48,7 +48,7 @@ withDefaults(defineProps<{
   50% { transform: rotate(20deg) scale(1.25); opacity: 1; }
 }
 
-.migration-page h1 { margin: .9rem 0 .2rem; color: var(--bs-ink); font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: 1.08; }
+.migration-page h1 { margin: .9rem 0 .2rem; color: var(--bs-ink); font-size: clamp(1.6rem, 3.2vw, 2.25rem); line-height: 1.2; }
 
 .migration-page__description { max-width: 620px; margin: .6rem 0 0; color: var(--bs-ink-soft); font-size: 1.1rem; line-height: 1.8; }
 
