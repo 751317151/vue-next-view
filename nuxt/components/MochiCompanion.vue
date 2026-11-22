@@ -19,8 +19,17 @@
     </button>
 
     <!-- 收起后留一枚会呼吸的小提示：团子还在，只是话少了。
-         否则第一次自动收起后，访客只会看到一个圆点，以为提示消失了。 -->
-    <span v-if="collapsed" class="mochi-companion__whisper" aria-hidden="true">悄悄话 ✦</span>
+         否则第一次自动收起后，访客只会看到一个圆点，以为提示消失了。
+         它本身也是打开卡片的入口，手机上不用先点团子再猜一次。 -->
+    <button
+      v-if="collapsed"
+      class="mochi-companion__whisper"
+      type="button"
+      aria-label="打开小星星的悄悄话"
+      @click="openFromWhisper"
+    >
+      <span class="mochi-companion__whisper-text" aria-hidden="true">{{ face.label }}</span>
+    </button>
 
     <!-- 刻意不用 <Transition>：离场节点会保留到 transitionend，和全局减少动效规则打架，
          容易出现卡片卡在展开状态。普通 v-if 配一个入场动画更可控。 -->
@@ -28,11 +37,9 @@
       v-if="!collapsed"
       ref="cardEl"
       class="mochi-companion__card"
-      @pointerenter="keepOpen"
-      @focusin="keepOpen"
       @keydown.esc="collapse"
     >
-      <button class="mochi-companion__close" type="button" aria-label="收起陪伴提示" @click="collapse">×</button>
+      <button ref="closeEl" class="mochi-companion__close" type="button" aria-label="收起陪伴提示" @click="collapse">×</button>
       <small>{{ face.label }}</small>
       <p aria-live="polite">{{ message }}</p>
       <div class="mochi-companion__actions">
@@ -101,6 +108,7 @@ const reacting = ref(false);
 
 const orbEl = ref<HTMLButtonElement | null>(null);
 const cardEl = ref<HTMLDivElement | null>(null);
+const closeEl = ref<HTMLButtonElement | null>(null);
 const face = computed<Face>(() => FACES[mood.value]);
 const lines = computed(() => LINES[mood.value]);
 const message = computed(() => bonusMessage.value || lines.value[messageIndex.value % lines.value.length]);
@@ -113,7 +121,6 @@ const moodFromClock = (): Mood => {
   return 'afternoon';
 };
 
-let greetingTimer = 0;
 let bonusTimer = 0;
 let reactTimer = 0;
 
@@ -129,9 +136,7 @@ const onOtherPanel = (event: Event) => {
  */
 const shouldAutoCollapse = () => window.matchMedia('(max-width: 768px)').matches;
 
-const keepOpen = () => { window.clearTimeout(greetingTimer); };
 const collapse = () => {
-  keepOpen();
   const restoreFocus = cardEl.value?.contains(document.activeElement);
   collapsed.value = true;
   unread.value = true;
@@ -139,11 +144,16 @@ const collapse = () => {
   if (restoreFocus) orbEl.value?.focus({ preventScroll: true });
 };
 const toggle = () => {
-  keepOpen();
   collapsed.value = !collapsed.value;
   unread.value = false;
   // 展开时让星愿瓶 / 摘抄本收起，底部只留一个面板说话。
   if (!collapsed.value) announceDockPanel('companion');
+};
+
+/** 从小标签展开时，标签本身会被移除；把焦点交给关闭按钮，键盘用户不会迷路。 */
+const openFromWhisper = () => {
+  toggle();
+  nextTick(() => closeEl.value?.focus({ preventScroll: true }));
 };
 
 /** 同一心情下连点"换一句"不重复上一句，台词才像真的在聊天。 */
@@ -152,7 +162,6 @@ const advance = () => {
   messageIndex.value = (messageIndex.value + 1 + (Math.random() < 0.15 && total > 1 ? 1 : 0)) % total;
 };
 const nextMessage = () => {
-  keepOpen();
   bonusMessage.value = '';
   advance();
   mood.value = mood.value === 'reading' ? moodFromClock() : mood.value;
@@ -201,11 +210,11 @@ onMounted(() => {
   mood.value = moodFromClock();
   messageIndex.value = Math.floor(Math.random() * lines.value.length);
   unread.value = true;
-  // 小屏打完招呼自动收成团子（留一个未读点）；桌面保持展开。
+  // 小屏默认就收成团子：展开卡会挡住正文和刚点亮的星座。
+  // 旁边保留一枚写着当前心情的小提示，想聊时点它再展开。
   if (shouldAutoCollapse()) {
-    greetingTimer = window.setTimeout(() => {
-      if (!collapsed.value) collapse();
-    }, 9000);
+    collapsed.value = true;
+    unread.value = true;
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('pointermove', onIdle, { passive: true });
@@ -219,7 +228,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('star-jar:fly', onStarCollected);
   window.removeEventListener(DOCK_PANEL_EVENT, onOtherPanel);
   window.clearTimeout(idleTimer);
-  window.clearTimeout(greetingTimer);
   window.clearTimeout(bonusTimer);
   window.clearTimeout(reactTimer);
 });
@@ -276,6 +284,11 @@ onBeforeUnmount(() => {
 
 /* 收起态的小标签：贴着团子左侧，轻轻上下浮动，像在招手。 */
 .mochi-companion__whisper {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.2rem;
+  max-width: min(11rem, calc(100vw - 8rem));
+  overflow: hidden;
   align-self: center;
   padding: .22rem .6rem;
   border: 1px dashed rgba(255, 143, 179, .6);
@@ -283,9 +296,21 @@ onBeforeUnmount(() => {
   background: var(--bs-paper-strong);
   color: var(--bs-accent-ink);
   font-size: .7rem;
+  font-family: inherit;
   letter-spacing: .08em;
+  text-overflow: ellipsis;
   white-space: nowrap;
   box-shadow: var(--bs-shadow-soft);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* 让文字呼吸，而不是让可点击的按钮整体漂移：移动的点击目标在触屏上很难点准，
+   也会让自动化与辅助技术判定元素"不稳定"。 */
+.mochi-companion__whisper-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
   animation: mochi-whisper 4.4s var(--bs-ease-breathe) infinite;
 }
 @keyframes mochi-whisper {
@@ -293,8 +318,8 @@ onBeforeUnmount(() => {
   50% { opacity: 1; transform: translateX(-.18rem); }
 }
 @media (max-width: 640px) {
-  /* 手机上正文优先，标签不再占一行。 */
-  .mochi-companion__whisper { display: none; }
+  /* 手机上保留这枚小提示，它比整张卡片轻得多，也不挡正文。 */
+  .mochi-companion__whisper { max-width: min(9.5rem, calc(100vw - 7.5rem)); font-size: .66rem; }
 }
 
 .mochi-companion__card {
@@ -338,12 +363,12 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) {
   .mochi-companion__orb,
   .mochi-companion__pip,
-  .mochi-companion__whisper,
+  .mochi-companion__whisper-text,
   .mochi-companion__card { animation: none; }
 }
 /* 应用内的"减少动效"开关也要管到团子，和系统的 reduce 行为一致。 */
 html.bs-reduced-motion .mochi-companion__orb,
 html.bs-reduced-motion .mochi-companion__pip,
-html.bs-reduced-motion .mochi-companion__whisper,
+html.bs-reduced-motion .mochi-companion__whisper-text,
 html.bs-reduced-motion .mochi-companion__card { animation: none; }
 </style>
