@@ -277,6 +277,8 @@ onBeforeUnmount(() => {
           <NuxtLink to="/archive">去挑一篇 →</NuxtLink>
         </p>
         <template v-else>
+          <ReadingConstellation :items="trail" class="desk__constellation" />
+
           <section v-if="reading.length" class="desk__group" aria-labelledby="desk-reading-title">
             <h2 id="desk-reading-title" class="desk__group-title">接着读</h2>
             <ul class="desk__list">
@@ -399,7 +401,7 @@ onBeforeUnmount(() => {
 
 /* 三个抽屉：像真正的书桌抽屉一样，选中的那只被拉开一点。 */
 .desk__tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin: 1.2rem 0 0; }
-.desk__tabs button { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.9rem; padding: .5rem .9rem; border: 1px solid var(--bs-border); border-bottom-width: 0; border-radius: .9rem .9rem 0 0; background: var(--bs-surface-soft); color: var(--bs-ink-soft); font-family: inherit; font-size: .86rem; cursor: pointer; transition: transform var(--bs-dur-quick) var(--bs-ease-pop), background var(--bs-dur-quick) ease, color var(--bs-dur-quick) ease; }
+.desk__tabs button { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.9rem; padding: .5rem .9rem; border: 1px solid var(--bs-border); border-bottom-width: 0; border-radius: .9rem .9rem 0 0; background: var(--bs-surface-soft); color: var(--bs-ink-soft); font-family: inherit; font-size: .86rem; white-space: nowrap; cursor: pointer; transition: transform var(--bs-dur-quick) var(--bs-ease-pop), background var(--bs-dur-quick) ease, color var(--bs-dur-quick) ease; }
 .desk__tabs button small { padding: .02rem .34rem; border-radius: 999px; background: rgba(185, 167, 255, .2); color: var(--bs-ink-soft); font-size: .68rem; }
 .desk__tabs button:hover { color: var(--bs-ink); transform: translateY(-2px); }
 .desk__tabs button.is-active { background: var(--bs-paper-strong); color: var(--bs-ink); border-color: var(--bs-border-accent); transform: translateY(-3px); box-shadow: 0 -6px 16px rgba(95, 66, 118, .1); }
@@ -421,6 +423,7 @@ onBeforeUnmount(() => {
 .desk__empty a:hover { color: var(--bs-accent-strong); text-decoration: underline; }
 
 .desk__group + .desk__group { margin-top: 1.4rem; }
+.desk__constellation { margin-bottom: 1.4rem; }
 .desk__group-title { margin: 0 0 .55rem; color: var(--bs-ink); font-size: .95rem; letter-spacing: .04em; }
 .desk__list { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
 
@@ -464,7 +467,9 @@ onBeforeUnmount(() => {
   .desk__lamp b { font-size: 1.15rem; }
   .desk__stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem; }
   .desk__stats dd { font-size: 1.25rem; }
-  .desk__tabs button { flex: 1; justify-content: center; padding-inline: .5rem; font-size: .8rem; }
+  .desk__tabs { gap: .25rem; }
+  .desk__tabs button { flex: 1; justify-content: center; gap: .25rem; padding-inline: .3rem; font-size: .76rem; }
+  .desk__tabs button small { padding: .01rem .26rem; font-size: .62rem; }
   .desk__panel { border-radius: 0 1rem 1rem 1rem; padding: .9rem .8rem 1rem; }
   .desk__row-body strong { white-space: normal; }
   .desk__remove { opacity: 1; }

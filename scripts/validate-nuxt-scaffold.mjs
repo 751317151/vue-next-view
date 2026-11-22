@@ -27,6 +27,7 @@ const requiredFiles = [
   'nuxt/composables/useReadingPrefs.ts',
   'nuxt/composables/useExcerpts.ts',
   'nuxt/components/ExcerptShelf.vue',
+  'nuxt/components/ReadingConstellation.vue',
   'src/seo/metadata.ts',
 ];
 
