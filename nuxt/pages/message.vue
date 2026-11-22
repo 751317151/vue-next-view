@@ -60,11 +60,7 @@ onMounted(() => {
   <div class="message-page">
     <DanmakuLayer :messages="messages" />
 
-    <MigrationPage
-      eyebrow="MESSAGE"
-      title="留言板"
-      description=""
-    >
+    <MigrationPage title="留言板" description="">
       <div class="board">
       <form class="note-form" @submit.prevent="submit">
         <span class="note-form__tape note-form__tape--left" aria-hidden="true"></span>

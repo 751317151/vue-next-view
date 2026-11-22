@@ -21,7 +21,7 @@ const roomOf = (index: number) => ROOMS[index % ROOMS.length]!;
 </script>
 
 <template>
-  <MigrationPage eyebrow="CATEGORIES" title="分类" description="">
+  <MigrationPage title="分类" description="">
     <div class="rooms">
       <p class="rooms__summary">
         <span aria-hidden="true">🏠</span>

@@ -30,7 +30,7 @@ const values = [
 </script>
 
 <template>
-  <MigrationPage eyebrow="ABOUT" title="关于" description="">
+  <MigrationPage title="关于" description="">
     <div class="about">
       <div class="about__profile">
         <img src="/luffy.jpg" alt="BlackStar 的头像" class="about__avatar" width="96" height="96" />

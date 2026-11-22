@@ -28,7 +28,7 @@ const monthLabel = (value?: string) => {
 </script>
 
 <template>
-  <MigrationPage eyebrow="ARCHIVE" title="文章归档" description="">
+  <MigrationPage title="文章归档" description="">
     <div class="timeline">
       <p class="timeline__summary">
         <span aria-hidden="true">⌛</span>

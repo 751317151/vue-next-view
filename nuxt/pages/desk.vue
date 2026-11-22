@@ -191,7 +191,6 @@ onBeforeUnmount(() => {
         <i class="desk__lamp-glow"></i>
         <b>✎</b>
       </span>
-      <p class="desk__eyebrow"><span aria-hidden="true">✦</span> MY DESK</p>
       <h1>我的书桌</h1>
 
       <dl class="desk__stats">
@@ -384,8 +383,6 @@ onBeforeUnmount(() => {
 .desk__lamp-glow { position: absolute; top: 2.9rem; left: 50%; width: 15rem; height: 12rem; background: radial-gradient(ellipse at top, rgba(255, 228, 138, .42), transparent 68%); transform: translateX(-50%); pointer-events: none; animation: desk-lamp-breathe 6s var(--bs-ease-breathe) infinite; }
 @keyframes desk-lamp-breathe { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
 
-.desk__eyebrow { margin: 0; color: var(--bs-accent-ink); font-size: .72rem; letter-spacing: .2em; }
-.desk__eyebrow span { color: var(--bs-peach); }
 .desk h1 { margin: .75rem 0 0; color: var(--bs-ink); font-size: clamp(1.6rem, 3.2vw, 2.25rem); line-height: 1.2; }
 
 .desk__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; margin: 1.4rem 0 0; }

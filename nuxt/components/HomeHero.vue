@@ -23,10 +23,15 @@
     </div>
 
     <div class="home-hero__content">
-      <p class="home-hero__sparkles" aria-hidden="true">☾ ✧ ☽</p>
+      <span class="home-hero__avatar">
+        <img src="/luffy.jpg" alt="" width="84" height="84" fetchpriority="high" />
+        <i class="home-hero__avatar-orbit" aria-hidden="true"></i>
+        <b class="home-hero__avatar-spark" aria-hidden="true">✦</b>
+      </span>
       <h1 class="home-hero__title">
         <span class="home-hero__title-text">{{ siteConfig.author }}</span>
       </h1>
+      <p class="home-hero__role">前端工程师 · 夜猫子写作者</p>
       <div class="home-hero__hitokoto" :class="{ 'is-ready': hitokotoShown }">
         <p class="home-hero__hitokoto-text" aria-live="polite" aria-atomic="true" :aria-busy="hitokotoLoading">
           {{ typedHitokoto }}<span v-if="hitokotoFrom" class="home-hero__hitokoto-from"> ——「{{ hitokotoFrom }}」</span>
@@ -349,19 +354,53 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-/* The hero art is a bright anime illustration, so light glyphs on top read as
-   indistinct blobs. A dark outline plus a warm tint keeps them legible over any
-   region of the photo instead of only the dark parts. */
-.home-hero__sparkles {
-  margin: 0;
+/* A small portrait anchored above the wordmark: the illustration carries the
+   scene, the avatar makes it feel like a person's corner of the web. */
+.home-hero__avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 4.4rem;
+  height: 4.4rem;
+  margin-bottom: .15rem;
+  border: 2px solid rgba(255, 250, 245, .9);
+  border-radius: 50%;
+  background: rgba(43, 32, 62, .4);
+  box-shadow: 0 10px 30px rgba(24, 16, 38, .45), 0 0 0 4px rgba(255, 250, 245, .18);
+}
+.home-hero__avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.home-hero__avatar-orbit {
+  position: absolute;
+  inset: -.55rem;
+  border: 1px dashed rgba(255, 228, 138, .65);
+  border-radius: 50%;
+  animation: hero-avatar-orbit 16s linear infinite;
+}
+.home-hero__avatar-spark {
+  position: absolute;
+  top: -.35rem;
+  right: -.4rem;
   color: #ffe48a;
-  font-size: 1.05rem;
-  letter-spacing: .5em;
-  opacity: .95;
-  text-shadow:
-    0 0 2px rgba(57, 45, 79, .95),
-    0 0 8px rgba(57, 45, 79, .75),
-    0 2px 16px rgba(57, 45, 79, .6);
+  font-size: .95rem;
+  text-shadow: 0 0 10px rgba(255, 228, 138, .85);
+}
+@keyframes hero-avatar-orbit { to { transform: rotate(360deg); } }
+
+.home-hero__role {
+  margin: .15rem 0 0;
+  padding: .18rem .7rem;
+  border: 1px solid rgba(255, 250, 245, .28);
+  border-radius: 999px;
+  background: rgba(43, 32, 62, .38);
+  color: rgba(255, 250, 245, .92);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-shadow: 0 1px 6px rgba(24, 16, 38, .5);
 }
 
 /* A wordmark, not a poster. Capped near 3rem so it reads as a name on top of
@@ -417,6 +456,7 @@ html.bs-reduced-motion .home-hero__hitokoto-refresh,
 html.bs-reduced-motion .home-hero__scroll { transition: none; }
 html.bs-reduced-motion .home-hero__bg-tint,
 html.bs-reduced-motion .home-hero__title-text,
+html.bs-reduced-motion .home-hero__avatar-orbit,
 html.bs-reduced-motion .home-hero__hitokoto-refresh span,
 html.bs-reduced-motion .home-hero__scroll span { animation: none; }
 html.bs-reduced-motion .home-hero__hitokoto-refresh:hover { transform: none; }
@@ -425,6 +465,7 @@ html.bs-reduced-motion .home-hero__scroll:hover { transform: translateX(-50%); }
 @media (prefers-reduced-motion: reduce) {
   .home-hero__bg-layer, .home-hero__hitokoto, .home-hero__hitokoto-refresh, .home-hero__scroll { transition: none; }
   .home-hero__bg-tint, .home-hero__title-text, .home-hero__hitokoto-refresh span,
+  .home-hero__avatar-orbit,
   .home-hero__scroll span { animation: none; }
   .home-hero__hitokoto-refresh:hover { transform: none; }
   .home-hero__scroll:hover { transform: translateX(-50%); }

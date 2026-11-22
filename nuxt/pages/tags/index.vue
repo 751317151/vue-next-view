@@ -21,7 +21,7 @@ const emojis = ['🍓', '🌙', '🍵', '✨', '🫧', '🌷', '⭐', '🧁', '�
 </script>
 
 <template>
-  <MigrationPage eyebrow="TAGS" title="标签" description="">
+  <MigrationPage title="标签" description="">
     <div class="tag-cloud">
       <p class="tag-cloud__summary">
         <span aria-hidden="true">✦</span>

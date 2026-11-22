@@ -241,7 +241,6 @@ const selectedTags = computed(() => {
       <span class="explore__orbit" aria-hidden="true">
         <i></i><i></i><i></i>
       </span>
-      <p class="explore__eyebrow"><span aria-hidden="true">✦</span> STAR MAP</p>
       <h1>灵感星图</h1>
       <div class="explore__quick">
         <button type="button" class="explore__draw" :disabled="!yearFiltered.length" @click="randomDraw">
@@ -257,11 +256,8 @@ const selectedTags = computed(() => {
     <div class="explore__layout">
       <section class="explore__map-panel" aria-labelledby="star-map-title">
         <div class="explore__map-head">
-          <div>
-            <p class="explore__kicker">CONSTELLATION 01</p>
-            <h2 id="star-map-title">灵感星图</h2>
-          </div>
-          <span class="explore__legend"><i aria-hidden="true"></i> 每颗星都是一篇文章</span>
+          <h2 id="star-map-title">星图</h2>
+          <span class="explore__legend"><i aria-hidden="true"></i> 每颗星是一篇文章</span>
         </div>
 
         <div class="explore__canvas-wrap">
@@ -322,10 +318,9 @@ const selectedTags = computed(() => {
         </template>
         <template v-else>
           <span class="explore__postcard-moon" aria-hidden="true">☾</span>
-          <p class="explore__kicker">A LITTLE NOTE</p>
-          <h2>点一颗星，<br />看看它藏着什么。</h2>
-          <p class="explore__postcard-blurb">每一颗都连着一篇真实写下的文章。也可以让上面的小风铃替你挑一封今日小笺。</p>
-          <span class="explore__postcard-sign">—— 生活倒影 · 星间邮局</span>
+          <h2>点一颗星看看</h2>
+          <p class="explore__postcard-blurb">每颗星都连着一篇文章，也可以让上面的风铃替你抽一篇。</p>
+          <span class="explore__postcard-sign">—— 生活倒影</span>
         </template>
       </aside>
     </div>
@@ -346,10 +341,7 @@ const selectedTags = computed(() => {
 
     <section class="explore__filters" aria-labelledby="explore-filters-title">
       <div class="explore__filters-head">
-        <div>
-          <p class="explore__kicker">TUNE THE TELESCOPE</p>
-          <h2 id="explore-filters-title">把望远镜转向你想看的方向</h2>
-        </div>
+        <h2 id="explore-filters-title">筛选</h2>
         <button v-if="mood !== 'all' || activeCategory || selectedYear" type="button" class="explore__reset" @click="clearFilters">
           重置筛选 ↺
         </button>
@@ -433,8 +425,6 @@ const selectedTags = computed(() => {
 .explore__orbit i:nth-child(1) { top: 5%; left: 47%; }
 .explore__orbit i:nth-child(2) { right: 2%; top: 48%; background: var(--bs-mint); }
 .explore__orbit i:nth-child(3) { bottom: 10%; left: 13%; background: var(--bs-pink); }
-.explore__eyebrow { margin: 0; color: var(--bs-accent-ink); font-size: .74rem; letter-spacing: .2em; }
-.explore__eyebrow span { color: var(--bs-peach); }
 .explore h1 { margin: .8rem 0 0; color: var(--bs-ink); font-size: clamp(1.6rem, 3.2vw, 2.25rem); line-height: 1.2; letter-spacing: -.01em; }
 .explore__quick { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.1rem; margin-top: 1.4rem; }
 .explore__draw { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; padding: .6rem 1.2rem; border: 2px solid var(--bs-ink-line); border-radius: 999px; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink)); color: var(--bs-ink-on-accent); font-family: inherit; font-weight: 700; cursor: pointer; box-shadow: var(--bs-sticker-shadow); transition: transform var(--bs-dur-quick) var(--bs-ease-pop), box-shadow var(--bs-dur-quick) ease; }

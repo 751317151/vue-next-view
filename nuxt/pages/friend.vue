@@ -16,7 +16,7 @@ const rules = ['站点可正常访问，内容原创为主', '互相添加友链
 </script>
 
 <template>
-  <MigrationPage eyebrow="FRIENDS" title="友链" description="">
+  <MigrationPage title="友链" description="">
     <div class="friends">
       <div class="friends__grid">
         <a v-for="friend in friends" :key="friend.name" :href="friend.url" target="_blank" rel="noopener" class="friends__card">

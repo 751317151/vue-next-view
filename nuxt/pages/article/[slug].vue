@@ -494,7 +494,6 @@ onBeforeUnmount(() => {
       <b class="reading__hero-emoji">{{ heroEmoji }}</b>
     </header>
 
-    <p class="reading__eyebrow">{{ siteConfig.name }} · 原创故事</p>
     <h1>{{ articleData.articleTitle }}</h1>
     <div class="reading__meta">
       <span><time :datetime="articleData.createTime">{{ formatDate(articleData.createTime) }}</time></span>
@@ -620,8 +619,7 @@ onBeforeUnmount(() => {
 .reading__hero { position: relative; display: grid; place-items: center; height: 11rem; margin-top: 1.4rem; border-radius: 1.8rem; box-shadow: 0 20px 55px rgba(95,66,118,.16); overflow: hidden; }
 .reading__hero::after { content: ''; position: absolute; inset: auto 1.2rem 0; height: 3px; border-radius: 999px; background: linear-gradient(90deg, var(--bs-pink), var(--bs-peach), var(--bs-lilac), var(--bs-mint)); }
 .reading__hero-emoji { font-size: 3.6rem; filter: drop-shadow(0 10px 22px rgba(57,45,79,.2)); }
-.reading__eyebrow { margin-top: 1.8rem; color: var(--bs-accent-ink); letter-spacing: .12em; }
-.reading h1 { margin: .6rem 0 1rem; color: var(--bs-ink); font-size: clamp(2rem, 5.5vw, 3.6rem); line-height: 1.15; }
+.reading h1 { margin: 1.5rem 0 1rem; color: var(--bs-ink); font-size: clamp(1.75rem, 4.6vw, 2.9rem); line-height: 1.22; }
 .reading__meta { display: flex; flex-wrap: wrap; gap: .55rem; }
 .reading__meta span { padding: .35rem .7rem; border-radius: 999px; background: rgba(185,167,255,.16); color: var(--bs-ink-body); font-size: .82rem; }
 .reading__star { align-self: center; margin-left: .1rem; }

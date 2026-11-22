@@ -90,8 +90,8 @@ onMounted(hydrateReadingTrail);
            而是把心情、时间和随机抽取组合成一条不同的浏览路径。 -->
       <section class="home__explore" aria-labelledby="home-explore-title">
         <div class="home__explore-copy">
-          <p class="home__explore-kicker">STAR MAP · 灵感星图</p>
           <h2 id="home-explore-title">去星图漫游</h2>
+          <p class="home__explore-sub">按心情和年份，遇见下一篇刚好想读的故事。</p>
         </div>
         <NuxtLink to="/explore" class="home__explore-link">
           <span class="home__explore-orbit" aria-hidden="true"><i></i><i></i></span>
@@ -155,8 +155,8 @@ onMounted(hydrateReadingTrail);
 .home__explore { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.4rem; margin-top: 1rem; padding: clamp(1.1rem, 3vw, 1.6rem); overflow: hidden; border: 1px solid var(--bs-border); border-radius: 1.5rem; background: radial-gradient(circle at 88% 18%, rgba(255, 228, 138, .32), transparent 34%), linear-gradient(135deg, rgba(255, 240, 247, .7), rgba(246, 243, 255, .62)); box-shadow: var(--bs-shadow-soft); }
 .home__explore::after { position: absolute; top: -2.8rem; right: -2rem; width: 10rem; height: 10rem; border: 1px dashed rgba(185, 167, 255, .45); border-radius: 50%; content: ""; pointer-events: none; }
 .home__explore-copy { position: relative; z-index: 1; }
-.home__explore-kicker { margin: 0; color: var(--bs-accent-ink); font-size: .7rem; letter-spacing: .16em; }
-.home__explore h2 { margin: .35rem 0 .4rem; color: var(--bs-ink); font-size: clamp(1.15rem, 2.6vw, 1.5rem); }
+.home__explore h2 { margin: 0 0 .3rem; color: var(--bs-ink); font-size: clamp(1.15rem, 2.6vw, 1.5rem); }
+.home__explore-sub { margin: 0; color: var(--bs-ink-soft); font-size: .88rem; line-height: 1.7; }
 .home__explore-link { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .6rem; min-height: 3rem; padding: .55rem 1rem; border: 1.5px solid var(--bs-ink-line); border-radius: 999px; background: var(--bs-yellow); color: var(--bs-ink-on-accent); font-weight: 700; text-decoration: none; box-shadow: var(--bs-sticker-shadow); transition: transform var(--bs-dur-base) var(--bs-ease-pop), box-shadow var(--bs-dur-base) ease; }
 .home__explore-link b { color: inherit; }
 :root.bs-dark .home__explore { background: radial-gradient(circle at 88% 18%, rgba(255, 228, 138, .16), transparent 34%), linear-gradient(135deg, rgba(44, 35, 68, .82), rgba(33, 26, 54, .74)); }

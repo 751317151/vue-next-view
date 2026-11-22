@@ -6,14 +6,15 @@
           v-for="flight in flights"
           :key="flight.key"
           class="danmaku-fly"
+          :class="{ 'is-paused': pausedFlight === flight.key }"
           :style="{
             top: `${flight.top}px`,
             '--flight-duration': `${flight.duration}ms`,
             '--flight-tilt': `${flight.tilt}deg`,
           }"
           @animationend="removeFlight(flight.key)"
-          @pointerenter="holdPause"
-          @pointerleave="releasePause"
+          @pointerenter="holdPause(flight)"
+          @pointerleave="releasePause(flight.key)"
         >
           <span class="danmaku-pill" :style="{ background: flight.tint }">
             <span class="danmaku-pill__face">{{ flight.emoji }}</span>
@@ -23,7 +24,7 @@
         </span>
       </div>
       <Transition name="danmaku-tip">
-        <p v-if="paused && manualPause" class="danmaku-layer__tip">❚❚ 弹幕暂停啦 · 移开就继续</p>
+        <p v-if="pausedFlight !== null" class="danmaku-layer__tip">❚❚ 这条暂停啦 · 移开就继续</p>
       </Transition>
     </div>
   </ClientOnly>
@@ -45,7 +46,7 @@ const preferred = computed(() => danmakuEnabled.value && !prefersReducedMotion()
  * 这里自己排轨道，而不是把随机通道交给第三方库：
  *  1. 每条弹幕的起点严格在视口右侧之外，不会"半路冒出来"；
  *  2. 同一轨道的下一条要等上一条的尾巴离开入口，少量弹幕也不会叠在一起；
- *  3. 悬停任意弹幕时整层暂停，移开后接着走。
+ *  3. 悬停某条弹幕时只停住这一条，移开后它接着走。
  */
 const TINTS = [
   'linear-gradient(135deg, rgba(255, 133, 170, .94), rgba(255, 186, 140, .9))',
@@ -73,6 +74,7 @@ const pool = computed(() =>
 
 interface Flight {
   key: number;
+  lane: number;
   text: string;
   name: string;
   emoji: string;
@@ -84,7 +86,8 @@ interface Flight {
 
 const flights = ref<Flight[]>([]);
 const paused = ref(false);
-const manualPause = ref(false);
+/** 只暂停指针下的这一条，不让整面弹幕墙停下。 */
+const pausedFlight = ref<number | null>(null);
 
 let cursor = 0;
 let sequence = 0;
@@ -93,6 +96,8 @@ let laneFreeAt: number[] = [];
 let laneTop: number[] = [];
 let pauseStarted = 0;
 let resumeTimer = 0;
+let pausedLane = -1;
+let pausedLaneRemaining = 0;
 let lastMessagesKey = '';
 let recentTexts: string[] = [];
 
@@ -132,28 +137,49 @@ const nextMessage = () => {
   return fallback;
 };
 
+const viewportHeight = ref(800);
+
 const buildLanes = () => {
-  const height = window.innerHeight;
-  const lanes = Math.max(3, Math.floor((height - TOP_OFFSET - BOTTOM_INSET) / LANE_HEIGHT));
+  const height = viewportHeight.value;
+  const lanes = Math.max(2, Math.floor((height - TOP_OFFSET - BOTTOM_INSET) / LANE_HEIGHT));
   laneTop = Array.from({ length: lanes }, (_, index) => TOP_OFFSET + index * LANE_HEIGHT);
   laneFreeAt = Array.from({ length: lanes }, () => 0);
 };
 
+/**
+ * 少量留言时，只启用与留言数相称的轨道，并让它们均匀铺开：
+ * 三条留言不该全挤在屏幕顶部，也不该在中间留出一大片空墙。
+ */
+const laneCount = computed(() => {
+  const total = Math.min(pool.value.length, Math.min(8, Math.max(2, Math.floor(viewportHeight.value / 130))));
+  return Math.max(1, total);
+});
+
 const speedOf = () => (window.innerWidth < 1100 ? 68 : 82);
 
 const pickLane = (now: number) => {
-  const offset = Math.floor(Math.random() * laneFreeAt.length);
-  for (let step = 0; step < laneFreeAt.length; step += 1) {
-    const index = (offset + step) % laneFreeAt.length;
+  const usable = Math.min(laneFreeAt.length, Math.max(1, laneCount.value));
+  const offset = Math.floor(Math.random() * usable);
+  for (let step = 0; step < usable; step += 1) {
+    const index = (offset + step) % usable;
     if ((laneFreeAt[index] ?? 0) <= now) return index;
   }
   return -1;
 };
 
+const topFor = (lane: number) => {
+  if (laneFreeAt.length <= 1) return laneTop[lane] ?? TOP_OFFSET;
+  // 留言少时把启用的轨道摊到整个可用高度，而不是全堆在顶部。
+  const usable = Math.min(laneFreeAt.length, Math.max(1, laneCount.value));
+  if (usable >= laneFreeAt.length) return laneTop[lane] ?? TOP_OFFSET;
+  const available = laneTop[laneFreeAt.length - 1]! - laneTop[0]!;
+  return laneTop[0]! + (available * lane) / Math.max(1, usable - 1);
+};
+
 const launch = () => {
   if (!preferred.value || paused.value || !pool.value.length) return;
   // 留言少时不要靠循环把同几句话刷满屏；同屏最多保留与留言数相同的条数。
-  if (flights.value.length >= Math.min(pool.value.length, 8)) return;
+  if (flights.value.length >= Math.min(pool.value.length, 6)) return;
   const now = performance.now();
   const lane = pickLane(now);
   // 所有轨道都还在放行等待，就跳过这一拍；绝不硬塞造成重叠。
@@ -163,36 +189,57 @@ const launch = () => {
   const speed = speedOf();
   // 进入视口所需的净空时间 + 两段文字之间留出的呼吸距离。
   laneFreeAt[lane] = now + ((width + LANE_GAP) / speed) * 1000;
+  // 弹幕从 right:0 完全越过左边缘后，留下恰好一屏宽的尾巴才算离场；
+  // 把整段飞行设成「视口 + 自身宽度」，才是真正从最右侧出现、从最左侧离开。
   flights.value.push({
     key: sequence++,
+    lane,
     ...message,
-    top: laneTop[lane] ?? TOP_OFFSET,
+    top: topFor(lane),
     duration: Math.round(((window.innerWidth + width) / speed) * 1000),
     tilt: Number((Math.random() * 2.4 - 1.2).toFixed(2)),
   });
 };
 
 const removeFlight = (key: number) => {
+  if (pausedFlight.value === key) {
+    // 被强制移除（例如新留言刷新了池子）时，轨道也必须放行，不能留下 Infinity。
+    if (pausedLane >= 0) laneFreeAt[pausedLane] = performance.now();
+    pausedFlight.value = null;
+    pausedLane = -1;
+    pausedLaneRemaining = 0;
+  }
   flights.value = flights.value.filter((flight) => flight.key !== key);
 };
 
-const holdPause = () => {
+const holdPause = (flight: Flight) => {
   window.clearTimeout(resumeTimer);
-  if (paused.value) return;
+  // 已经在暂停这一条时又收到 enter（例如移出后 160ms 内移回）：
+  // 不要重新读取 laneFreeAt，它此刻是 Infinity，会把剩余时间污染成 Infinity。
+  if (pausedFlight.value === flight.key) return;
+  // 从一条直接移到另一条：先把上一条的轨道放行，再暂停新的这条。
+  if (pausedFlight.value !== null && pausedFlight.value !== flight.key) {
+    if (pausedLane >= 0) laneFreeAt[pausedLane] = performance.now() + pausedLaneRemaining;
+    pausedLane = -1;
+    pausedLaneRemaining = 0;
+  }
   pauseStarted = performance.now();
-  manualPause.value = true;
-  paused.value = true;
+  pausedLane = flight.lane;
+  // 这条停在原地时，它占用的轨道不能放行下一条。
+  pausedLaneRemaining = Math.max(0, (laneFreeAt[flight.lane] ?? 0) - pauseStarted);
+  laneFreeAt[flight.lane] = Number.POSITIVE_INFINITY;
+  pausedFlight.value = flight.key;
 };
 
-const releasePause = () => {
-  // 在相邻弹幕之间移动时 pointerleave/enter 会连续触发，留一点缓冲。
+const releasePause = (key: number) => {
+  // 从一条弹幕移到另一条时 pointerleave/enter 会连续触发，留一点缓冲。
   window.clearTimeout(resumeTimer);
   resumeTimer = window.setTimeout(() => {
-    if (!manualPause.value || document.hidden) return;
-    const pausedFor = performance.now() - pauseStarted;
-    laneFreeAt = laneFreeAt.map((time) => time + pausedFor);
-    manualPause.value = false;
-    paused.value = false;
+    if (pausedFlight.value !== key) return;
+    if (pausedLane >= 0) laneFreeAt[pausedLane] = performance.now() + pausedLaneRemaining;
+    pausedFlight.value = null;
+    pausedLane = -1;
+    pausedLaneRemaining = 0;
   }, 160);
 };
 
@@ -204,6 +251,10 @@ const syncFlights = () => {
   recentTexts = [];
   if (!key) {
     flights.value = [];
+    if (pausedLane >= 0) laneFreeAt[pausedLane] = performance.now();
+    pausedFlight.value = null;
+    pausedLane = -1;
+    pausedLaneRemaining = 0;
     return;
   }
   // 新留言出现时先放一条，不必等下一个节拍。
@@ -212,23 +263,20 @@ const syncFlights = () => {
 
 const onVisibility = () => {
   if (document.hidden) {
-    if (!paused.value) {
-      pauseStarted = performance.now();
-      paused.value = true;
-    }
-  } else if (!manualPause.value) {
-    const pausedFor = performance.now() - pauseStarted;
-    laneFreeAt = laneFreeAt.map((time) => time + pausedFor);
+    paused.value = true;
+  } else {
     paused.value = false;
   }
 };
 
 const onResize = () => {
+  viewportHeight.value = window.innerHeight;
   buildLanes();
   flights.value = flights.value.filter((flight) => flight.top < window.innerHeight - BOTTOM_INSET);
 };
 
 onMounted(() => {
+  viewportHeight.value = window.innerHeight;
   buildLanes();
   syncFlights();
   timer = window.setInterval(() => {
@@ -275,6 +323,12 @@ watch(pool, syncFlights);
 }
 
 .danmaku-layer__stage.is-paused .danmaku-fly {
+  animation-play-state: paused;
+}
+
+/* 悬停只停住指针下的这一条，其它弹幕照常飘过。 */
+.danmaku-fly.is-paused {
+  z-index: 2;
   animation-play-state: paused;
 }
 
