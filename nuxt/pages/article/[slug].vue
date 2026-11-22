@@ -11,7 +11,10 @@ if (!slug) {
   throw createError({ statusCode: 404, statusMessage: '文章不存在' });
 }
 
-const { data: article, error } = await useAsyncData<PublicArticle>(`article-${slug}`, () => $fetch(`/api/articles/${encodeURIComponent(slug)}`));
+const { data: article, error } = await useAsyncData<PublicArticle>(
+  `article-${slug}`,
+  () => $fetch<PublicArticle>(`/api/articles/${encodeURIComponent(slug)}`),
+);
 if (error.value || !article.value) {
   throw createError({ statusCode: 404, statusMessage: '文章不存在' });
 }
@@ -27,7 +30,7 @@ if (/^\d+$/.test(slug) && articleData.slug) {
 // and the category page only matches on its own slug.
 const { data: categoryIndex } = await useAsyncData<Array<{ slug: string; categoryName: string }>>(
   'article-category-index',
-  () => $fetch('/api/categories'),
+  () => $fetch<Array<{ slug: string; categoryName: string }>>('/api/categories'),
 );
 const categoryHref = computed(() => {
   const match = (categoryIndex.value || []).find((entry) => entry.categoryName === articleData.category);
@@ -35,7 +38,7 @@ const categoryHref = computed(() => {
 });
 const { data: tagIndex } = await useAsyncData<Array<{ slug: string; tagName: string }>>(
   'article-tag-index',
-  () => $fetch('/api/tags'),
+  () => $fetch<Array<{ slug: string; tagName: string }>>('/api/tags'),
 );
 const articleTags = computed(() => (articleData.tags || []).map((name) => ({
   name,

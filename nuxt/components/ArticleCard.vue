@@ -8,6 +8,9 @@ interface CardArticle {
   createTime: string;
   /** 由仓库层统一生成的摘要；有值时优先于正文截取。 */
   summary?: string;
+  /** 站内搜索的公开链接；微光用它指向自己的详情页。 */
+  url?: string;
+  kind?: 'article' | 'glint';
 }
 
 const props = defineProps<{ article: CardArticle }>();
@@ -18,12 +21,14 @@ const blurb = computed(() => props.article.summary?.trim() || excerptOf(props.ar
 
 <template>
   <div class="article-card-wrap">
-    <NuxtLink :to="`/article/${article.slug}`" class="article-card">
+    <NuxtLink :to="article.url || `/article/${article.slug}`" class="article-card">
       <span class="article-card__art" :style="articleArt(article).style">
         <b>{{ articleArt(article).emoji }}</b>
       </span>
       <span class="article-card__body">
-        <span class="article-card__chip">{{ article.category || '随笔' }}</span>
+        <span class="article-card__chip" :class="{ 'is-glint': article.kind === 'glint' }">
+          {{ article.kind === 'glint' ? '微光' : article.category || '随笔' }}
+        </span>
         <h3>{{ article.articleTitle }}</h3>
         <p>{{ blurb }}</p>
         <small>
@@ -35,6 +40,7 @@ const blurb = computed(() => props.article.summary?.trim() || excerptOf(props.ar
     <!-- 收藏按钮放在链接外层，避免 button 嵌在 a 里既不合规又会触发跳转。 -->
     <StarToggle
       class="article-card__star"
+      v-if="article.kind !== 'glint'"
       :item="{
         slug: article.slug,
         title: article.articleTitle,
@@ -61,6 +67,7 @@ const blurb = computed(() => props.article.summary?.trim() || excerptOf(props.ar
 .article-card__body { display: flex; flex-direction: column; flex: 1; padding: 1rem 1.1rem 1.1rem; }
 .article-card__chip { align-self: flex-start; padding: .18rem .55rem; border: 1.5px solid var(--bs-ink-line, #392d4f); border-radius: 999px; background: var(--bs-tint-pink); color: var(--bs-accent-ink); font-size: .72rem; letter-spacing: .06em; box-shadow: 2px 2px 0 var(--bs-ink-line, #392d4f); transition: transform var(--bs-dur-base) var(--bs-ease-pop); }
 :root.bs-dark .article-card__chip { color: var(--bs-pink); background: rgba(255,143,179,.16); }
+.article-card__chip.is-glint { border-style: dashed; border-color: var(--bs-peach); background: var(--bs-tint-yellow); color: var(--bs-accent-ink); }
 .article-card:hover .article-card__chip { transform: rotate(-3deg) translate(-1px, -1px); }
 .article-card h3 { margin: .55rem 0 .35rem; color: var(--bs-ink); font-size: 1.08rem; line-height: 1.4; }
 .article-card p { display: -webkit-box; overflow: hidden; margin: 0; color: var(--bs-ink-soft); font-size: .9rem; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }

@@ -4,8 +4,8 @@ import type { PublicArticle, PublicCategory } from '../../types/public';
 const route = useRoute();
 const id = String(route.params.id || '');
 const [{ data: category, error: categoryError }, { data: articles }] = await Promise.all([
-  useAsyncData<PublicCategory>(`category-${id}`, () => $fetch(`/api/categories/${encodeURIComponent(id)}`)),
-  useAsyncData<PublicArticle[]>(`category-articles-${id}`, () => $fetch('/api/articles')),
+  useAsyncData<PublicCategory>(`category-${id}`, () => $fetch<PublicCategory>(`/api/categories/${encodeURIComponent(id)}`)),
+  useAsyncData<PublicArticle[]>(`category-articles-${id}`, () => $fetch<PublicArticle[]>('/api/articles')),
 ]);
 if (categoryError.value || !category.value) throw createError({ statusCode: 404, statusMessage: '分类不存在' });
 const currentCategory = category.value;

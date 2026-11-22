@@ -3,6 +3,7 @@ import { publicCategories, publicTags } from '../utils/public-taxonomy';
 import { articleRepository } from '../repositories/article-repository';
 import { articleSummary } from '../utils/article-summary';
 import { listGlints } from '../repositories/glint-repository';
+import { glintPath } from '../utils/glint-records';
 
 /**
  * llms.txt：给生成式引擎看的站点说明。
@@ -26,8 +27,7 @@ export default defineEventHandler(async (event) => {
     );
     return `${siteUrl}${segments.join('/')}`;
   };
-  // 微光用 hash 锚点定位条目；hash 不能逐段编码，否则 `#` 会变成 `%23`。
-  const glintUrl = (slug: string) => `${siteUrl}/glints#${encodeURIComponent(slug)}`;
+  const glintUrl = (slug: string) => `${siteUrl}${glintPath(slug)}`;
 
   const articles = await articleRepository.list();
   const glints = await listGlints();

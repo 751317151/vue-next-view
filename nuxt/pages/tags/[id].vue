@@ -4,8 +4,8 @@ import type { PublicArticle, PublicTag } from '../../types/public';
 const route = useRoute();
 const id = String(route.params.id || '');
 const [{ data: tag, error: tagError }, { data: articles }] = await Promise.all([
-  useAsyncData<PublicTag>(`tag-${id}`, () => $fetch(`/api/tags/${encodeURIComponent(id)}`)),
-  useAsyncData<PublicArticle[]>(`tag-articles-${id}`, () => $fetch('/api/articles')),
+  useAsyncData<PublicTag>(`tag-${id}`, () => $fetch<PublicTag>(`/api/tags/${encodeURIComponent(id)}`)),
+  useAsyncData<PublicArticle[]>(`tag-articles-${id}`, () => $fetch<PublicArticle[]>('/api/articles')),
 ]);
 if (tagError.value || !tag.value) throw createError({ statusCode: 404, statusMessage: '标签不存在' });
 const currentTag = tag.value;

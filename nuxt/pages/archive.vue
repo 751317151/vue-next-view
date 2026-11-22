@@ -2,7 +2,10 @@
 import { siteConfig } from '../../src/config/site';
 import type { PublicArticle } from '../types/public';
 
-const { data: articles } = await useAsyncData<PublicArticle[]>('archive-articles', () => $fetch('/api/articles'));
+const { data: articles } = await useAsyncData<PublicArticle[]>(
+  'archive-articles',
+  () => $fetch<PublicArticle[]>('/api/articles'),
+);
 
 useCollectionSeo({
   path: '/archive',

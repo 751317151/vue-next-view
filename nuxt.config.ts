@@ -104,6 +104,7 @@ export default defineNuxtConfig({
   routeRules: {
     '/': { prerender: true },
     '/explore': { prerender: true },
+    '/glints/**': { swr: 3600 },
     '/archive': { prerender: true },
     // 书桌内容全部来自 localStorage，服务端只需输出一张空桌面；
     // 不能走 SWR 缓存，否则每次导航都可能读到别人构建时的空态。

@@ -2,6 +2,7 @@ import { resolvePublicSiteUrl } from '../utils/site-url';
 import { articleRepository } from '../repositories/article-repository';
 import { articleSummary } from '../utils/article-summary';
 import { listGlints } from '../repositories/glint-repository';
+import { glintPath } from '../utils/glint-records';
 
 const escapeXml = (value: string) => value
   .replace(/&/g, '&amp;')
@@ -39,8 +40,7 @@ export default defineEventHandler(async (event) => {
     .split('/')
     .map((segment) => encodeURIComponent(segment))
     .join('/')}`;
-  // hash 不能逐段编码，否则 `#` 会变成 `%23` 被当成路径。
-  const glintUrl = (slug: string) => `${siteUrl}/glints#${encodeURIComponent(slug)}`;
+  const glintUrl = (slug: string) => `${siteUrl}${glintPath(slug)}`;
 
   const items = articles.map((article) => {
     const url = escapeXml(articleUrl(article.slug));

@@ -42,6 +42,9 @@ export interface PublicSearchResult {
   articleContent: string;
   category?: string;
   createTime: string;
+  /** `article` 缺省；微光使用独立的轻内容详情页。 */
+  kind?: 'article' | 'glint';
+  url?: string;
 }
 
 /** 微光：比文章更轻的日常记录，必须能一眼读完。 */
@@ -55,4 +58,6 @@ export interface PublicGlint {
   html: string;
   date: string;
   emoji: string;
+  /** API 生成的唯一详情页地址。 */
+  path?: string;
 }

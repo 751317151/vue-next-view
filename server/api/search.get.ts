@@ -1,4 +1,6 @@
 import { articleRepository } from '../repositories/article-repository';
+import { listGlints } from '../repositories/glint-repository';
+import { glintPath } from '../utils/glint-records';
 import type { PublicArticleRecord } from '../utils/public-articles';
 
 /**
@@ -17,7 +19,7 @@ export default defineEventHandler(async (event) => {
   if (!tokens.length) return [];
   const phrase = raw.toLowerCase();
 
-  return (await articleRepository.list())
+  const articleResults = (await articleRepository.list())
     .map((article: PublicArticleRecord) => {
       const title = article.articleTitle.toLowerCase();
       const tags = (article.tags || []).join(' ').toLowerCase();
@@ -47,7 +49,7 @@ export default defineEventHandler(async (event) => {
     // 同分时按发布时间从新到旧，结果顺序稳定、可解释。
     .sort((left, right) => right.score - left.score
       || (right.article.updateTime || right.article.createTime).localeCompare(left.article.updateTime || left.article.createTime))
-    .map(({ article }) => {
+    .map(({ article, score }) => {
       return {
         id: article.id,
         slug: article.slug,
@@ -55,7 +57,48 @@ export default defineEventHandler(async (event) => {
         articleContent: article.articleContent,
         category: article.category,
         createTime: article.createTime,
+        kind: 'article' as const,
+        url: `/article/${article.slug.split('/').map((segment) => encodeURIComponent(segment)).join('/')}`,
+        score,
       };
+    });
+
+  // 微光也是公开内容。它们比文章短，因此标题命中的权重略低，
+  // 但仍应出现在站内搜索里，而不是只有记得列表地址的人才能找到。
+  const glintResults = (await listGlints())
+    .map((glint) => {
+      const title = glint.title.toLowerCase();
+      const summary = glint.summary.toLowerCase();
+      const text = glint.text.toLowerCase();
+      const haystack = [title, summary, text].join(' ');
+      if (!tokens.every((token) => haystack.includes(token))) return null;
+
+      let score = 0;
+      if (title.includes(phrase)) score += 90;
+      for (const token of tokens) {
+        if (title.includes(token)) score += 32;
+        if (summary.includes(token)) score += 12;
+        if (text.includes(token)) score += 4;
+      }
+
+      return { glint, score };
     })
-    .slice(0, 40);
+    .filter((entry): entry is { glint: Awaited<ReturnType<typeof listGlints>>[number]; score: number } => entry !== null)
+    .sort((left, right) => right.score - left.score || right.glint.date.localeCompare(left.glint.date))
+    .map(({ glint, score }) => ({
+      id: glint.id,
+      slug: glint.slug,
+      articleTitle: glint.title,
+      articleContent: glint.text,
+      category: '微光',
+      createTime: glint.date,
+      kind: 'glint' as const,
+      url: glintPath(glint.slug),
+      score,
+    }));
+
+  return [...articleResults, ...glintResults]
+    .sort((left, right) => right.score - left.score || right.createTime.localeCompare(left.createTime))
+    .slice(0, 40)
+    .map(({ score: _score, ...result }) => result);
 });

@@ -67,22 +67,31 @@ const dayLabel = (value: string) => {
       :class="{ 'is-open': openedSlug === glint.slug }"
       :style="{ '--glint-tilt': `${((index % 3) - 1) * 0.5}deg`, '--glint-i': index }"
     >
-      <button
-        type="button"
-        class="glint__head"
-        :aria-expanded="openedSlug === glint.slug"
-        :aria-controls="`glint-body-${glint.id}`"
-        @click="toggle(glint.slug)"
-      >
-        <span class="glint__stamp" aria-hidden="true">{{ glint.emoji }}</span>
-        <span class="glint__copy">
-          <span class="glint__date">{{ dayLabel(glint.date) }}</span>
-          <strong>{{ glint.title }}</strong>
-          <span class="glint__summary">{{ glint.summary || glint.text }}</span>
-        </span>
-        <span class="glint__toggle" aria-hidden="true">{{ openedSlug === glint.slug ? '−' : '＋' }}</span>
-      </button>
-      <div v-show="openedSlug === glint.slug" :id="`glint-body-${glint.id}`" class="glint__body" v-html="glint.html"></div>
+      <span class="glint__head">
+        <button
+          type="button"
+          class="glint__toggle-hit"
+          :aria-expanded="openedSlug === glint.slug"
+          :aria-controls="`glint-body-${glint.id}`"
+          :aria-label="openedSlug === glint.slug ? `收起${glint.title}` : `展开${glint.title}`"
+          @click="toggle(glint.slug)"
+        >
+          <span class="glint__stamp" aria-hidden="true">{{ glint.emoji }}</span>
+          <span class="glint__copy">
+            <span class="glint__date">{{ dayLabel(glint.date) }}</span>
+            <strong>{{ glint.title }}</strong>
+            <span class="glint__summary">{{ glint.summary || glint.text }}</span>
+          </span>
+          <span class="glint__toggle" aria-hidden="true">{{ openedSlug === glint.slug ? '−' : '＋' }}</span>
+        </button>
+        <NuxtLink :to="glint.path || `/glints/${encodeURIComponent(glint.slug)}`" class="glint__open-page">单独看这条 ↗</NuxtLink>
+      </span>
+      <div v-show="openedSlug === glint.slug" :id="`glint-body-${glint.id}`" class="glint__body">
+        <div v-html="glint.html"></div>
+        <NuxtLink :to="glint.path || `/glints/${encodeURIComponent(glint.slug)}`" class="glint__permalink">
+          这条微光 <span aria-hidden="true">→</span>
+        </NuxtLink>
+      </div>
     </article>
   </div>
 </template>
@@ -109,10 +118,17 @@ const dayLabel = (value: string) => {
 
 .glint__head {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .35rem;
+  align-items: stretch;
+  padding: .18rem .35rem .18rem .18rem;
+}
+.glint__toggle-hit {
+  display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: .7rem;
   align-items: center;
-  width: 100%;
+  min-width: 0;
   padding: .62rem .8rem .62rem .7rem;
   border: 0;
   border-radius: inherit;
@@ -122,7 +138,10 @@ const dayLabel = (value: string) => {
   text-align: left;
   cursor: pointer;
 }
-.glint__head:focus-visible { outline: 3px solid rgba(185, 167, 255, .7); outline-offset: 2px; }
+.glint__toggle-hit:focus-visible { outline: 3px solid rgba(185, 167, 255, .7); outline-offset: 2px; }
+.glint__open-page { align-self: center; padding: .25rem .45rem; border-radius: 999px; color: var(--bs-ink-muted); font-size: .65rem; text-decoration: none; white-space: nowrap; transition: color var(--bs-dur-quick) ease, background var(--bs-dur-quick) ease; }
+.glint__open-page:hover { background: var(--bs-tint-yellow); color: var(--bs-accent-ink); }
+.glint__open-page:focus-visible { outline: 3px solid rgba(185, 167, 255, .7); outline-offset: 2px; }
 
 .glint__stamp {
   display: grid;
@@ -142,7 +161,7 @@ const dayLabel = (value: string) => {
 .glint__copy strong { overflow: hidden; color: var(--bs-ink); font-size: .9rem; font-weight: 600; line-height: 1.5; text-overflow: ellipsis; white-space: nowrap; }
 .glint__summary { overflow: hidden; color: var(--bs-ink-soft); font-size: .78rem; line-height: 1.6; text-overflow: ellipsis; white-space: nowrap; }
 .glint__toggle { color: var(--bs-ink-faint); font-size: .9rem; transition: transform var(--bs-dur-quick) var(--bs-ease-pop), color var(--bs-dur-quick) ease; }
-.glint__head:hover .glint__toggle { color: var(--bs-accent-ink); transform: rotate(90deg); }
+.glint__toggle-hit:hover .glint__toggle { color: var(--bs-accent-ink); transform: rotate(90deg); }
 
 .glint__body {
   padding: 0 1rem .85rem 3.45rem;
@@ -154,20 +173,46 @@ const dayLabel = (value: string) => {
 .glint__body :deep(p) { margin: 0 0 .55rem; }
 .glint__body :deep(p:last-child) { margin-bottom: 0; }
 
+.glint__permalink {
+  display: inline-flex;
+  gap: .3rem;
+  align-items: center;
+  margin-top: .45rem;
+  padding: .22rem .58rem;
+  border: 1px dashed var(--bs-border-accent);
+  border-radius: 999px;
+  background: var(--bs-tint-yellow);
+  color: var(--bs-accent-ink);
+  font-size: .72rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform var(--bs-dur-quick) var(--bs-ease-pop), background var(--bs-dur-quick) ease;
+}
+.glint__permalink span { transition: transform var(--bs-dur-quick) ease; }
+.glint__permalink:hover { background: var(--bs-tint-pink); transform: translateY(-2px) rotate(-.6deg); }
+.glint__permalink:hover span { transform: translateX(3px); }
+.glint__permalink:focus-visible { outline: 3px solid rgba(185, 167, 255, .7); outline-offset: 2px; }
+
 @keyframes glint-unfold {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: none; }
 }
 
 @media (max-width: 560px) {
+  .glint__head { grid-template-columns: minmax(0, 1fr); padding-right: .18rem; }
+  .glint__open-page { justify-self: end; margin: -.15rem .35rem .3rem 0; }
   .glint__summary { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .glint__body { padding-left: .9rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .glint, .glint__toggle { transition: none; }
   .glint__body { animation: none; }
+  .glint__permalink, .glint__permalink span, .glint__open-page { transition: none; }
 }
 html.bs-reduced-motion .glint,
 html.bs-reduced-motion .glint__toggle { transition: none; }
 html.bs-reduced-motion .glint__body { animation: none; }
+html.bs-reduced-motion .glint__permalink,
+html.bs-reduced-motion .glint__permalink span,
+html.bs-reduced-motion .glint__open-page { transition: none; }
 </style>

@@ -137,7 +137,7 @@ import { recentSiteSignals, signalLabel, trackSiteSignal, type SiteSignal } from
 
 interface CompassCommand {
   id: string;
-  kind: 'page' | 'article' | 'search' | 'random' | 'settings';
+  kind: 'page' | 'article' | 'glint' | 'search' | 'random' | 'settings';
   label: string;
   hint: string;
   emoji: string;
@@ -206,14 +206,14 @@ const pageCommands = computed<CompassCommand[]>(() => {
 });
 
 const articleCommands = computed<CompassCommand[]>(() => searchResults.value.map((article) => ({
-  id: `article-${article.id}`,
-  kind: 'article',
+  id: `${article.kind || 'article'}-${article.id}`,
+  kind: article.kind === 'glint' ? 'glint' : 'article',
   label: article.articleTitle,
-  hint: [article.category || '随笔', formatDate(article.createTime), excerptOf(article.articleContent, 38)]
+  hint: [article.kind === 'glint' ? '微光' : article.category || '随笔', formatDate(article.createTime), excerptOf(article.articleContent, 38)]
     .filter(Boolean)
     .join(' · '),
-  emoji: '📖',
-  to: `/article/${article.slug}`,
+  emoji: article.kind === 'glint' ? '🕯️' : '📖',
+  to: article.url || `/article/${article.slug}`,
 })));
 
 const searchCommand = computed<CompassCommand>(() => ({

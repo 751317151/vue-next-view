@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { siteConfig } from '../../src/config/site';
-import type { PublicGlint } from '../types/public';
+import { siteConfig } from '../../../src/config/site';
+import type { PublicGlint } from '../../types/public';
 
-const { data: glints } = await useAsyncData<PublicGlint[]>('public-glints', () => $fetch('/api/glints'));
+const { data: glints } = await useAsyncData<PublicGlint[]>(
+  'public-glints',
+  () => $fetch<PublicGlint[]>('/api/glints'),
+);
 
 useCollectionSeo({
   path: '/glints',
@@ -11,7 +14,7 @@ useCollectionSeo({
   items: () => (glints.value || []).map((glint) => ({
     articleTitle: glint.title,
     slug: glint.slug,
-    path: `/glints#${encodeURIComponent(glint.slug)}`,
+    path: glint.path || `/glints#${encodeURIComponent(glint.slug)}`,
   })),
 });
 

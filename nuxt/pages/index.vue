@@ -13,10 +13,10 @@ useHead({ link: [{ rel: 'preload', as: 'image', href: '/bg1.jpg', fetchpriority:
 useHead({ bodyAttrs: { class: 'bs-home' } });
 
 const [{ data: articles }, { data: categories }, { data: tags }, { data: glints }] = await Promise.all([
-  useAsyncData<PublicArticle[]>('public-articles', () => $fetch('/api/articles')),
-  useAsyncData<PublicCategory[]>('public-categories', () => $fetch('/api/categories')),
-  useAsyncData<PublicTag[]>('public-tags', () => $fetch('/api/tags')),
-  useAsyncData<PublicGlint[]>('public-glints', () => $fetch('/api/glints')),
+  useAsyncData<PublicArticle[]>('public-articles', () => $fetch<PublicArticle[]>('/api/articles')),
+  useAsyncData<PublicCategory[]>('public-categories', () => $fetch<PublicCategory[]>('/api/categories')),
+  useAsyncData<PublicTag[]>('public-tags', () => $fetch<PublicTag[]>('/api/tags')),
+  useAsyncData<PublicGlint[]>('public-glints', () => $fetch<PublicGlint[]>('/api/glints')),
 ]);
 
 const latest = computed(() => (articles.value || []).slice(0, 6));

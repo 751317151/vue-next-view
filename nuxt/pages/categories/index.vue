@@ -6,7 +6,10 @@ usePageSeo({
   title: `分类 | ${siteConfig.name}`,
   description: '按主题探索生活倒影中的技术文章。',
 });
-const { data: categories } = await useAsyncData<PublicCategory[]>('public-categories', () => $fetch('/api/categories'));
+const { data: categories } = await useAsyncData<PublicCategory[]>(
+  'public-categories',
+  () => $fetch<PublicCategory[]>('/api/categories'),
+);
 
 const totalArticles = computed(() => (categories.value || []).reduce((sum, item) => sum + (item.articleCount || 0), 0));
 

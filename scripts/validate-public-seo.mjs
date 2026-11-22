@@ -131,6 +131,12 @@ const badSitemapUrls = sitemapLocs.filter((loc) => !isHttpsUrl(loc));
 if (badSitemapUrls.length) {
   errors.push(`every sitemap.xml <loc> must be an absolute HTTPS URL, found: ${badSitemapUrls.slice(0, 3).join(', ')}`);
 }
+const glintDetailRoutes = sitemapLocs
+  .map((loc) => new URL(loc).pathname)
+  .filter((pathname) => pathname.startsWith('/glints/') && pathname !== '/glints/');
+if (!glintDetailRoutes.length) {
+  errors.push('sitemap.xml should include at least one permanent /glints/<slug> page');
+}
 
 // Check every link, not just whether one of them happens to be HTTPS.
 const rssLinks = [...rss.matchAll(/<link>([^<]*)<\/link>/g)].map((match) => match[1]);
@@ -143,6 +149,14 @@ if (badRssUrls.length) {
 }
 if (/Generated during deployment/i.test(rss)) {
   errors.push('rss.xml is still a placeholder');
+}
+const rssGlintLinks = rssLinks.filter((link) => new URL(link).pathname.startsWith('/glints/'));
+if (!rssGlintLinks.length) {
+  errors.push('rss.xml should link glints to their permanent /glints/<slug> pages');
+}
+const rssHashGlintLinks = rssGlintLinks.filter((link) => new URL(link).hash || /%23/i.test(link));
+if (rssHashGlintLinks.length) {
+  errors.push(`rss.xml glint links must use path slugs without hashes, found: ${rssHashGlintLinks.slice(0, 3).join(', ')}`);
 }
 
 if (!/^#\s+/m.test(llms)) {
@@ -217,6 +231,27 @@ if (articleFiles.length) {
   for (const property of ['og:title', 'og:image', 'article:published_time']) {
     const count = [...html.matchAll(new RegExp(`property="${property}"`, 'g'))].length;
     if (count > 1) errors.push(`${path.relative(dir, sample)} repeats ${property} ${count} times`);
+  }
+}
+
+// SWR 路由可能不预渲染微光详情；如果构建产物里存在详情页，则必须能直接从
+// HTML 识别为一条独立的 SocialMediaPosting。预渲染页不存在时仍有运行时
+// 详情路由，不能把“没生成静态文件”误判成“页面缺少结构化数据”。
+const glintDir = path.join(dir, 'glints');
+let glintFiles = [];
+try {
+  const entries = await fs.readdir(glintDir, { withFileTypes: true });
+  glintFiles = entries
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(glintDir, entry.name, 'index.html'));
+} catch {
+  glintFiles = [];
+}
+if (glintFiles.length) {
+  const sample = glintFiles[0];
+  const html = await fs.readFile(sample, 'utf8');
+  if (!/"@type"\s*:\s*"SocialMediaPosting"/.test(html)) {
+    errors.push(`${path.relative(dir, sample)} is missing SocialMediaPosting structured data`);
   }
 }
 

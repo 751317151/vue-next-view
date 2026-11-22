@@ -30,6 +30,15 @@ const siteStructuredData = computed(() => [
   },
   {
     '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    '@id': `${siteUrl}/glints#item-list`,
+    name: '微光',
+    description: '生活里值得记一笔的小事。',
+    url: `${siteUrl}/glints`,
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+  },
+  {
+    '@context': 'https://schema.org',
     '@type': 'Person',
     name: siteConfig.author,
     url: siteUrl || '/',

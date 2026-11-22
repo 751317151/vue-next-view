@@ -10,3 +10,10 @@ export interface PublicGlintRecord {
   date: string;
   emoji: string;
 }
+
+export interface PublicGlintWithPath extends PublicGlintRecord {
+  path: string;
+}
+
+/** 微光详情页的规范路径；列表锚点继续保留给旧链接。 */
+export const glintPath = (slug: string) => `/glints/${encodeURIComponent(slug)}`;

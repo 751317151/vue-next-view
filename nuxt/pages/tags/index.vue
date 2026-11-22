@@ -6,7 +6,10 @@ usePageSeo({
   title: `标签 | ${siteConfig.name}`,
   description: '通过标签发现相关的文章和灵感。',
 });
-const { data: tags } = await useAsyncData<PublicTag[]>('public-tags', () => $fetch('/api/tags'));
+const { data: tags } = await useAsyncData<PublicTag[]>(
+  'public-tags',
+  () => $fetch<PublicTag[]>('/api/tags'),
+);
 
 const sorted = computed(() => [...(tags.value || [])].sort((a, b) => (b.articleCount || 0) - (a.articleCount || 0)));
 const maxCount = computed(() => Math.max(1, ...sorted.value.map((tag) => tag.articleCount || 0)));

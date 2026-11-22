@@ -10,10 +10,15 @@ const pending = ref(false);
 const retrying = ref(false);
 const { data: results, status, error, refresh } = await useAsyncData<PublicSearchResult[]>(
   'search-results',
-  (_, { signal }) => query.value ? $fetch('/api/search', { query: { q: query.value }, signal }) : Promise.resolve([]),
+  (_, { signal }) => query.value
+    ? $fetch<PublicSearchResult[]>('/api/search', { query: { q: query.value }, signal })
+    : Promise.resolve([]),
   { watch: [query] },
 );
-const { data: tags } = await useAsyncData<PublicTag[]>('search-tags', () => $fetch('/api/tags'));
+const { data: tags } = await useAsyncData<PublicTag[]>(
+  'search-tags',
+  () => $fetch<PublicTag[]>('/api/tags'),
+);
 
 const isSearching = computed(() => pending.value || retrying.value || status.value === 'pending');
 // `showError` is a Nuxt auto-imported helper, so a local ref with the same

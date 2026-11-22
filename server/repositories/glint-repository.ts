@@ -103,3 +103,8 @@ export const listGlints = () => {
   cached = cached || loadGlints();
   return cached;
 };
+
+export const findGlintBySlug = async (slug: string) => {
+  const glints = await listGlints();
+  return glints.find((glint) => glint.slug === slug);
+};

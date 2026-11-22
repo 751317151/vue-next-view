@@ -3,9 +3,9 @@ import { siteConfig } from '../../src/config/site';
 import type { PublicArticle, PublicCategory, PublicTag } from '../types/public';
 
 const [{ data: articles }, { data: categories }, { data: tags }] = await Promise.all([
-  useAsyncData<PublicArticle[]>('explore-articles', () => $fetch('/api/articles')),
-  useAsyncData<PublicCategory[]>('explore-categories', () => $fetch('/api/categories')),
-  useAsyncData<PublicTag[]>('explore-tags', () => $fetch('/api/tags')),
+  useAsyncData<PublicArticle[]>('explore-articles', () => $fetch<PublicArticle[]>('/api/articles')),
+  useAsyncData<PublicCategory[]>('explore-categories', () => $fetch<PublicCategory[]>('/api/categories')),
+  useAsyncData<PublicTag[]>('explore-tags', () => $fetch<PublicTag[]>('/api/tags')),
 ]);
 
 // Must run after the async data above: the SEO getter reads `articles`, and
