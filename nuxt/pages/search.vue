@@ -61,10 +61,10 @@ useSeoMeta({
 </script>
 
 <template>
-  <MigrationPage eyebrow="SEARCH" :title="query ? `搜索「${query}」` : '搜索一颗灵感星星'" description="从文章标题、摘要、分类和标签中寻找你想继续探索的方向。">
+  <MigrationPage eyebrow="SEARCH" :title="query ? `搜索「${query}」` : '搜索一颗灵感星星'" description="">
     <form class="search-form" role="search" @submit.prevent="submitSearch">
       <input v-model="searchInput" type="search" name="q" placeholder="输入关键词，例如 Vue、生活、动画" aria-label="搜索关键词" />
-      <button type="submit" :disabled="isSearching">{{ isSearching ? '寻找中…' : '搜索 ✦' }}</button>
+      <button type="submit" :disabled="isSearching">{{ isSearching ? '寻找中…' : '搜索' }}</button>
     </form>
 
     <div :class="{ 'search-error': hasSearchError }">

@@ -44,7 +44,7 @@ useHead({
 </script>
 
 <template>
-  <MigrationPage eyebrow="CATEGORY" :title="currentCategory.categoryName" :description="currentCategory.description || '沿着这个主题继续探索。'">
+  <MigrationPage eyebrow="CATEGORY" :title="currentCategory.categoryName" :description="currentCategory.description || ''">
     <p class="collection-count">共 {{ relatedArticles.length }} 篇故事</p>
     <div v-if="relatedArticles.length" class="collection-grid">
       <ArticleCard v-for="article in relatedArticles" :key="article.id" :article="article" />

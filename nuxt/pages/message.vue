@@ -63,7 +63,7 @@ onMounted(() => {
     <MigrationPage
       eyebrow="MESSAGE"
       title="留一句话，挂在星星下。"
-      description="这里是一面温柔的留言墙。写下想说的话，它会替你记住此刻的心情。"
+      description=""
     >
       <div class="board">
       <form class="note-form" @submit.prevent="submit">

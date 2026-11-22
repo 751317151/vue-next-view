@@ -92,7 +92,6 @@ onMounted(hydrateReadingTrail);
         <div class="home__explore-copy">
           <p class="home__explore-kicker">STAR MAP · 灵感星图</p>
           <h2 id="home-explore-title">不知道读什么？让星星替你决定。</h2>
-          <p>沿着心情、年份和主题漫游，或者抽一封今日小笺。每一次点击，都可能遇见一篇刚刚好的旧文章。</p>
         </div>
         <NuxtLink to="/explore" class="home__explore-link">
           <span class="home__explore-orbit" aria-hidden="true"><i></i><i></i></span>
@@ -158,7 +157,6 @@ onMounted(hydrateReadingTrail);
 .home__explore-copy { position: relative; z-index: 1; }
 .home__explore-kicker { margin: 0; color: var(--bs-accent-ink); font-size: .7rem; letter-spacing: .16em; }
 .home__explore h2 { margin: .35rem 0 .4rem; color: var(--bs-ink); font-size: clamp(1.15rem, 2.6vw, 1.5rem); }
-.home__explore p { max-width: 36rem; margin: 0; color: var(--bs-ink-soft); font-size: .9rem; line-height: 1.75; }
 .home__explore-link { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .6rem; min-height: 3rem; padding: .55rem 1rem; border: 1.5px solid var(--bs-ink-line); border-radius: 999px; background: var(--bs-yellow); color: var(--bs-ink-on-accent); font-weight: 700; text-decoration: none; box-shadow: var(--bs-sticker-shadow); transition: transform var(--bs-dur-base) var(--bs-ease-pop), box-shadow var(--bs-dur-base) ease; }
 .home__explore-link b { color: inherit; }
 :root.bs-dark .home__explore { background: radial-gradient(circle at 88% 18%, rgba(255, 228, 138, .16), transparent 34%), linear-gradient(135deg, rgba(44, 35, 68, .82), rgba(33, 26, 54, .74)); }

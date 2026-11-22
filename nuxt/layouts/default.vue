@@ -1,6 +1,6 @@
 <template>
   <div class="site-shell" :class="{ 'site-shell--home': isHome }">
-    <a class="site-shell__skip" href="#main-content">跳到正文 ✦</a>
+    <a class="site-shell__skip" href="#main-content">跳到正文</a>
     <ClientOnly>
       <AmbientConstellation />
       <PointerGlow />
@@ -21,14 +21,14 @@
         <span>{{ siteConfig.author }}</span>
       </NuxtLink>
       <nav class="site-shell__desktop-nav" aria-label="主导航">
-        <NuxtLink to="/explore" class="site-shell__explore">漫游 ✦</NuxtLink>
+        <NuxtLink to="/explore" class="site-shell__explore">漫游</NuxtLink>
         <NuxtLink to="/archive">归档</NuxtLink>
         <NuxtLink to="/categories">分类</NuxtLink>
         <NuxtLink to="/tags">标签</NuxtLink>
-        <NuxtLink to="/desk" class="site-shell__desk">书桌 ✦</NuxtLink>
+        <NuxtLink to="/desk" class="site-shell__desk">书桌</NuxtLink>
         <NuxtLink to="/about">关于</NuxtLink>
         <NuxtLink to="/message">留言板</NuxtLink>
-        <NuxtLink to="/search" class="site-shell__search">搜索 ✦</NuxtLink>
+        <NuxtLink to="/search" class="site-shell__search">搜索</NuxtLink>
         <ThemeToggle />
       </nav>
       <div class="site-shell__actions">
@@ -45,7 +45,7 @@
           title="星海罗盘 · Ctrl+K / ⌘K"
           @click="openCompass()"
         >
-          <span class="site-shell__compass-glyph" aria-hidden="true">✦</span>
+          <span class="site-shell__compass-glyph" aria-hidden="true">⌖</span>
         </button>
         <button
           type="button"

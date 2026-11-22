@@ -38,7 +38,7 @@
         </header>
 
         <p v-if="!stars.length" class="star-jar__empty">
-          读到喜欢的文章时，点一下标题旁的星星，它就会落进这里，等你想再看的时候再打开。✦
+          点文章标题旁的星星，收藏会出现在这里。
         </p>
 
         <ul v-else class="star-jar__list">

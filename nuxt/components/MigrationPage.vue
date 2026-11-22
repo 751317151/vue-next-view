@@ -1,9 +1,11 @@
 <script setup lang="ts">
-defineProps<{
+withDefaults(defineProps<{
   eyebrow: string;
   title: string;
-  description: string;
-}>();
+  description?: string;
+}>(), {
+  description: '',
+});
 </script>
 
 <template>
@@ -20,7 +22,7 @@ defineProps<{
         {{ eyebrow }}
       </p>
       <h1>{{ title }}</h1>
-      <p class="migration-page__description">{{ description }}</p>
+      <p v-if="description" class="migration-page__description">{{ description }}</p>
       <span class="migration-page__squiggle" aria-hidden="true"></span>
     </header>
     <div class="migration-page__slot"><slot /></div>

@@ -32,7 +32,7 @@ const friendlyTitle = computed(() => {
     </p>
 
     <div class="nuxt-error-page__actions">
-      <button type="button" class="is-primary" @click="goHome">回到首页 ✦</button>
+      <button type="button" class="is-primary" @click="goHome">回到首页</button>
       <button type="button" class="is-ghost" @click="goBack">退回上一页</button>
     </div>
   </main>

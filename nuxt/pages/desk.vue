@@ -193,9 +193,6 @@ onBeforeUnmount(() => {
       </span>
       <p class="desk__eyebrow"><span aria-hidden="true">✦</span> MY DESK</p>
       <h1>你的书桌，<br /><em>只属于你。</em></h1>
-      <p class="desk__intro">
-        读过的段落、收好的故事、夹下的句子，都在这里。它们只存在这台设备上，不会被上传，也不会被谁打扰。
-      </p>
 
       <dl class="desk__stats">
         <div>
@@ -371,7 +368,7 @@ onBeforeUnmount(() => {
     </div>
 
     <footer class="desk__foot">
-      <p>✦ 这些记录只保存在你的浏览器里。换设备、清缓存就会消失，所以喜欢的句子可以导出带走。</p>
+      <p>记录只保存在这台设备上；清缓存前记得导出喜欢的句子。</p>
     </footer>
   </section>
 </template>

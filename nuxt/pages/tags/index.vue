@@ -21,7 +21,7 @@ const emojis = ['🍓', '🌙', '🍵', '✨', '🫧', '🌷', '⭐', '🧁', '�
 </script>
 
 <template>
-  <MigrationPage eyebrow="TAGS" title="给灵感贴一枚可爱的标签。" description="标签会把不同时间写下的想法重新连接起来。">
+  <MigrationPage eyebrow="TAGS" title="给灵感贴一枚可爱的标签。" description="">
     <div class="tag-cloud">
       <p class="tag-cloud__summary">
         <span aria-hidden="true">✦</span>

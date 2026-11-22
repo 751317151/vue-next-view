@@ -243,9 +243,6 @@ const selectedTags = computed(() => {
       </span>
       <p class="explore__eyebrow"><span aria-hidden="true">✦</span> STAR MAP</p>
       <h1>今晚，去一颗<br /><em>没读过的星星</em>那里。</h1>
-      <p class="explore__intro">
-        不用先决定要去哪。让心情、年份和一点运气，带你遇见下一篇刚刚好的故事。
-      </p>
       <div class="explore__quick">
         <button type="button" class="explore__draw" :disabled="!yearFiltered.length" @click="randomDraw">
           <span aria-hidden="true">{{ drawState === 'drawing' ? '✦' : '🎐' }}</span>
