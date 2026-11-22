@@ -4,6 +4,8 @@ import { siteConfig } from '../../src/config/site';
 interface CollectionItem {
   articleTitle: string;
   slug: string;
+  /** 非文章条目可显式给出站内路径，例如 `/glints#slug`。 */
+  path?: string;
 }
 
 interface CollectionSeoInput {
@@ -51,7 +53,7 @@ export const useCollectionSeo = (input: CollectionSeoInput) => {
           '@type': 'ListItem',
           position: index + 1,
           name: item.articleTitle,
-          url: absolute(`/article/${encodeURIComponent(item.slug)}`),
+          url: absolute(item.path ?? `/article/${encodeURIComponent(item.slug)}`),
         })),
       },
     };

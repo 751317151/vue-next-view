@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { siteConfig } from '../../src/config/site';
-import type { PublicArticle, PublicCategory, PublicTag } from '../types/public';
+import type { PublicArticle, PublicCategory, PublicGlint, PublicTag } from '../types/public';
 usePageSeo({
   path: '/',
   title: siteConfig.name,
@@ -12,10 +12,11 @@ useHead({ link: [{ rel: 'preload', as: 'image', href: '/bg1.jpg', fetchpriority:
 // 首页的 100svh 大图会盖住 body 的固定渐变，切到纯色底能省掉一层全屏合成。
 useHead({ bodyAttrs: { class: 'bs-home' } });
 
-const [{ data: articles }, { data: categories }, { data: tags }] = await Promise.all([
+const [{ data: articles }, { data: categories }, { data: tags }, { data: glints }] = await Promise.all([
   useAsyncData<PublicArticle[]>('public-articles', () => $fetch('/api/articles')),
   useAsyncData<PublicCategory[]>('public-categories', () => $fetch('/api/categories')),
   useAsyncData<PublicTag[]>('public-tags', () => $fetch('/api/tags')),
+  useAsyncData<PublicGlint[]>('public-glints', () => $fetch('/api/glints')),
 ]);
 
 const latest = computed(() => (articles.value || []).slice(0, 6));
@@ -70,6 +71,15 @@ onMounted(hydrateReadingTrail);
           <span class="home__continue-arrow" aria-hidden="true">→</span>
         </NuxtLink>
       </ClientOnly>
+
+      <!-- 微光：短记录比长文更适合日常更新，也让首页永远有新东西可读。 -->
+      <section v-if="glints?.length" class="home__glints" aria-labelledby="home-glints-title">
+        <div class="home__section-head">
+          <h2 id="home-glints-title">微光</h2>
+          <NuxtLink to="/glints">全部微光 →</NuxtLink>
+        </div>
+        <GlintStrip :glints="glints" :limit="3" />
+      </section>
 
       <section class="home__latest" aria-labelledby="latest-articles-title">
         <div class="home__section-head">
@@ -142,7 +152,10 @@ onMounted(hydrateReadingTrail);
 :root.bs-dark .home__continue-track { background: rgba(244, 236, 255, .16); }
 
 .home__latest, .home__paths { margin-top: 3.4rem; }
-.home__latest { margin-top: 0; }
+.home__latest { margin-top: 3.4rem; }
+.home__glints { margin-top: 0; padding: 1.1rem 1.15rem 1.2rem; border: 1px dashed rgba(255, 189, 138, .55); border-radius: 1.4rem; background: linear-gradient(140deg, rgba(255, 228, 138, .14), rgba(255, 240, 247, .36)); }
+:root.bs-dark .home__glints { border-color: rgba(255, 201, 155, .32); background: linear-gradient(140deg, rgba(255, 233, 160, .07), rgba(44, 35, 68, .5)); }
+.home__glints .home__section-head { margin-bottom: .7rem; }
 .home__section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 .home__section-head h2 { color: var(--bs-ink); }
 .home__section-head a { color: var(--bs-link); text-decoration: none; }

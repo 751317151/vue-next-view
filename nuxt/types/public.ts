@@ -43,3 +43,16 @@ export interface PublicSearchResult {
   category?: string;
   createTime: string;
 }
+
+/** 微光：比文章更轻的日常记录，必须能一眼读完。 */
+export interface PublicGlint {
+  id: number;
+  slug: string;
+  title: string;
+  body: string;
+  summary: string;
+  text: string;
+  html: string;
+  date: string;
+  emoji: string;
+}

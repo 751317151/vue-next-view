@@ -2,7 +2,6 @@
   <section class="constellation" aria-labelledby="constellation-title">
     <header class="constellation__head">
       <div>
-        <p class="constellation__kicker">YOUR NIGHT SKY</p>
         <h2 id="constellation-title">阅读星座</h2>
         <p class="constellation__sub">{{ subtitle }}</p>
       </div>
@@ -213,7 +212,6 @@ const releaseCategory = (event: PointerEvent | FocusEvent) => {
 <style scoped>
 .constellation { position: relative; padding: 1.05rem 1.1rem 1rem; border: 1px solid var(--bs-border-accent); border-radius: 1.4rem; background: var(--bs-paper-strong); box-shadow: var(--bs-shadow-soft); }
 .constellation__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: .4rem 1rem; }
-.constellation__kicker { margin: 0; color: var(--bs-accent-ink); font-size: .64rem; letter-spacing: .2em; }
 .constellation__head h2 { margin: .2rem 0 0; color: var(--bs-ink); font-size: 1.05rem; letter-spacing: .04em; }
 .constellation__sub { margin: .3rem 0 0; color: var(--bs-ink-muted); font-size: .76rem; line-height: 1.7; }
 .constellation__tally { margin: 0; color: var(--bs-ink-soft); font-size: .74rem; }

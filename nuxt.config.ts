@@ -126,11 +126,15 @@ export default defineNuxtConfig({
     '/api/messages/**': { cache: false },
   },
   nitro: {
-    serverAssets: [{ baseName: 'articles', dir: 'content/articles' }],
+    serverAssets: [
+      { baseName: 'articles', dir: 'content/articles' },
+      { baseName: 'glints', dir: 'content/glints' },
+    ],
     prerender: {
       routes: [
         '/',
         '/explore',
+        '/glints',
         '/archive',
         '/desk',
         '/categories',

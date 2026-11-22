@@ -19,7 +19,6 @@
           <div class="compass__brand">
             <span class="compass__rose" aria-hidden="true"><b>✦</b></span>
             <div>
-              <p class="compass__kicker">STAR COMPASS</p>
               <h2 id="compass-title">星海罗盘</h2>
             </div>
           </div>
@@ -109,7 +108,7 @@
         </div>
 
         <section v-if="footprint.length" class="compass__trail" aria-label="最近探索足迹">
-          <p class="compass__trail-label">RECENT TRAIL · 最近的足迹</p>
+          <p class="compass__trail-label">最近的足迹</p>
           <ol class="compass__trail-list">
             <li v-for="(step, stepIndex) in footprint" :key="`${step.at}-${stepIndex}`">
               <span aria-hidden="true">{{ stepIndex === 0 ? '✦' : '·' }}</span>
@@ -159,6 +158,7 @@ const emit = defineEmits<{ close: []; settings: [] }>();
 const PAGES = [
   { id: 'home', label: '首页', hint: '回到故事开始的地方', emoji: '🌙', to: '/', keywords: 'home index start 首页' },
   { id: 'explore', label: '灵感星图', hint: '让心情和运气带路', emoji: '🌠', to: '/explore', keywords: 'explore star map 漫游 星图 随机' },
+  { id: 'glints', label: '微光', hint: '生活里值得记一笔的小事', emoji: '🕯️', to: '/glints', keywords: 'glints micro moments 微光 日常 生活' },
   { id: 'archive', label: '归档', hint: '按时间翻阅所有故事', emoji: '📚', to: '/archive', keywords: 'archive timeline 归档 时间' },
   { id: 'categories', label: '分类', hint: '每间小房间的主题', emoji: '🏠', to: '/categories', keywords: 'categories 分类 目录' },
   { id: 'tags', label: '标签', hint: '灵感串起的小线索', emoji: '🏷️', to: '/tags', keywords: 'tags 标签' },
@@ -513,7 +513,6 @@ useFocusTrap(isOpen, panelEl, {
 .compass__rose { position: relative; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1.5px solid var(--bs-ink-line); border-radius: 50%; background: linear-gradient(135deg, var(--bs-yellow), var(--bs-pink) 58%, var(--bs-lilac)); color: var(--bs-ink-on-accent); box-shadow: var(--bs-sticker-shadow); transform: rotate(-7deg); }
 .compass__rose::before { position: absolute; inset: .3rem; border: 1px dashed rgba(57, 45, 79, .5); border-radius: 50%; content: ""; }
 .compass__rose b { position: relative; font-size: 1rem; line-height: 1; animation: compass-rose-spin 9s linear infinite; }
-.compass__kicker { margin: 0; color: var(--bs-accent-ink); font-size: .64rem; letter-spacing: .2em; }
 .compass__brand h2 { margin: .1rem 0 0; color: var(--bs-ink); font-size: 1.1rem; letter-spacing: .02em; }
 .compass__close { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--bs-ink-soft); font-size: 1.2rem; line-height: 1; cursor: pointer; transition: var(--bs-dur-quick) ease; }
 .compass__close:hover { background: var(--bs-tint-pink); color: var(--bs-ink); transform: rotate(90deg); }

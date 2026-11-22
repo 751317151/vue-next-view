@@ -69,6 +69,7 @@ const closeButton = ref<HTMLButtonElement | null>(null);
 
 const items = [
   { to: '/explore', label: '灵感漫游', hint: '让心情和运气带路', emoji: '🌠' },
+  { to: '/glints', label: '微光', hint: '生活里值得记一笔的小事', emoji: '🕯️' },
   { to: '/archive', label: '归档', hint: '按时间翻阅所有故事', emoji: '📚' },
   { to: '/categories', label: '分类', hint: '每间小房间的主题', emoji: '🏠' },
   { to: '/tags', label: '标签', hint: '灵感串起的小线索', emoji: '🏷️' },

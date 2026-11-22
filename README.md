@@ -59,11 +59,27 @@ summary: 一句话摘要
 缺少标题或日期、日期格式错误、slug / id 重复都会让构建直接失败，而不是让一篇
 坏文章悄悄以“今天”的日期上线。
 
+比文章更轻的日常记录写在 `content/glints/*.md`，同样由 Nitro serverAssets
+打包，会出现在首页、`/glints`、RSS、sitemap 和 llms.txt 里：
+
+```yaml
+---
+title: 傍晚沿着河边慢慢走       # 必填，同时用来生成锚点 slug
+summary: 一句话摘要             # 选填，列表和订阅源优先使用
+date: 2026-11-18               # 必填，YYYY-MM-DD
+emoji: 🌇                       # 选填，默认 ✦
+---
+```
+
+正文必填；日期晚于今天的微光不会提前公开。`/glints#slug` 可以直接定位并展开
+对应的一条。
+
 ## Nuxt public content boundary
 
 - `content/articles/`：真实的 Markdown 内容源。
+- `content/glints/`：微光短记录，和文章共用内容校验与构建失败策略。
 - `server/repositories/`：生产数据访问边界，读取 content layer，仅在内容目录为空时回退到种子数据。
-- `server/api/`：文章、分类、标签、搜索和健康检查接口。
+- `server/api/`：文章、微光、分类、标签、搜索和健康检查接口。
 - `server/routes/`：robots、Sitemap、RSS、llms.txt。
 - `src/seo/metadata.ts`：框架无关的文章 SEO 和 JSON-LD 契约。
 - `nuxt/pages/`：SSR 页面和内部链接结构。

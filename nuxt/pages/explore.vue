@@ -304,7 +304,7 @@ const selectedTags = computed(() => {
           <span class="explore__postcard-stamp" :style="articleArt(selected).style" aria-hidden="true">
             {{ articleArt(selected).emoji }}
           </span>
-          <p class="explore__kicker">PICKED STAR</p>
+          <p class="explore__kicker">今日拾到</p>
           <p class="explore__postcard-cat">{{ selected.category || '随笔' }} · {{ formatDate(selected.createTime) }}</p>
           <h2>{{ selected.articleTitle }}</h2>
           <p class="explore__postcard-blurb">{{ selected.summary || excerptOf(selected.articleContent, 110) }}</p>
@@ -328,7 +328,7 @@ const selectedTags = computed(() => {
     <Transition name="explore-letter">
       <section v-if="picked && drawnCard" class="explore__letter" aria-labelledby="letter-title">
         <div class="explore__letter-seal" aria-hidden="true">✦</div>
-        <p class="explore__kicker">TODAY'S LETTER · 今日小笺</p>
+        <p class="explore__kicker">今日小笺</p>
         <h2 id="letter-title">{{ picked.articleTitle }}</h2>
         <p class="explore__letter-meta">{{ picked.category || '随笔' }} · {{ formatDate(picked.createTime) }} · 约 {{ readingMinutes(picked.articleContent) }} 分钟</p>
         <p class="explore__letter-text">{{ picked.summary || excerptOf(picked.articleContent, 180) }}</p>

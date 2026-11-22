@@ -22,6 +22,7 @@
       </NuxtLink>
       <nav class="site-shell__desktop-nav" aria-label="主导航">
         <NuxtLink to="/explore" class="site-shell__explore">漫游</NuxtLink>
+        <NuxtLink to="/glints" class="site-shell__glints">微光</NuxtLink>
         <NuxtLink to="/archive">归档</NuxtLink>
         <NuxtLink to="/categories">分类</NuxtLink>
         <NuxtLink to="/tags">标签</NuxtLink>
@@ -90,6 +91,7 @@
         </div>
         <nav class="site-shell__footer-links" aria-label="页脚导航">
           <NuxtLink to="/explore">灵感星图</NuxtLink>
+          <NuxtLink to="/glints">微光</NuxtLink>
           <NuxtLink to="/archive">归档</NuxtLink>
           <NuxtLink to="/categories">分类</NuxtLink>
           <NuxtLink to="/tags">标签</NuxtLink>
@@ -308,6 +310,11 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
 .site-shell__header nav .site-shell__explore:hover, .site-shell__header nav .site-shell__explore.router-link-active { background: linear-gradient(135deg, rgba(255, 228, 138, .64), rgba(255, 143, 179, .3)); transform: rotate(0) translateY(-2px); }
 .site-shell__header nav .site-shell__desk { border: 1px dashed rgba(158, 230, 208, .75); background: rgba(158, 230, 208, .13); color: var(--bs-ink); font-weight: 600; }
 .site-shell__header nav .site-shell__desk:hover, .site-shell__header nav .site-shell__desk.router-link-active { background: rgba(158, 230, 208, .28); }
+/* 微光是轻内容入口：用一条手写的暖色下划线标出来，不额外加一个按钮。 */
+.site-shell__header nav .site-shell__glints { color: var(--bs-accent-ink); }
+.site-shell__header nav .site-shell__glints::after { opacity: .45; transform: scaleX(1); background: linear-gradient(90deg, var(--bs-peach), var(--bs-yellow)); }
+.site-shell__header nav .site-shell__glints:hover::after,
+.site-shell__header nav .site-shell__glints.router-link-active::after { opacity: 1; }
 
 .site-shell__actions { display: flex; align-items: center; gap: .4rem; }
 .site-shell__icon-btn { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; padding: 0; border: 1px solid var(--bs-hairline); border-radius: 50%; background: var(--bs-surface-soft); color: var(--bs-ink); font-size: 1rem; line-height: 1; cursor: pointer; transition: var(--bs-dur-quick) var(--bs-ease-pop); }

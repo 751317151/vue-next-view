@@ -1,6 +1,7 @@
 import { resolvePublicSiteUrl } from '../utils/site-url';
 import { articleRepository } from '../repositories/article-repository';
 import { articleSummary } from '../utils/article-summary';
+import { listGlints } from '../repositories/glint-repository';
 
 const escapeXml = (value: string) => value
   .replace(/&/g, '&amp;')
@@ -20,10 +21,11 @@ const rfc822 = (value: string) => {
 export default defineEventHandler(async (event) => {
   const siteUrl = resolvePublicSiteUrl(event);
   const articles = await articleRepository.list();
-  const latest = articles.reduce(
-    (current, article) => (article.updateTime || article.createTime) > current ? (article.updateTime || article.createTime) : current,
-    '',
-  );
+  const glints = await listGlints();
+  const latest = [
+    ...articles.map((article) => article.updateTime || article.createTime),
+    ...glints.map((glint) => glint.date),
+  ].reduce((current, date) => (date > current ? date : current), '');
   // A feed's channel date should describe the newest story, not the moment the
   // build happened; a rebuild without new content must not look like news.
   const channelDate = rfc822(latest || '2024-01-01');
@@ -37,6 +39,8 @@ export default defineEventHandler(async (event) => {
     .split('/')
     .map((segment) => encodeURIComponent(segment))
     .join('/')}`;
+  // hash 不能逐段编码，否则 `#` 会变成 `%23` 被当成路径。
+  const glintUrl = (slug: string) => `${siteUrl}/glints#${encodeURIComponent(slug)}`;
 
   const items = articles.map((article) => {
     const url = escapeXml(articleUrl(article.slug));
@@ -59,6 +63,24 @@ export default defineEventHandler(async (event) => {
     ].join('');
   }).join('\n');
 
+  // 微光也进订阅源：高频更新的短记录不该只有站内读者看得到。
+  const glintItems = glints.map((glint) => {
+    const url = escapeXml(glintUrl(glint.slug));
+    const description = escapeXml(glint.summary || glint.text.slice(0, 200));
+    return [
+      '<item>',
+      `<title>${escapeXml(`微光 · ${glint.title}`)}</title>`,
+      `<link>${url}</link>`,
+      `<guid isPermaLink="true">${url}</guid>`,
+      `<pubDate>${rfc822(glint.date)}</pubDate>`,
+      `<description>${description}</description>`,
+      `<content:encoded>${cdata(glint.html)}</content:encoded>`,
+      '<category>微光</category>',
+      '<dc:creator>BlackStar</dc:creator>',
+      '</item>',
+    ].join('');
+  }).join('\n');
+
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">',
@@ -70,7 +92,7 @@ export default defineEventHandler(async (event) => {
     '<language>zh-CN</language>',
     `<pubDate>${channelDate}</pubDate>`,
     `<lastBuildDate>${channelDate}</lastBuildDate>`,
-    items,
+    [items, glintItems].filter(Boolean).join('\n'),
     '</channel>',
     '</rss>',
   ].join('\n');

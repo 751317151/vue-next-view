@@ -2,6 +2,7 @@ import { resolvePublicSiteUrl } from '../utils/site-url';
 import { publicCategories, publicTags } from '../utils/public-taxonomy';
 import { articleRepository } from '../repositories/article-repository';
 import { articleSummary } from '../utils/article-summary';
+import { listGlints } from '../repositories/glint-repository';
 
 /**
  * llms.txt：给生成式引擎看的站点说明。
@@ -25,8 +26,11 @@ export default defineEventHandler(async (event) => {
     );
     return `${siteUrl}${segments.join('/')}`;
   };
+  // 微光用 hash 锚点定位条目；hash 不能逐段编码，否则 `#` 会变成 `%23`。
+  const glintUrl = (slug: string) => `${siteUrl}/glints#${encodeURIComponent(slug)}`;
 
   const articles = await articleRepository.list();
+  const glints = await listGlints();
   const categories = await publicCategories();
   const tags = await publicTags();
 
@@ -35,7 +39,7 @@ export default defineEventHandler(async (event) => {
     '',
     '> 一个温暖、有趣的个人博客，记录技术成长、前端实践和生活灵感。',
     '',
-    `作者 BlackStar。站内文章均为原创，欢迎在注明出处的前提下引用；引用时建议带上文章标题、作者和发布时间。共 ${articles.length} 篇。`,
+    `作者 BlackStar。站内文章与微光均为原创，欢迎在注明出处的前提下引用；引用时建议带上标题、作者和发布时间。共 ${articles.length} 篇文章、${glints.length} 则微光。`,
     '',
     '## 文章',
     '',
@@ -48,6 +52,15 @@ export default defineEventHandler(async (event) => {
     const note = summary && meta ? `${summary}（${meta}）` : summary || meta;
     const url = absoluteUrl(`/article/${article.slug}`);
     lines.push(note ? `- [${article.articleTitle}](${url}): ${note}` : `- [${article.articleTitle}](${url})`);
+  }
+
+  if (glints.length) {
+    lines.push('', '## 微光', '');
+    for (const glint of glints) {
+      const url = glintUrl(glint.slug);
+      const note = glint.summary || glint.text.slice(0, 90);
+      lines.push(`- [${glint.title}](${url}): ${note}（${glint.date}）`);
+    }
   }
 
   lines.push('', '## 分类', '');
@@ -66,6 +79,7 @@ export default defineEventHandler(async (event) => {
     '',
     `- [首页](${absoluteUrl('/')})`,
     `- [灵感星图](${absoluteUrl('/explore')}): 按心情、年份和主题漫游，或随机抽取一篇今日小笺`,
+    `- [微光](${absoluteUrl('/glints')}): 生活里值得记一笔的小事`,
     `- [归档](${absoluteUrl('/archive')}): 按时间排列的全部文章`,
     `- [分类](${absoluteUrl('/categories')})`,
     `- [标签](${absoluteUrl('/tags')})`,
