@@ -3,7 +3,7 @@
     ref="heroEl"
     class="home-hero"
     aria-label="欢迎来到 BlackStar 的博客"
-    @pointermove="onPointerMove"
+    @pointermove.passive="onPointerMove"
     @pointerleave="onPointerLeave"
   >
     <div class="home-hero__bg" :class="{ 'is-tracking': pointerTracking }" :style="{ '--progress': progress }" aria-hidden="true">
@@ -203,6 +203,8 @@ const refreshHitokoto = async () => {
  */
 const progress = ref(0.5);
 const pointerTracking = ref(false);
+let pointerFrame = 0;
+let pendingProgress = 0.5;
 
 const setProgress = (value: number) => {
   // Clamp so a fast flick cannot overshoot the ends of the ramp.
@@ -219,12 +221,25 @@ const onPointerMove = (event: PointerEvent) => {
   // without hugging the very edge of the screen.
   const ratio = (event.clientX - left) / width;
   pointerTracking.value = true;
-  setProgress((ratio - 0.1) / 0.8);
+  pendingProgress = Math.min(1, Math.max(0, (ratio - 0.1) / 0.8));
+  // Coalesce pointer updates to one style write per frame. Writing a reactive
+  // value on every raw pointermove forces Vue to patch three full-screen
+  // layers dozens of times per second, which is what made the hero feel sticky
+  // when a scroll started mid-gesture.
+  if (pointerFrame) return;
+  pointerFrame = window.requestAnimationFrame(() => {
+    progress.value = pendingProgress;
+    pointerFrame = 0;
+  });
 };
 
 /** Ease back to the middle image when the pointer leaves the hero. */
 const onPointerLeave = () => {
   pointerTracking.value = false;
+  if (pointerFrame) {
+    window.cancelAnimationFrame(pointerFrame);
+    pointerFrame = 0;
+  }
   setProgress(0.5);
 };
 
@@ -258,6 +273,7 @@ onBeforeUnmount(() => {
   quoteAnimation?.abort();
   quoteRequest?.abort();
   quoteRequest = undefined;
+  if (pointerFrame) window.cancelAnimationFrame(pointerFrame);
 });
 </script>
 
@@ -267,8 +283,11 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   width: 100vw;
-  height: min(86svh, 52rem);
-  min-height: 26rem;
+  /* Fill the first screen edge to edge. svh (not dvh) keeps the height stable
+     while mobile browser chrome collapses, so scrolling does not resize the
+     hero on every frame. */
+  height: 100svh;
+  min-height: 30rem;
   margin-inline: calc(50% - 50vw);
   overflow: hidden;
 }
@@ -292,7 +311,8 @@ onBeforeUnmount(() => {
   z-index: 1;
   background-position: center;
   background-size: cover;
-  will-change: opacity, transform;
+  will-change: transform;
+  transform: translateZ(0);
   transition: opacity var(--bs-dur-mid) var(--bs-ease-glide), transform var(--bs-dur-mid) var(--bs-ease-glide);
 }
 
@@ -334,16 +354,30 @@ onBeforeUnmount(() => {
   animation: hero-tint-drift 18s ease-in-out infinite;
 }
 
+/* Animate opacity only: scaling a blend-mode layer repaints the whole hero,
+   including all three photographs, and showed up as scroll jank. */
 @keyframes hero-tint-drift {
-  0%, 100% { opacity: .75; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
+  0%, 100% { opacity: .7; }
+  50% { opacity: .95; }
 }
 
-.home-hero__veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(57, 45, 79, .38), rgba(57, 45, 79, .1) 42%, rgba(57, 45, 79, .34)); }
+.home-hero__veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(37, 28, 54, .5), rgba(37, 28, 54, .16) 38%, rgba(37, 28, 54, .52)); }
 /* 渐变收口用主题 token，浅色/星空色随 bs-dark 一起切换。 */
 .home-hero__blend { position: absolute; inset: auto 0 0; height: 8.5rem; background: linear-gradient(180deg, transparent, var(--bs-blend-fade) 76%, var(--bs-page-bottom)); }
 
 .home-hero__content { position: relative; z-index: 1; display: grid; justify-items: center; gap: .45rem; padding: 2rem 1.2rem; color: #fffaf5; text-align: center; }
+/* 大图铺满后画面里有大片高明度区域，仅靠渐变遮罩文字会发灰。
+   在内容后面垫一层柔和的暗色晕影，保持插画完整，又让字始终读得清。 */
+.home-hero__content::before {
+  position: absolute;
+  inset: -2.5rem -3rem;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(29, 21, 44, .62), rgba(29, 21, 44, .3) 52%, transparent 74%);
+  filter: blur(10px);
+  content: "";
+  pointer-events: none;
+}
 
 /* The hero art is a bright anime illustration, so light glyphs on top read as
    indistinct blobs. A dark outline plus a warm tint keeps them legible over any
@@ -372,7 +406,7 @@ onBeforeUnmount(() => {
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 18px rgba(57, 45, 79, .55)) drop-shadow(0 0 2px rgba(255, 250, 245, .5));
+  filter: drop-shadow(0 3px 12px rgba(24, 16, 38, .85)) drop-shadow(0 0 2px rgba(255, 250, 245, .6));
   animation: hero-title-flow 9s linear infinite;
 }
 
@@ -388,7 +422,7 @@ onBeforeUnmount(() => {
 }
 @keyframes hero-caret-blink { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
 
-.home-hero__hitokoto { display: flex; align-items: center; gap: .55rem; max-width: 44rem; min-height: 2.6rem; margin: .8rem 0 0; padding: .5rem .6rem .5rem 1.1rem; border: 1px solid rgba(255, 250, 245, .35); border-radius: 1.1rem; background: rgba(57, 45, 79, .3); line-height: 1.75; text-shadow: 0 2px 10px rgba(57, 45, 79, .4); backdrop-filter: blur(8px); opacity: 0; transform: translateY(6px); transition: opacity var(--bs-dur-mid) ease, transform var(--bs-dur-mid) ease; }
+.home-hero__hitokoto { display: flex; align-items: center; gap: .55rem; max-width: 44rem; min-height: 2.6rem; margin: .8rem 0 0; padding: .5rem .6rem .5rem 1.1rem; border: 1px solid rgba(255, 250, 245, .38); border-radius: 1.1rem; background: rgba(43, 32, 62, .62); line-height: 1.75; text-shadow: 0 2px 10px rgba(37, 28, 54, .55); opacity: 0; transform: translateY(6px); transition: opacity var(--bs-dur-mid) ease, transform var(--bs-dur-mid) ease; }
 .home-hero__hitokoto.is-ready { opacity: 1; transform: none; }
 .home-hero__hitokoto-text { margin: 0; font-size: .92rem; }
 .home-hero__hitokoto-from { opacity: .85; }
@@ -402,7 +436,7 @@ onBeforeUnmount(() => {
 }
 @keyframes hero-refresh-spin { to { transform: rotate(360deg); } }
 
-.home-hero__scroll { position: absolute; bottom: 1.6rem; left: 50%; z-index: 1; display: grid; place-items: center; width: 2.7rem; height: 2.7rem; padding: 0; border: 1px solid rgba(255, 250, 245, .5); border-radius: 999px; background: rgba(255, 250, 245, .16); color: #fffaf5; font-size: 1.05rem; cursor: pointer; backdrop-filter: blur(8px); transform: translateX(-50%); transition: var(--bs-dur-quick) ease; }
+.home-hero__scroll { position: absolute; bottom: 1.6rem; left: 50%; z-index: 1; display: grid; place-items: center; width: 2.7rem; height: 2.7rem; padding: 0; border: 1px solid rgba(255, 250, 245, .5); border-radius: 999px; background: rgba(43, 32, 62, .42); color: #fffaf5; font-size: 1.05rem; cursor: pointer; transform: translateX(-50%); transition: var(--bs-dur-quick) ease; }
 .home-hero__scroll:hover { background: rgba(255, 143, 179, .38); transform: translateX(-50%) translateY(-3px); }
 @media (prefers-reduced-motion: no-preference) {
   .home-hero__scroll span { animation: hero-arrow-bounce 2.2s ease-in-out infinite; }

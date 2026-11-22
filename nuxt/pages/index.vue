@@ -9,6 +9,8 @@ usePageSeo({
 
 // The resting middle image is bg1 after swapping the left and middle artwork.
 useHead({ link: [{ rel: 'preload', as: 'image', href: '/bg1.jpg', fetchpriority: 'high' }] });
+// 首页的 100svh 大图会盖住 body 的固定渐变，切到纯色底能省掉一层全屏合成。
+useHead({ bodyAttrs: { class: 'bs-home' } });
 
 const [{ data: articles }, { data: categories }, { data: tags }] = await Promise.all([
   useAsyncData<PublicArticle[]>('public-articles', () => $fetch('/api/articles')),

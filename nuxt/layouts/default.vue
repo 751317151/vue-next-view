@@ -168,17 +168,29 @@ const headerTucked = ref(false);
 const scrolled = ref(false);
 let lastY = 0;
 let frame = 0;
+let downTravel = 0;
+let upTravel = 0;
 
 const onScroll = () => {
   if (frame) return;
   frame = window.requestAnimationFrame(() => {
     const y = window.scrollY;
-    scrolled.value = y > 12;
-    if (Math.abs(y - lastY) > 6) {
-      // Never tuck at the very top, and never while an overlay is open.
-      headerTucked.value = y > 120 && y > lastY && !drawerOpen.value && !settingsOpen.value;
-      lastY = y;
+    scrolled.value = y > 8;
+    const delta = y - lastY;
+    // Accumulate direction instead of comparing single frames: a slow phone
+    // scroll moves only 1–2px per frame, and a per-frame threshold would make
+    // the bar wait several hundred milliseconds before tucking.
+    if (delta > 0) {
+      downTravel += delta;
+      upTravel = 0;
+    } else if (delta < 0) {
+      upTravel -= delta;
+      downTravel = 0;
     }
+    if (y <= 16 || upTravel >= 4) headerTucked.value = false;
+    else if (downTravel >= 4) headerTucked.value = true;
+    if (drawerOpen.value || settingsOpen.value) headerTucked.value = false;
+    lastY = y;
     frame = 0;
   });
 };
@@ -250,10 +262,10 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
      reading as an empty strip. A subtle two-stop gradient plus a stronger
      opaque base gives the bar an edge to sit against. */
   background:
-    linear-gradient(135deg, rgba(255, 250, 245, .94), rgba(255, 240, 247, .88));
+    linear-gradient(135deg, rgba(255, 250, 245, .97), rgba(255, 240, 247, .95));
   box-shadow: 0 12px 40px rgba(95, 66, 118, .12), inset 0 1px 0 rgba(255, 255, 255, .7);
-  backdrop-filter: blur(20px) saturate(1.1);
-  transition: transform var(--bs-dur-mid) var(--bs-ease-glide), box-shadow var(--bs-dur-base) ease, background-color var(--bs-dur-base) ease;
+  will-change: transform;
+  transition: transform var(--bs-dur-base) var(--bs-ease-glide), box-shadow var(--bs-dur-base) ease, background-color var(--bs-dur-base) ease;
 }
 
 /* Scrolled a little: tighten the shadow so the bar separates from content. */
@@ -261,7 +273,7 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
 
 /* Dark theme needs its own fill; the light gradient above would glow. */
 :root.bs-dark .site-shell__header {
-  background: linear-gradient(135deg, rgba(48, 40, 64, .94), rgba(40, 33, 55, .9));
+  background: linear-gradient(135deg, rgba(48, 40, 64, .97), rgba(40, 33, 55, .95));
   box-shadow: 0 12px 40px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 :root.bs-dark .site-shell__header.is-scrolled { box-shadow: 0 16px 44px rgba(0, 0, 0, .48), inset 0 1px 0 rgba(255, 255, 255, .06); }
@@ -340,4 +352,5 @@ watch([drawerOpen, settingsOpen], ([drawer, sheet]) => {
 @media (prefers-reduced-motion: reduce) {
   .site-shell__header { transition: none; }
 }
+.site-shell__header.is-tucked { pointer-events: none; }
 </style>

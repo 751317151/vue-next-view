@@ -300,6 +300,28 @@ body {
   transition: color var(--bs-dur-mid) ease, background-color var(--bs-dur-mid) ease;
 }
 
+/*
+ * The full-height home hero has its own photograph and veil. A fixed,
+ * viewport-sized gradient on <body> would otherwise be composited behind a
+ * 100svh image layer on every scroll frame; a flat colour on that page lets
+ * the browser skip that paint. The hero's own fade hides the seam.
+ */
+body.bs-home {
+  background-color: var(--bs-page-bottom);
+  /* A document-scrolled halftone replaces the fixed gradient: it is painted
+     once instead of being recomposited under the hero on every scroll frame. */
+  background-image: var(--bs-halftone);
+  background-size: var(--bs-halftone-size);
+  background-attachment: scroll;
+}
+
+/* Fixed blurred orbs and a fixed masked screentone both force extra
+   compositing while the full-bleed cover photo scrolls. The photo already
+   carries the whole first screen, so skip them on the home route. */
+body.bs-home::before,
+body.bs-home::after,
+body.bs-home .site-shell.site-shell--home::before { display: none; }
+
 body::before,
 body::after {
   position: fixed;
