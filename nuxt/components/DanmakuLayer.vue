@@ -2,26 +2,33 @@
   <ClientOnly>
     <div v-if="preferred && messages.length" class="danmaku-layer" aria-hidden="true">
       <div class="danmaku-layer__stage" :class="{ 'is-paused': paused }">
-        <span
+        <div
           v-for="flight in flights"
           :key="flight.key"
-          class="danmaku-fly"
-          :class="{ 'is-paused': pausedFlight === flight.key }"
+          class="danmaku-track"
           :style="{
             top: `${flight.top}px`,
             '--flight-duration': `${flight.duration}ms`,
             '--flight-tilt': `${flight.tilt}deg`,
           }"
-          @animationend="removeFlight(flight.key)"
-          @pointerenter="holdPause(flight)"
-          @pointerleave="releasePause(flight.key)"
+          @pointermove="syncHoveredFlight"
+          @pointerleave="clearHoveredFlight"
         >
-          <span class="danmaku-pill" :style="{ background: flight.tint }">
-            <span class="danmaku-pill__face">{{ flight.emoji }}</span>
-            <span class="danmaku-pill__text">{{ flight.text }}</span>
-            <span class="danmaku-pill__name">{{ flight.name }}</span>
+          <span
+            :data-flight-key="flight.key"
+            class="danmaku-fly"
+            :class="{ 'is-paused': pausedFlight === flight.key }"
+            @animationend="removeFlight(flight.key)"
+            @pointerenter="holdPause(flight)"
+            @pointerleave="releasePause(flight.key)"
+          >
+            <span class="danmaku-pill" :style="{ background: flight.tint }">
+              <span class="danmaku-pill__face">{{ flight.emoji }}</span>
+              <span class="danmaku-pill__text">{{ flight.text }}</span>
+              <span class="danmaku-pill__name">{{ flight.name }}</span>
+            </span>
           </span>
-        </span>
+        </div>
       </div>
       <Transition name="danmaku-tip">
         <p v-if="pausedFlight !== null" class="danmaku-layer__tip">❚❚ 这条暂停啦 · 移开就继续</p>
@@ -88,6 +95,12 @@ const flights = ref<Flight[]>([]);
 const paused = ref(false);
 /** 只暂停指针下的这一条，不让整面弹幕墙停下。 */
 const pausedFlight = ref<number | null>(null);
+/**
+ * pointerenter 在弹幕动画移动时不一定可靠：弹幕可能先滑到指针下面，
+ * 而指针本身没有移动。pointermove 能捕捉这种“主动穿过指针”的情况，
+ * 并让暂停目标始终跟着当前指针真正悬停的那一条。
+ */
+const hoveredFlight = ref<number | null>(null);
 
 let cursor = 0;
 let sequence = 0;
@@ -243,6 +256,40 @@ const releasePause = (key: number) => {
   }, 160);
 };
 
+const syncHoveredFlight = (event: PointerEvent) => {
+  const track = event.currentTarget;
+  if (!(track instanceof HTMLElement)) return;
+  const pill = track.querySelector<HTMLElement>('.danmaku-pill');
+  const flightElement = track.querySelector<HTMLElement>('.danmaku-fly');
+  if (!pill || !flightElement) return;
+
+  // 轨道贯穿整屏；指针只有落在这条弹幕真正占据的矩形上时，才暂停它。
+  const rect = pill.getBoundingClientRect();
+  const overText = event.clientX >= rect.left
+    && event.clientX <= rect.right
+    && event.clientY >= rect.top
+    && event.clientY <= rect.bottom;
+  const key = Number(flightElement.dataset.flightKey);
+  const next = overText && Number.isInteger(key) ? key : null;
+  if (hoveredFlight.value === next) return;
+  applyHoveredFlight(next);
+};
+
+const clearHoveredFlight = () => {
+  applyHoveredFlight(null);
+};
+
+const applyHoveredFlight = (key: number | null) => {
+  if (hoveredFlight.value === key) return;
+  hoveredFlight.value = key;
+  if (key === null) {
+    if (pausedFlight.value !== null) releasePause(pausedFlight.value);
+    return;
+  }
+  const flight = flights.value.find((entry) => entry.key === key);
+  if (flight) holdPause(flight);
+};
+
 const syncFlights = () => {
   const key = pool.value.map((item) => item.id).join('|');
   if (key === lastMessagesKey) return;
@@ -255,6 +302,7 @@ const syncFlights = () => {
     pausedFlight.value = null;
     pausedLane = -1;
     pausedLaneRemaining = 0;
+    hoveredFlight.value = null;
     return;
   }
   // 新留言出现时先放一条，不必等下一个节拍。
@@ -312,7 +360,24 @@ watch(pool, syncFlights);
   overflow: hidden;
 }
 
-/* 每条弹幕的 left 是 100%：从容器右侧之外出发，完整滑过整屏。 */
+/*
+ * 每条弹幕各占一条贯穿屏幕的透明轨道。用整屏宽度承载动画，不会因为
+ * 弹幕自身较窄而在右侧提前出现；同时轨道可以持续接收 pointermove，
+ * 分辨当前指针真正落在哪一条文字上。
+ */
+.danmaku-track {
+  position: absolute;
+  left: 0;
+  width: 100vw;
+  height: 2.5rem;
+  /*
+   * 轨道只是用于接收弹幕冒泡上来的指针事件，本身必须透明可穿透；
+   * 否则整条横带会挡住下面的留言表单和按钮。
+   */
+  pointer-events: none;
+}
+
+/* 弹幕从轨道最右侧之外出发，完整滑过整屏。 */
 .danmaku-fly {
   position: absolute;
   left: 100%;
@@ -320,6 +385,7 @@ watch(pool, syncFlights);
   width: max-content;
   animation: danmaku-fly var(--flight-duration) linear forwards;
   will-change: transform;
+  pointer-events: auto;
 }
 
 .danmaku-layer__stage.is-paused .danmaku-fly {
