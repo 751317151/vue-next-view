@@ -75,6 +75,10 @@ emoji: 🌇                       # 选填，默认 ✦
 `/glints/<slug>`；旧的 `/glints#slug` 仍可直接定位并展开对应的一条。微光列表默认以「拾光年历」
 按月浏览，也可切换回完整的纸带清单。
 
+`/about` 的「创作年轮」同样不是手工维护的统计图：它直接从文章与微光的真实
+日期计算每月更新量、分类数和字数，`ProfilePage` 结构化数据也带同一组数字。
+新增内容、改日期或补一则微光后，年轮会跟着一起生长。
+
 ## Nuxt public content boundary
 
 - `content/articles/`：真实的 Markdown 内容源。
