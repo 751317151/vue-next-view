@@ -37,6 +37,8 @@ const crawlerRouteRules = Object.fromEntries(
 );
 
 export default defineNuxtConfig({
+  // Pinned so Nitro's runtime behaviour does not drift with each Nuxt release.
+  compatibilityDate: '2026-11-23',
   // Parallel migration mode: the Vite app is deployed separately while Nuxt
   // progressively takes over the public blog.
   srcDir: 'nuxt/',

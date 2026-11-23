@@ -72,7 +72,8 @@ emoji: 🌇                       # 选填，默认 ✦
 ```
 
 正文必填；日期晚于今天的微光不会提前公开。每条微光都有独立永久链接
-`/glints/<slug>`；旧的 `/glints#slug` 仍可直接定位并展开对应的一条。
+`/glints/<slug>`；旧的 `/glints#slug` 仍可直接定位并展开对应的一条。微光列表默认以「拾光年历」
+按月浏览，也可切换回完整的纸带清单。
 
 ## Nuxt public content boundary
 

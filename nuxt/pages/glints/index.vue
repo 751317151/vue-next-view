@@ -19,6 +19,7 @@ useCollectionSeo({
 });
 
 const total = computed(() => (glints.value || []).length);
+const view = ref<'calendar' | 'list'>('calendar');
 </script>
 
 <template>
@@ -34,7 +35,31 @@ const total = computed(() => (glints.value || []).length);
       <span class="glints-page__count">{{ total }} 则</span>
     </header>
 
-    <GlintStrip v-if="glints?.length" :glints="glints" :limit="999" />
+    <template v-if="glints?.length">
+      <div class="glints-page__view" role="group" aria-label="微光浏览方式">
+        <button
+          type="button"
+          class="glints-page__view-btn"
+          :class="{ 'is-active': view === 'calendar' }"
+          :aria-pressed="view === 'calendar'"
+          @click="view = 'calendar'"
+        >
+          <span aria-hidden="true">🗓</span> 拾光年历
+        </button>
+        <button
+          type="button"
+          class="glints-page__view-btn"
+          :class="{ 'is-active': view === 'list' }"
+          :aria-pressed="view === 'list'"
+          @click="view = 'list'"
+        >
+          <span aria-hidden="true">📜</span> 纸带清单
+        </button>
+      </div>
+
+      <GlintCalendar v-if="view === 'calendar'" :glints="glints" />
+      <GlintStrip v-else :glints="glints" :limit="999" />
+    </template>
     <p v-else class="glints-page__empty">第一束微光还在路上。</p>
   </div>
 </template>
@@ -75,6 +100,13 @@ const total = computed(() => (glints.value || []).length);
 .glints-page__lede { margin: .2rem 0 0; color: var(--bs-ink-soft); font-size: .88rem; line-height: 1.7; }
 .glints-page__count { flex: 0 0 auto; align-self: flex-start; padding: .1rem .5rem; border: 1px dashed var(--bs-border-accent); border-radius: 999px; color: var(--bs-accent-ink); font-size: .7rem; }
 .glints-page__empty { padding: 2rem 0; color: var(--bs-ink-muted); text-align: center; }
+
+/* 两种翻看方式：年历与纸带。选中像一枚被指甲轻轻按下的贴纸。 */
+.glints-page__view { display: inline-flex; gap: .25rem; margin-bottom: .85rem; padding: .22rem; border: 1px solid var(--bs-border); border-radius: 999px; background: var(--bs-surface-soft); }
+.glints-page__view-btn { display: inline-flex; gap: .3rem; align-items: center; padding: .32rem .7rem; border: 1px solid transparent; border-radius: 999px; background: transparent; color: var(--bs-ink-soft); font: inherit; font-size: .75rem; cursor: pointer; transition: transform var(--bs-dur-quick) var(--bs-ease-pop), background var(--bs-dur-quick) ease, color var(--bs-dur-quick) ease, border-color var(--bs-dur-quick) ease; }
+.glints-page__view-btn:hover { color: var(--bs-ink); transform: translateY(-1px); }
+.glints-page__view-btn.is-active { border-color: var(--bs-border-accent); background: var(--bs-tint-yellow); color: var(--bs-accent-ink); box-shadow: 1.5px 1.5px 0 var(--bs-ink-line); }
+.glints-page__view-btn:focus-visible { outline: 3px solid rgba(185, 167, 255, .72); outline-offset: 2px; }
 
 @media (max-width: 560px) {
   .glints-page { padding-top: 1rem; }
