@@ -16,6 +16,7 @@ const requiredFiles = [
   'nuxt/components/GlintStrip.vue',
   'nuxt/components/GlintCalendar.vue',
   'nuxt/components/GrowthRings.vue',
+  'nuxt/components/DeskFirstSteps.vue',
   'server/api/articles/index.get.ts',
   'server/api/articles/[slug].get.ts',
   'server/api/glints/index.get.ts',

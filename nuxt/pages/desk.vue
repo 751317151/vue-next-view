@@ -267,11 +267,7 @@ onBeforeUnmount(() => {
       <p v-if="!hydrated" class="desk__loading">正在点亮书桌…</p>
 
       <template v-else-if="shelf === 'trail'">
-        <p v-if="isEmpty" class="desk__empty">
-          <span aria-hidden="true">☾</span>
-          书桌还空着。随便翻开一篇文章，读过几段，它就会替你记住。
-          <NuxtLink to="/archive">去挑一篇 →</NuxtLink>
-        </p>
+        <DeskFirstSteps v-if="isEmpty" :shelf="shelf" @choose="shelf = $event" />
         <template v-else>
           <ReadingConstellation :items="trail" class="desk__constellation" />
 
@@ -318,11 +314,7 @@ onBeforeUnmount(() => {
       </template>
 
       <template v-else-if="shelf === 'stars'">
-        <p v-if="isEmpty" class="desk__empty">
-          <span aria-hidden="true">🫙</span>
-          星愿瓶还是空的。在文章标题旁点一下星星，它就住进来了。
-          <NuxtLink to="/explore">去星图看看 →</NuxtLink>
-        </p>
+        <DeskFirstSteps v-if="isEmpty" :shelf="shelf" @choose="shelf = $event" />
         <ul v-else class="desk__list">
           <li v-for="star in stars" :key="star.slug" class="desk__row">
             <NuxtLink :to="`/article/${encodeURIComponent(star.slug)}`" class="desk__row-link">
@@ -339,11 +331,7 @@ onBeforeUnmount(() => {
       </template>
 
       <template v-else>
-        <p v-if="isEmpty" class="desk__empty">
-          <span aria-hidden="true">❝</span>
-          还没有夹下任何句子。读到喜欢的那一句时，选中它就好。
-          <NuxtLink to="/archive">翻一篇文章 →</NuxtLink>
-        </p>
+        <DeskFirstSteps v-if="isEmpty" :shelf="shelf" @choose="shelf = $event" />
         <ul v-else class="desk__list">
           <li v-for="item in excerpts" :key="item.id" class="desk__row desk__row--quote">
             <div class="desk__quote-body">
