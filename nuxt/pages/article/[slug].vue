@@ -182,6 +182,131 @@ const copyText = async (value: string) => {
   }
 };
 
+/** 结尾分享小笺：把这篇文章做成一张可下载的手账纸，便于带走或转发。 */
+const shareCopied = ref(false);
+let shareCopiedTimer = 0;
+
+const articleUrl = computed(() => {
+  const base = (siteUrl || '').replace(/\/$/, '');
+  return `${base}/article/${encodeURIComponent(articleData.slug || slug)}`;
+});
+
+const shareText = computed(() => [
+  `《${articleData.articleTitle}》`,
+  seo.description,
+  articleUrl.value,
+].join('\n'));
+
+const shareDescription = computed(() => {
+  const value = (articleData.summary || articleData.articleContent || '').replace(/\s+/g, ' ').trim();
+  return value.length > 76 ? `${value.slice(0, 76)}…` : value;
+});
+
+/** 按画布上的真实文字宽度换行，避免中英混排时在单词中间截断。 */
+const wrapCanvasText = (
+  ctx: CanvasRenderingContext2D,
+  value: string,
+  maxWidth: number,
+  maxLines: number,
+) => {
+  const lines: string[] = [];
+  let line = '';
+  const tokens = value.match(/[\u3000-\u9fff]+|[^\s\u3000-\u9fff]+|\s+/g) || [];
+  for (const token of tokens) {
+    const next = `${line}${token}`;
+    if (!line || ctx.measureText(next).width <= maxWidth) {
+      line = next;
+      continue;
+    }
+    lines.push(line.trimEnd());
+    if (lines.length === maxLines - 1) break;
+    line = token.trimStart();
+  }
+  if (line && lines.length < maxLines) lines.push(line.trimEnd());
+  return lines;
+};
+
+const drawShareCard = () => {
+  const canvas = document.createElement('canvas');
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.round(1200 * ratio);
+  canvas.height = Math.round(630 * ratio);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.scale(ratio, ratio);
+
+  ctx.fillStyle = '#fff7f3';
+  ctx.fillRect(0, 0, 1200, 630);
+  ctx.fillStyle = 'rgba(255,228,138,.28)';
+  ctx.fillRect(0, 0, 1200, 6);
+  ctx.strokeStyle = 'rgba(185,167,255,.42)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(26, 26, 1148, 578);
+  ctx.strokeStyle = 'rgba(255,143,179,.34)';
+  ctx.setLineDash([9, 8]);
+  ctx.strokeRect(42, 42, 1116, 546);
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#b1768c';
+  ctx.font = '500 23px "LXGW WenKai", "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText(`${articleData.category || '随笔'} · ${formatDate(articleData.createTime)}`, 74, 118);
+
+  ctx.fillStyle = '#392d4f';
+  ctx.font = '700 55px "LXGW WenKai", "PingFang SC", "Microsoft YaHei", sans-serif';
+  const titleLines = wrapCanvasText(ctx, articleData.articleTitle, 1040, 3);
+  titleLines.forEach((line, index) => ctx.fillText(line, 74, 192 + index * 66));
+
+  ctx.fillStyle = '#5f506f';
+  ctx.font = '400 29px "LXGW WenKai", "PingFang SC", "Microsoft YaHei", sans-serif';
+  const bodyLines = wrapCanvasText(ctx, shareDescription.value, 1040, 3);
+  bodyLines.forEach((line, index) => ctx.fillText(line, 74, 390 + index * 44));
+
+  ctx.fillStyle = '#8f729c';
+  ctx.font = '500 26px "LXGW WenKai", "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText(`${siteConfig.author} · ${siteConfig.name}`, 74, 562);
+  ctx.textAlign = 'right';
+  ctx.fillText('生活倒影 ✧', 1126, 562);
+  ctx.textAlign = 'left';
+
+  return canvas;
+};
+
+const shareWithSystem = async () => {
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    try {
+      await navigator.share({ title: articleData.articleTitle, text: shareDescription.value, url: articleUrl.value });
+      return true;
+    } catch {
+      // 用户取消或浏览器拒绝时退回复制链接。
+    }
+  }
+  return false;
+};
+
+const shareArticle = async () => {
+  const shared = await shareWithSystem();
+  if (!shared) await copyText(shareText.value);
+};
+
+const downloadShareCard = () => {
+  const canvas = drawShareCard();
+  if (!canvas) return;
+  const url = canvas.toDataURL('image/png');
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${articleData.slug || slug}-share-card.png`;
+  link.click();
+};
+
+const copyShareLink = async () => {
+  await copyText(articleUrl.value);
+  shareCopied.value = true;
+  window.clearTimeout(shareCopiedTimer);
+  shareCopiedTimer = window.setTimeout(() => { shareCopied.value = false; }, 2200);
+};
+
+onBeforeUnmount(() => window.clearTimeout(shareCopiedTimer));
+
 const enhanceCodeBlocks = () => {
   document.querySelectorAll('.reading__body pre').forEach((pre) => {
     if (!(pre instanceof HTMLPreElement) || pre.querySelector('.code-copy')) return;
@@ -572,6 +697,19 @@ onBeforeUnmount(() => {
         <NuxtLink to="/desk" class="reading__finale-ghost">回书桌看看 ✦</NuxtLink>
         <NuxtLink to="/archive" class="reading__finale-ghost">再读一篇</NuxtLink>
       </div>
+
+      <div class="reading__share" aria-label="把这篇小笺带走">
+        <span class="reading__share-tape" aria-hidden="true"></span>
+        <p class="reading__share-kicker">这张小笺</p>
+        <p class="reading__share-text">它已经替你折好了这篇故事的标题、日期和链接。</p>
+        <div class="reading__share-actions">
+          <button type="button" class="reading__share-primary" @click="shareArticle">递给朋友 ➤</button>
+          <button type="button" @click="downloadShareCard">收下纸卡 ↓</button>
+          <button type="button" :class="{ 'is-done': shareCopied }" @click="copyShareLink">
+            {{ shareCopied ? '链接收好啦 ✦' : '只抄链接 ✂' }}
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- 阅读排版条：长文时把正文调成自己舒服的样子，偏好下次自动记住。 -->
@@ -764,6 +902,20 @@ onBeforeUnmount(() => {
 .reading__finale-actions .reading__finale-ghost { background: var(--bs-surface-strong); box-shadow: 0 10px 26px rgba(95,66,118,.1); }
 .reading__finale-actions button:hover, .reading__finale-actions a:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 0 14px 34px rgba(255,143,179,.28); }
 
+/* 读完后的纸卡：功能是分享，外观仍是一张可以夹进手账的小笺。 */
+.reading__share { position: relative; display: grid; justify-items: center; gap: .18rem; margin: 1.3rem auto 0; padding: 1rem 1.1rem .95rem; max-width: 34rem; border: 1px solid var(--bs-border-accent); border-radius: .35rem .9rem .9rem .35rem; background: var(--bs-paper-strong); box-shadow: var(--bs-shadow-soft); transform: rotate(-.25deg); transition: transform var(--bs-dur-base) var(--bs-ease-pop); }
+.reading__share:hover { transform: rotate(0); }
+.reading__share-tape { position: absolute; top: -.48rem; left: 1.8rem; width: 3.8rem; height: .9rem; background: rgba(255, 228, 138, .68); transform: rotate(-2deg); clip-path: polygon(3% 10%, 97% 0, 100% 88%, 2% 100%); }
+.reading__share-kicker { margin: 0; color: var(--bs-accent-ink); font-size: .68rem; letter-spacing: .14em; }
+.reading__share-text { margin: .1rem 0 0; color: var(--bs-ink-soft); font-size: .76rem; line-height: 1.65; }
+.reading__share-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .45rem; margin-top: .6rem; }
+.reading__share-actions button { min-height: 2.4rem; padding: .35rem .75rem; border: 1px dashed var(--bs-border-accent); border-radius: 999px; background: transparent; color: var(--bs-ink-soft); font-family: inherit; font-size: .76rem; cursor: pointer; transition: transform var(--bs-dur-quick) var(--bs-ease-pop), background var(--bs-dur-quick) ease, color var(--bs-dur-quick) ease; }
+.reading__share-actions button:hover { background: var(--bs-tint-yellow); color: var(--bs-ink); transform: translateY(-2px); }
+.reading__share-actions .reading__share-primary { border-style: solid; border-color: var(--bs-ink-line); background: var(--bs-yellow); color: var(--bs-ink-on-accent); font-weight: 700; box-shadow: 2px 2px 0 var(--bs-ink-line); }
+.reading__share-actions .reading__share-primary:hover { box-shadow: 4px 4px 0 var(--bs-ink-line); }
+.reading__share-actions button.is-done { border-color: var(--bs-pink); background: var(--bs-tint-pink); color: var(--bs-accent-ink); }
+.reading__share-actions button:focus-visible { outline: 3px solid rgba(185, 167, 255, .72); outline-offset: 2px; }
+
 /* 阅读排版条：轻量、不抢正文，只在文章末尾出现。 */
 .reading__comfort { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1.2rem; margin-top: 1.6rem; padding: .9rem 1.05rem; border: 1px solid var(--bs-hairline); border-radius: 1.1rem; background: var(--bs-surface-soft); }
 .reading__comfort-copy { display: flex; align-items: center; gap: .65rem; min-width: 0; }
@@ -824,4 +976,17 @@ html.bs-reduced-motion .reading__excerpt-toast { animation: none; }
 @media (max-width: 560px) { .reading__step { grid-template-columns: 1fr; } .reading__step-link.is-empty { display: none; } }
 
 @media (max-width: 640px) { .reading__next-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .reading__share { padding: 1rem .8rem .85rem; }
+  .reading__share-actions { display: grid; width: 100%; }
+  .reading__share-actions button { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading__share, .reading__share-actions button { transition: none; }
+  .reading__share:hover, .reading__share-actions button:hover { transform: none; }
+}
+html.bs-reduced-motion .reading__share,
+html.bs-reduced-motion .reading__share-actions button { transition: none; }
+html.bs-reduced-motion .reading__share:hover,
+html.bs-reduced-motion .reading__share-actions button:hover { transform: none; }
 </style>
