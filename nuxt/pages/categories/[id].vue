@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { siteConfig } from '../../../src/config/site';
-import type { PublicArticle, PublicCategory } from '../../types/public';
+import type { PublicArticle, PublicCategory, PublicTag } from '../../types/public';
 const route = useRoute();
 const id = String(route.params.id || '');
-const [{ data: category, error: categoryError }, { data: articles }] = await Promise.all([
+const [{ data: category, error: categoryError }, { data: articles }, { data: categories }, { data: tags }] = await Promise.all([
   useAsyncData<PublicCategory>(`category-${id}`, () => $fetch<PublicCategory>(`/api/categories/${encodeURIComponent(id)}`)),
   useAsyncData<PublicArticle[]>(`category-articles-${id}`, () => $fetch<PublicArticle[]>('/api/articles')),
+  useAsyncData<PublicCategory[]>('public-categories', () => $fetch<PublicCategory[]>('/api/categories')),
+  useAsyncData<PublicTag[]>('public-tags', () => $fetch<PublicTag[]>('/api/tags')),
 ]);
 if (categoryError.value || !category.value) throw createError({ statusCode: 404, statusMessage: '分类不存在' });
 const currentCategory = category.value;
@@ -17,6 +19,14 @@ if (id !== currentCategory.slug) {
 }
 
 const relatedArticles = computed(() => (articles.value || []).filter((article) => article.category === currentCategory.categoryName));
+const siblingRooms = computed(() => (categories.value || [])
+  .filter((entry) => entry.slug !== currentCategory.slug)
+  .map((entry) => ({
+    key: entry.id,
+    label: entry.categoryName,
+    to: `/categories/${encodeURIComponent(entry.slug)}`,
+    count: entry.articleCount || 0,
+  })));
 
 useCollectionSeo({
   path: `/categories/${currentCategory.slug}`,
@@ -45,17 +55,17 @@ useHead({
 
 <template>
   <MigrationPage :title="currentCategory.categoryName" description="">
-    <p class="collection-count">共 {{ relatedArticles.length }} 篇故事</p>
-    <div v-if="relatedArticles.length" class="collection-grid">
-      <ArticleCard v-for="article in relatedArticles" :key="article.id" :article="article" />
-    </div>
-    <p v-else class="collection-empty">这个房间还在等待第一篇故事。</p>
+    <TopicShelf
+      kind="category"
+      :title="currentCategory.categoryName"
+      :description="currentCategory.description || `这些故事都住在 ${currentCategory.categoryName} 这间小房间里。`"
+      :articles="relatedArticles"
+      :tags="tags || []"
+      :siblings="siblingRooms"
+    />
   </MigrationPage>
 </template>
 
 <style scoped>
-.collection-count { margin: 0 0 1rem; color: var(--bs-ink-muted); font-size: .88rem; }
-.collection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.collection-empty { color: var(--bs-ink-muted); }
-@media (max-width: 640px) { .collection-grid { grid-template-columns: 1fr; } }
+/* 内容层次由 TopicShelf 维护；这里只保留页面级的外壳。 */
 </style>

@@ -3,9 +3,10 @@ import { siteConfig } from '../../../src/config/site';
 import type { PublicArticle, PublicTag } from '../../types/public';
 const route = useRoute();
 const id = String(route.params.id || '');
-const [{ data: tag, error: tagError }, { data: articles }] = await Promise.all([
+const [{ data: tag, error: tagError }, { data: articles }, { data: allTags }] = await Promise.all([
   useAsyncData<PublicTag>(`tag-${id}`, () => $fetch<PublicTag>(`/api/tags/${encodeURIComponent(id)}`)),
   useAsyncData<PublicArticle[]>(`tag-articles-${id}`, () => $fetch<PublicArticle[]>('/api/articles')),
+  useAsyncData<PublicTag[]>('public-tags', () => $fetch<PublicTag[]>('/api/tags')),
 ]);
 if (tagError.value || !tag.value) throw createError({ statusCode: 404, statusMessage: '标签不存在' });
 const currentTag = tag.value;
@@ -17,6 +18,14 @@ if (id !== currentTag.slug) {
 }
 
 const relatedArticles = computed(() => (articles.value || []).filter((article) => article.tags?.includes(currentTag.tagName)));
+const siblingTags = computed(() => (allTags.value || [])
+  .filter((entry) => entry.slug !== currentTag.slug)
+  .map((entry) => ({
+    key: entry.id,
+    label: `#${entry.tagName}`,
+    to: `/tags/${encodeURIComponent(entry.slug)}`,
+    count: entry.articleCount || 0,
+  })));
 
 useCollectionSeo({
   path: `/tags/${currentTag.slug}`,
@@ -45,17 +54,17 @@ useHead({
 
 <template>
   <MigrationPage :title="`#${currentTag.tagName}`" description="">
-    <p class="collection-count">共 {{ relatedArticles.length }} 篇故事</p>
-    <div v-if="relatedArticles.length" class="collection-grid">
-      <ArticleCard v-for="article in relatedArticles" :key="article.id" :article="article" />
-    </div>
-    <p v-else class="collection-empty">这个标签还在等待第一篇故事。</p>
+    <TopicShelf
+      kind="tag"
+      :title="`#${currentTag.tagName}`"
+      :description="`这些故事都在这里留下了 #${currentTag.tagName} 的记号。`"
+      :articles="relatedArticles"
+      :tags="allTags || []"
+      :siblings="siblingTags"
+    />
   </MigrationPage>
 </template>
 
 <style scoped>
-.collection-count { margin: 0 0 1rem; color: var(--bs-ink-muted); font-size: .88rem; }
-.collection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.collection-empty { color: var(--bs-ink-muted); }
-@media (max-width: 640px) { .collection-grid { grid-template-columns: 1fr; } }
+/* 内容层次由 TopicShelf 维护；这里只保留页面级的外壳。 */
 </style>
