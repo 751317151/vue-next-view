@@ -3,10 +3,16 @@
     ref="heroEl"
     class="home-hero"
     aria-label="欢迎来到 BlackStar 的博客"
+    @pointerenter="onPointerEnter"
     @pointermove.passive="onPointerMove"
     @pointerleave="onPointerLeave"
   >
-    <div class="home-hero__bg" :class="{ 'is-tracking': pointerTracking }" :style="{ '--progress': progress }" aria-hidden="true">
+    <div
+      class="home-hero__bg"
+      :class="{ 'is-tracking': pointerTracking }"
+      :style="{ '--progress': progress, '--hero-shift': heroShift }"
+      aria-hidden="true"
+    >
       <!-- Keep the middle image beneath both side layers. Pointer position
            controls each side's opacity and travel, so pausing mid-gesture
            preserves the overlap instead of completing a timed image switch. -->
@@ -175,42 +181,61 @@ const refreshHitokoto = async () => {
 };
 
 /**
- * Pointer position drives a single `--progress` value, and every layer's opacity
- * derives from it. The mapping is absolute (position across the hero), not
- * relative to where the pointer entered: a relative mapping saturates after a
- * short travel and the later part of the gesture then does nothing.
- *
- * The usable band is deliberately narrower than the hero, so reaching a side
- * image happens before the pointer leaves the section.
+ * 鼠标“从屏幕外落到左侧/右侧”时，第一帧本身不是移动。画面必须先停在中间图，
+ * 等指针相对进入点产生一小段横向位移后，才沿着方向和距离逐渐揭开侧图。
  */
 const progress = ref(0.5);
+const heroShift = ref(0);
 const pointerTracking = ref(false);
+const MOVE_THRESHOLD = 4;
+let pointerEntryX = 0;
+let pointerEntryY = 0;
+let pointerArmed = false;
 let pointerFrame = 0;
-let pendingProgress = 0.5;
+let pendingShift = 0;
 
 const setProgress = (value: number) => {
   // Clamp so a fast flick cannot overshoot the ends of the ramp.
   progress.value = Math.min(1, Math.max(0, value));
 };
 
+const applyShift = (shift: number) => {
+  heroShift.value = shift;
+  setProgress(0.5 + shift / 2);
+};
+
+const onPointerEnter = (event: PointerEvent) => {
+  if (event.pointerType === 'touch' || prefersReducedMotion()) return;
+  // 从页面外/导航栏进入时，以进入点为本次手势原点；此时绝不按绝对横坐标换图。
+  pointerEntryX = event.clientX;
+  pointerEntryY = event.clientY;
+  pointerArmed = false;
+  pointerTracking.value = false;
+  applyShift(0);
+};
+
 const onPointerMove = (event: PointerEvent) => {
   if (event.pointerType === 'touch' || prefersReducedMotion()) return;
-  const hero = heroEl.value;
-  if (!hero) return;
-  const { left, width } = hero.getBoundingClientRect();
-  if (width <= 0) return;
-  // Map the inner 80% of the width onto 0..1 so both extremes are reachable
-  // without hugging the very edge of the screen.
-  const ratio = (event.clientX - left) / width;
+  const distanceX = event.clientX - pointerEntryX;
+  const distanceY = event.clientY - pointerEntryY;
+  if (!pointerArmed) {
+    if (Math.hypot(distanceX, distanceY) < MOVE_THRESHOLD) return;
+    pointerArmed = true;
+  }
+  const heroWidth = heroEl.value?.getBoundingClientRect().width || window.innerWidth;
+  if (heroWidth <= 0) return;
+  const travel = Math.min(heroWidth * 0.32, 420);
+  // 相对进入点计算位移，鼠标停住时画面也停住；越过阈值后从极轻的偏移开始过渡。
+  const next = Math.min(1, Math.max(-1, distanceX / travel));
   pointerTracking.value = true;
-  pendingProgress = Math.min(1, Math.max(0, (ratio - 0.1) / 0.8));
+  pendingShift = next;
   // Coalesce pointer updates to one style write per frame. Writing a reactive
   // value on every raw pointermove forces Vue to patch three full-screen
   // layers dozens of times per second, which is what made the hero feel sticky
   // when a scroll started mid-gesture.
   if (pointerFrame) return;
   pointerFrame = window.requestAnimationFrame(() => {
-    progress.value = pendingProgress;
+    applyShift(pendingShift);
     pointerFrame = 0;
   });
 };
@@ -218,11 +243,12 @@ const onPointerMove = (event: PointerEvent) => {
 /** Ease back to the middle image when the pointer leaves the hero. */
 const onPointerLeave = () => {
   pointerTracking.value = false;
+  pointerArmed = false;
   if (pointerFrame) {
     window.cancelAnimationFrame(pointerFrame);
     pointerFrame = 0;
   }
-  setProgress(0.5);
+  applyShift(0);
 };
 
 const scrollToContent = () => {
@@ -276,6 +302,7 @@ onBeforeUnmount(() => {
   --progress: 0.5;
   --left-reveal: clamp(0, (0.5 - var(--progress)) * 2, 1);
   --right-reveal: clamp(0, (var(--progress) - 0.5) * 2, 1);
+  --hero-shift: 0;
   --hero-travel: clamp(32px, 5vw, 72px);
 }
 
@@ -303,6 +330,8 @@ onBeforeUnmount(() => {
 .home-hero__bg-layer--2 {
   z-index: 0;
   opacity: 1;
+  /* 中间图也吃同一份位移：向左偏时向左轻移，向右偏时向右轻移。 */
+  transform: translateX(calc(var(--hero-shift) * var(--hero-travel) * -.64));
 }
 
 .home-hero__bg-layer--3 {
